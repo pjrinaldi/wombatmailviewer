@@ -9,11 +9,11 @@ WombatMail::WombatMail(QWidget* parent) : QMainWindow(parent), ui(new Ui::Wombat
     this->menuBar()->hide();
     statuslabel = new QLabel(this);
     this->statusBar()->addPermanentWidget(statuslabel, 0);
-    StatusUpdate("Open a Hive to Begin");
+    StatusUpdate("Open a Mail Box to Begin");
     ui->tablewidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->tablewidget->setHorizontalHeaderLabels({"Tag", "Value Name", "Value Type"});
-    //connect(ui->treewidget, SIGNAL(itemSelectionChanged()), this, SLOT(KeySelected()), Qt::DirectConnection);
-    //connect(ui->tablewidget, SIGNAL(itemSelectionChanged()), this, SLOT(ValueSelected()), Qt::DirectConnection);
+    ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "Date Time", "Subject"});
+    connect(ui->treewidget, SIGNAL(itemSelectionChanged()), this, SLOT(MailBoxSelected()), Qt::DirectConnection);
+    connect(ui->tablewidget, SIGNAL(itemSelectionChanged()), this, SLOT(MailItemSelected()), Qt::DirectConnection);
     connect(ui->actionOpenMailBox, SIGNAL(triggered()), this, SLOT(OpenMailBox()), Qt::DirectConnection);
     connect(ui->actionManageTags, SIGNAL(triggered()), this, SLOT(ManageTags()), Qt::DirectConnection);
     connect(ui->actionPreviewReport, SIGNAL(triggered()), this, SLOT(PreviewReport()), Qt::DirectConnection);
@@ -21,11 +21,11 @@ WombatMail::WombatMail(QWidget* parent) : QMainWindow(parent), ui(new Ui::Wombat
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(ShowAbout()), Qt::DirectConnection);
     // initialize temp directory for html code...
     QDir tmpdir;
-    tmpdir.mkpath(QDir::tempPath() + "/wr");
-    tmpdir.mkpath(QDir::tempPath() + "/wr/tagged");
+    tmpdir.mkpath(QDir::tempPath() + "/wm");
+    tmpdir.mkpath(QDir::tempPath() + "/wm/tagged");
     // initialize Preview Report HTML code
     prehtml = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'></head><body style='" + ReturnCssString(0) + "'>\n";
-    prehtml += "<div style='" + ReturnCssString(1) + "'><h1><span id='casename'>Registry Report</span></h1></div>\n";
+    prehtml += "<div style='" + ReturnCssString(1) + "'><h1><span id='casename'>MailBox Report</span></h1></div>\n";
     psthtml = "</body></html>";
 
     tags.clear();
@@ -49,7 +49,7 @@ void WombatMail::OpenMailBox()
 {
     if(prevhivepath.isEmpty())
 	prevhivepath = QDir::homePath();
-    QFileDialog openhivedialog(this, tr("Open Registry Hive"), prevhivepath);
+    QFileDialog openhivedialog(this, tr("Open Mail Box"), prevhivepath);
     openhivedialog.setLabelText(QFileDialog::Accept, "Open");
     if(openhivedialog.exec())
     {
@@ -61,13 +61,15 @@ void WombatMail::OpenMailBox()
             hivefile.open(QIODevice::ReadOnly);
         if(hivefile.isOpen())
         {
-            hivefile.seek(0);
-            uint32_t hiveheader = qFromBigEndian<uint32_t>(hivefile.read(4));
+            //hivefile.seek(0);
+            //uint32_t hiveheader = qFromBigEndian<uint32_t>(hivefile.read(4));
+            /*
             if(hiveheader == 0x72656766) // valid "regf" header
             {
                 //LoadRegistryFile();
-                StatusUpdate("Hive: " + openhivedialog.selectedFiles().first() + " successfully opened.");
+                StatusUpdate("Mail Box: " + openhivedialog.selectedFiles().first() + " successfully opened.");
             }
+            */
 	    hivefile.close();
         }
     }
@@ -242,6 +244,16 @@ void WombatMail::RemoveTag()
         if(taggeditems.at(i).contains(idkeyvalue))
             taggeditems.removeAt(i);
     }
+}
+
+void WombatMail::MailBoxSelected(void)
+{
+    qDebug() << "populate mail items here...";
+}
+
+void WombatMail::MailItemSelected(void)
+{
+    qDebug() << "populate contents for selected mail item...";
 }
 
 /*

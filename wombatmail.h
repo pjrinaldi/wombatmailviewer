@@ -42,6 +42,8 @@ private slots:
     void PreviewReport(void);
     void PublishReport(void);
     void ShowAbout(void);
+    void MailBoxSelected(void);
+    void MailItemSelected(void);
     //void KeySelected(void);
     //void ValueSelected(void);
     void TagMenu(const QPoint &point);

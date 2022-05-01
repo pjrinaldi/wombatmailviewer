@@ -70,7 +70,7 @@
          <enum>QAbstractItemView::SelectRows</enum>
         </property>
         <property name="columnCount">
-         <number>3</number>
+         <number>5</number>
         </property>
         <attribute name="horizontalHeaderCascadingSectionResizes">
          <bool>true</bool>
@@ -81,6 +81,8 @@
         <attribute name="verticalHeaderVisible">
          <bool>false</bool>
         </attribute>
+        <column/>
+        <column/>
         <column/>
         <column/>
         <column/>

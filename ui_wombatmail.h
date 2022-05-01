@@ -105,12 +105,12 @@ public:
         splitter->setSizePolicy(sizePolicy);
         splitter->setOrientation(Qt::Vertical);
         tablewidget = new QTableWidget(splitter);
-        if (tablewidget->columnCount() < 3)
-            tablewidget->setColumnCount(3);
+        if (tablewidget->columnCount() < 5)
+            tablewidget->setColumnCount(5);
         tablewidget->setObjectName(QString::fromUtf8("tablewidget"));
         tablewidget->setAlternatingRowColors(true);
         tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        tablewidget->setColumnCount(3);
+        tablewidget->setColumnCount(5);
         splitter->addWidget(tablewidget);
         tablewidget->horizontalHeader()->setCascadingSectionResizes(true);
         tablewidget->horizontalHeader()->setStretchLastSection(true);
