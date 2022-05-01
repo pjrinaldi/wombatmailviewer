@@ -1,5 +1,5 @@
-#ifndef WOMBATREGISTRY_H
-#define WOMBATREGISTRY_H
+#ifndef WOMBATMAIL_H
+#define WOMBATMAIN_H
 
 // Copyright 2022-2022 Pasquale J. Rinaldi, Jr.
 // Distrubted under the terms of the GNU General Public License version 2
@@ -11,11 +11,11 @@
 #include <QDateTime>
 #include <QTimeZone>
 #include <QDirIterator>
-#include "ui_wombatregistry.h"
+#include "ui_wombatmail.h"
 #include "tagmanager.h"
 #include "htmlviewer.h"
 #include "aboutbox.h"
-#include "libregf.h"
+#include "libpff.h"
 #include "cssstrings.h"
 
 #define TICKS_PER_SECOND 10000000
@@ -24,26 +24,26 @@
 
 namespace Ui
 {
-    class WombatRegistry;
+    class WombatMail;
 }
 
-class WombatRegistry : public QMainWindow
+class WombatMail : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit WombatRegistry(QWidget* parent = 0);
-    ~WombatRegistry();
-    void LoadRegistryFile(void);
+    explicit WombatMail(QWidget* parent = 0);
+    ~WombatMail();
+    //void LoadRegistryFile(void);
 
 private slots:
-    void OpenHive(void);
+    void OpenMailBox(void);
     void ManageTags(void);
     void PreviewReport(void);
     void PublishReport(void);
     void ShowAbout(void);
-    void KeySelected(void);
-    void ValueSelected(void);
+    //void KeySelected(void);
+    //void ValueSelected(void);
     void TagMenu(const QPoint &point);
     void SetTag(void);
     void CreateNewTag(void);
@@ -58,12 +58,12 @@ protected:
     void closeEvent(QCloseEvent* event);
 
 private:
-    Ui::WombatRegistry* ui;
+    Ui::WombatMail* ui;
     QLabel* statuslabel;
     QString hivefilepath;
     QString prevhivepath;
     QFile hivefile;
-    void PopulateChildKeys(libregf_key_t* curkey, QTreeWidgetItem* curitem, libregf_error_t* curerr);
+    //void PopulateChildKeys(libregf_key_t* curkey, QTreeWidgetItem* curitem, libregf_error_t* curerr);
     QString DecryptRot13(QString encstr);
     QChar Rot13Char(QChar curchar);
     QString ConvertUnixTimeToString(uint32_t input);
@@ -83,4 +83,4 @@ private:
     QStringList hives;
 };
 
-#endif // WOMBATREGISTRY_H
+#endif // WOMBATMAIL_H

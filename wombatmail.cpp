@@ -1,9 +1,9 @@
-#include "wombatregistry.h"
+#include "wombatmail.h"
 
 // Copyright 2013-2020 Pasquale J. Rinaldi, Jr.
 // Distrubted under the terms of the GNU General Public License version 2
 
-WombatRegistry::WombatRegistry(QWidget* parent) : QMainWindow(parent), ui(new Ui::WombatRegistry)
+WombatMail::WombatMail(QWidget* parent) : QMainWindow(parent), ui(new Ui::WombatMail)
 {
     ui->setupUi(this);
     this->menuBar()->hide();
@@ -12,9 +12,9 @@ WombatRegistry::WombatRegistry(QWidget* parent) : QMainWindow(parent), ui(new Ui
     StatusUpdate("Open a Hive to Begin");
     ui->tablewidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tablewidget->setHorizontalHeaderLabels({"Tag", "Value Name", "Value Type"});
-    connect(ui->treewidget, SIGNAL(itemSelectionChanged()), this, SLOT(KeySelected()), Qt::DirectConnection);
-    connect(ui->tablewidget, SIGNAL(itemSelectionChanged()), this, SLOT(ValueSelected()), Qt::DirectConnection);
-    connect(ui->actionOpenHive, SIGNAL(triggered()), this, SLOT(OpenHive()), Qt::DirectConnection);
+    //connect(ui->treewidget, SIGNAL(itemSelectionChanged()), this, SLOT(KeySelected()), Qt::DirectConnection);
+    //connect(ui->tablewidget, SIGNAL(itemSelectionChanged()), this, SLOT(ValueSelected()), Qt::DirectConnection);
+    connect(ui->actionOpenMailBox, SIGNAL(triggered()), this, SLOT(OpenMailBox()), Qt::DirectConnection);
     connect(ui->actionManageTags, SIGNAL(triggered()), this, SLOT(ManageTags()), Qt::DirectConnection);
     connect(ui->actionPreviewReport, SIGNAL(triggered()), this, SLOT(PreviewReport()), Qt::DirectConnection);
     connect(ui->actionPublish, SIGNAL(triggered()), this, SLOT(PublishReport()), Qt::DirectConnection);
@@ -38,14 +38,14 @@ WombatRegistry::WombatRegistry(QWidget* parent) : QMainWindow(parent), ui(new Ui
     connect(ui->tablewidget, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(TagMenu(const QPoint &)), Qt::DirectConnection);
 }
 
-WombatRegistry::~WombatRegistry()
+WombatMail::~WombatMail()
 {
     delete ui;
     QDir tmpdir(QDir::tempPath() + "/wr");
     tmpdir.removeRecursively();
 }
 
-void WombatRegistry::OpenHive()
+void WombatMail::OpenMailBox()
 {
     if(prevhivepath.isEmpty())
 	prevhivepath = QDir::homePath();
@@ -65,7 +65,7 @@ void WombatRegistry::OpenHive()
             uint32_t hiveheader = qFromBigEndian<uint32_t>(hivefile.read(4));
             if(hiveheader == 0x72656766) // valid "regf" header
             {
-                LoadRegistryFile();
+                //LoadRegistryFile();
                 StatusUpdate("Hive: " + openhivedialog.selectedFiles().first() + " successfully opened.");
             }
 	    hivefile.close();
@@ -73,7 +73,7 @@ void WombatRegistry::OpenHive()
     }
 }
 
-void WombatRegistry::ManageTags()
+void WombatMail::ManageTags()
 {
     TagManager* tagmanager = new TagManager(this);
     tagmanager->SetTagList(&tags);
@@ -81,7 +81,7 @@ void WombatRegistry::ManageTags()
     UpdateTagsMenu();
 }
 
-void WombatRegistry::UpdatePreviewLinks()
+void WombatMail::UpdatePreviewLinks()
 {
     // POSSIBLY REBUILD THE MAIN PAGE EVERY TIME, RATHER THAN FIND AND REPLACE...
     QDir tmpdir(QDir::tempPath() + "/wr/tagged");
@@ -130,7 +130,7 @@ void WombatRegistry::UpdatePreviewLinks()
     }
 }
 
-void WombatRegistry::PreviewReport()
+void WombatMail::PreviewReport()
 {
     UpdatePreviewLinks();
     HtmlViewer* htmlviewer = new HtmlViewer();
@@ -138,7 +138,7 @@ void WombatRegistry::PreviewReport()
     htmlviewer->show();
 }
 
-void WombatRegistry::PublishReport()
+void WombatMail::PublishReport()
 {
     UpdatePreviewLinks();
     QString savepath = QFileDialog::getExistingDirectory(this, tr("Select Report Folder"), QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
@@ -160,13 +160,13 @@ void WombatRegistry::PublishReport()
     }
 }
 
-void WombatRegistry::ShowAbout()
+void WombatMail::ShowAbout()
 {
     AboutBox* aboutbox = new AboutBox();
     aboutbox->exec();
 }
 
-void WombatRegistry::CreateNewTag()
+void WombatMail::CreateNewTag()
 {
     QString tagname = "";
     QInputDialog* newtagdialog = new QInputDialog(this);
@@ -193,7 +193,7 @@ void WombatRegistry::CreateNewTag()
     taggeditems.append(tagname + "|" + statuslabel->text() + "\\" + ui->tablewidget->selectedItems().at(1)->text() + "|" + ui->plaintext->toPlainText());
 }
 
-void WombatRegistry::UpdateTagsMenu()
+void WombatMail::UpdateTagsMenu()
 {
     tagmenu->clear();
     newtagaction = new QAction("New Tag", tagmenu);
@@ -216,7 +216,7 @@ void WombatRegistry::UpdateTagsMenu()
     tagmenu->addAction(remtagaction);
 }
 
-void WombatRegistry::SetTag()
+void WombatMail::SetTag()
 {
     QAction* tagaction = qobject_cast<QAction*>(sender());
     QString idkeyvalue = statuslabel->text() + "\\" + ui->tablewidget->selectedItems().at(1)->text();
@@ -233,7 +233,7 @@ void WombatRegistry::SetTag()
     ui->tablewidget->selectedItems().first()->setText(tagaction->iconText());
 }
 
-void WombatRegistry::RemoveTag()
+void WombatMail::RemoveTag()
 {
     ui->tablewidget->selectedItems().first()->setText("");
     QString idkeyvalue = statuslabel->text() + "\\" + ui->tablewidget->selectedItems().at(1)->text();
@@ -244,7 +244,8 @@ void WombatRegistry::RemoveTag()
     }
 }
 
-void WombatRegistry::ValueSelected(void)
+/*
+void WombatMail::ValueSelected(void)
 {
     if(ui->tablewidget->selectedItems().count() > 0)
     {
@@ -397,8 +398,8 @@ void WombatRegistry::ValueSelected(void)
         libregf_error_free(&regerr);
     }
 }
-
-int WombatRegistry::GetRootIndex(QTreeWidgetItem* curitem)
+*/
+int WombatMail::GetRootIndex(QTreeWidgetItem* curitem)
 {
     if(ui->treewidget->indexOfTopLevelItem(curitem) == -1)
 	GetRootIndex(curitem->parent());
@@ -406,7 +407,8 @@ int WombatRegistry::GetRootIndex(QTreeWidgetItem* curitem)
 	return ui->treewidget->indexOfTopLevelItem(curitem);
 }
 
-void WombatRegistry::KeySelected(void)
+/*
+void WombatMail::KeySelected(void)
 {
     int itemindex = 0;
     QTreeWidgetItem* curitem = ui->treewidget->selectedItems().first();
@@ -544,12 +546,15 @@ void WombatRegistry::KeySelected(void)
     libregf_file_free(&regfile, &regerr);
     libregf_error_free(&regerr);
 }
-void WombatRegistry::closeEvent(QCloseEvent* e)
+*/
+
+void WombatMail::closeEvent(QCloseEvent* e)
 {
     e->accept();
 }
 
-void WombatRegistry::LoadRegistryFile(void)
+/*
+void WombatMail::LoadRegistryFile(void)
 {
     libregf_file_t* regfile = NULL;
     libregf_error_t* regerr = NULL;
@@ -573,8 +578,10 @@ void WombatRegistry::LoadRegistryFile(void)
     libregf_file_free(&regfile, &regerr);
     libregf_error_free(&regerr);
 }
+*/
 
-void WombatRegistry::PopulateChildKeys(libregf_key_t* curkey, QTreeWidgetItem* curitem, libregf_error_t* regerr)
+/*
+void WombatMail::PopulateChildKeys(libregf_key_t* curkey, QTreeWidgetItem* curitem, libregf_error_t* regerr)
 {
     int subkeycount = 0;
     libregf_key_get_number_of_sub_keys(curkey, &subkeycount, &regerr);
@@ -601,8 +608,9 @@ void WombatRegistry::PopulateChildKeys(libregf_key_t* curkey, QTreeWidgetItem* c
 	}
     }
 }
+*/
 
-QString WombatRegistry::DecryptRot13(QString encstr)
+QString WombatMail::DecryptRot13(QString encstr)
 {
     QString decstr = "";
     int i = 0;
@@ -616,7 +624,7 @@ QString WombatRegistry::DecryptRot13(QString encstr)
     return decstr;
 }
 
-QChar WombatRegistry::Rot13Char(QChar curchar)
+QChar WombatMail::Rot13Char(QChar curchar)
 {
     QChar rot13char;
     if('0' <= curchar && curchar <= '4')
@@ -636,7 +644,7 @@ QChar WombatRegistry::Rot13Char(QChar curchar)
     return rot13char;
 }
 
-QString WombatRegistry::ConvertUnixTimeToString(uint32_t input)
+QString WombatMail::ConvertUnixTimeToString(uint32_t input)
 {
     time_t crtimet = (time_t)input;
     QString timestr = QDateTime::fromSecsSinceEpoch(crtimet, QTimeZone::utc()).toString("MM/dd/yyyy hh:mm:ss AP");
@@ -644,7 +652,7 @@ QString WombatRegistry::ConvertUnixTimeToString(uint32_t input)
     return timestr;
 }
 
-QString WombatRegistry::ConvertWindowsTimeToUnixTimeUTC(uint64_t input)
+QString WombatMail::ConvertWindowsTimeToUnixTimeUTC(uint64_t input)
 {
     uint64_t temp;
     temp = input / TICKS_PER_SECOND; //convert from 100ns intervals to seconds;
@@ -656,7 +664,7 @@ QString WombatRegistry::ConvertWindowsTimeToUnixTimeUTC(uint64_t input)
     return timestr;
 }
 
-void WombatRegistry::TagMenu(const QPoint &pt)
+void WombatMail::TagMenu(const QPoint &pt)
 {
     QTableWidgetItem* currow = ui->tablewidget->itemAt(pt);
     if(ui->tablewidget->item(currow->row(), 0)->text().isEmpty())

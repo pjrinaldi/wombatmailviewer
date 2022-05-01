@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>WombatRegistry</class>
- <widget class="QMainWindow" name="WombatRegistry">
+ <class>WombatMail</class>
+ <widget class="QMainWindow" name="WombatMail">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Wombat Registry</string>
+   <string>Wombat Mail Viewer</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../wombatregistry/wombatregistry.qrc">
@@ -121,19 +121,22 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionOpenHive"/>
+   <addaction name="actionOpenMailBox"/>
    <addaction name="actionManageTags"/>
    <addaction name="actionPreviewReport"/>
    <addaction name="actionPublish"/>
    <addaction name="actionAbout"/>
   </widget>
-  <action name="actionOpenHive">
+  <action name="actionOpenMailBox">
    <property name="icon">
     <iconset resource="../wombatregistry/wombatregistry.qrc">
      <normaloff>:/bar/openfolder</normaloff>:/bar/openfolder</iconset>
    </property>
    <property name="text">
-    <string>Open Hive</string>
+    <string>Open Mail Box</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Mail Box</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
