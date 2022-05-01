@@ -35,6 +35,7 @@ public:
     explicit WombatMail(QWidget* parent = 0);
     ~WombatMail();
     //void LoadRegistryFile(void);
+    //void LoadMBoxFile(QString mboxid, QString mboxname);
 
 private slots:
     void OpenMailBox(void);
@@ -46,6 +47,7 @@ private slots:
     void MailItemSelected(void);
     //void KeySelected(void);
     //void ValueSelected(void);
+    //void EmailSelected();
     void TagMenu(const QPoint &point);
     void SetTag(void);
     void CreateNewTag(void);

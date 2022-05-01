@@ -282,6 +282,69 @@ void WombatMail::MailItemSelected(void)
 }
 
 /*
+void MBoxDialog::EmailSelected()
+{
+    QString mboxid = ui->mailtable->item(ui->mailtable->currentRow(), 0)->text().split("-m").at(0);
+    QString layout = ui->mailtable->item(ui->mailtable->currentRow(), 0)->toolTip();
+    QFile mboxfile(wombatvariable.tmpfilepath + mboxid + "-fhex");
+    if(!mboxfile.isOpen())
+        mboxfile.open(QIODevice::ReadOnly | QIODevice::Text);
+    if(mboxfile.isOpen())
+    {
+        mboxfile.seek(layout.split(";").at(0).split(",").at(0).toULongLong());
+        htmlvalue = mboxfile.read(layout.split(";").at(0).split(",").at(1).toULongLong());
+        ui->mailcontent->setPlainText(htmlvalue);
+        mboxfile.close();
+    }
+}
+*/
+
+/*
+void MBoxDialog::LoadMBoxFile(QString mboxid, QString mboxname)
+{
+    mboxparentname = mboxname;
+    ui->mailtable->clear();
+    ui->mailcontent->setPlainText("");
+    QDir mailboxdir(wombatvariable.tmpmntpath + "mailboxes/");
+    QStringList mailboxfiles = mailboxdir.entryList(QStringList() << QString(mboxid + "-m*.prop"), QDir::Files);
+    ui->mailtable->setHorizontalHeaderLabels({"ID", "From", "Date Time", "Subject", "Tag"});
+    ui->mailtable->setRowCount(mailboxfiles.count());
+    for(int i=0; i < mailboxfiles.count(); i++)
+    {
+        QTableWidgetItem* tmpitem = new QTableWidgetItem(QString(mailboxfiles.at(i)).remove(".prop"));
+        QFile propfile(wombatvariable.tmpmntpath + "mailboxes/" + mailboxfiles.at(i));
+        if(!propfile.isOpen())
+            propfile.open(QIODevice::ReadOnly | QIODevice::Text);
+        if(propfile.isOpen())
+        {
+            while(!propfile.atEnd())
+            {
+                QString tmpstr = propfile.readLine();
+                if(tmpstr.startsWith("From|"))
+                    ui->mailtable->setItem(i, 1, new QTableWidgetItem(tmpstr.split("|").at(1)));
+                if(tmpstr.startsWith("Date|"))
+                    ui->mailtable->setItem(i, 2, new QTableWidgetItem(tmpstr.split("|").at(1)));
+                if(tmpstr.startsWith("Subject|"))
+                    ui->mailtable->setItem(i, 3, new QTableWidgetItem(tmpstr.split("|").at(1)));
+                if(tmpstr.startsWith("Layout|"))
+                    tmpitem->setToolTip(tmpstr.split("|").at(1));
+            }
+            propfile.close();
+        }
+        ui->mailtable->setItem(i, 0, tmpitem);
+        QString tagstr = "";
+        for(int j=0; j < mboxtaglist.count(); j++)
+        {
+            if(mboxtaglist.at(j).contains(QString(mailboxfiles.at(i)).remove(".prop")))
+                tagstr = mboxtaglist.at(j).split("|", Qt::SkipEmptyParts).last();
+        }
+        ui->mailtable->setItem(i, 4, new QTableWidgetItem(tagstr));
+    }
+    this->show();
+}
+*/
+
+/*
 void WombatMail::ValueSelected(void)
 {
     if(ui->tablewidget->selectedItems().count() > 0)
