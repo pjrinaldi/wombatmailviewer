@@ -63,6 +63,19 @@ void WombatMail::OpenMailBox()
             rootitem->setText(0, mboxfilepath.split("/").last().toUpper() + " (" + mboxfilepath + ")");
             ui->treewidget->addTopLevelItem(rootitem);
         }
+        libpff_error_t* pfferr;
+        //libpff_file_t* pfffile;
+        if(libpff_check_file_signature(mboxfilepath.toStdString().c_str(), &pfferr))
+        {
+            qDebug() << "a pst/ost file, so open...";
+        }
+        else
+        {
+            qDebug() << "not a pst/ost file, check for mbox next...";
+        }
+        //libpff_error_free(&pfferr);
+        //int reterr = libpff_file_open(pfffile, mboxfilepath.toStdString().c_str(), LIBPFF_OPEN_READ, &pfferr);
+
         //rootitem->setText(0, mboxfilepath.split("/").last().toUpper() + " (" + mboxfilepath + ")");
         //ui->treewidget->addTopLevelItem(rootitem);
         //if(!mboxfile.isOpen())
