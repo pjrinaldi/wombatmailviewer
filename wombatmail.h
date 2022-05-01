@@ -1,5 +1,5 @@
 #ifndef WOMBATMAIL_H
-#define WOMBATMAIN_H
+#define WOMBATMAIL_H
 
 // Copyright 2022-2022 Pasquale J. Rinaldi, Jr.
 // Distrubted under the terms of the GNU General Public License version 2
@@ -62,9 +62,9 @@ protected:
 private:
     Ui::WombatMail* ui;
     QLabel* statuslabel;
-    QString hivefilepath;
-    QString prevhivepath;
-    QFile hivefile;
+    QString mboxfilepath;
+    QString prevmboxpath;
+    QFile mboxfile;
     //void PopulateChildKeys(libregf_key_t* curkey, QTreeWidgetItem* curitem, libregf_error_t* curerr);
     QString DecryptRot13(QString encstr);
     QChar Rot13Char(QChar curchar);
@@ -82,7 +82,7 @@ private:
     QByteArray reporttimezone;
     QStringList tags;
     QStringList taggeditems;
-    QStringList hives;
+    QStringList mboxes;
 };
 
 #endif // WOMBATMAIL_H

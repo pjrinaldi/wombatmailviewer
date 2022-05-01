@@ -32,7 +32,7 @@ WombatMail::WombatMail(QWidget* parent) : QMainWindow(parent), ui(new Ui::Wombat
     tagmenu = new QMenu(ui->tablewidget);
     UpdateTagsMenu();
 
-    hives.clear();
+    mboxes.clear();
 
     ui->tablewidget->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->tablewidget, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(TagMenu(const QPoint &)), Qt::DirectConnection);
@@ -47,31 +47,39 @@ WombatMail::~WombatMail()
 
 void WombatMail::OpenMailBox()
 {
-    if(prevhivepath.isEmpty())
-	prevhivepath = QDir::homePath();
-    QFileDialog openhivedialog(this, tr("Open Mail Box"), prevhivepath);
-    openhivedialog.setLabelText(QFileDialog::Accept, "Open");
-    if(openhivedialog.exec())
+    if(prevmboxpath.isEmpty())
+	prevmboxpath = QDir::homePath();
+    QFileDialog openmboxdialog(this, tr("Open Mail Box"), prevmboxpath);
+    openmboxdialog.setLabelText(QFileDialog::Accept, "Open");
+    if(openmboxdialog.exec())
     {
-        hivefilepath = openhivedialog.selectedFiles().first();
-	prevhivepath = hivefilepath;
-	hives.append(hivefilepath);
-        hivefile.setFileName(hivefilepath);
-        if(!hivefile.isOpen())
-            hivefile.open(QIODevice::ReadOnly);
-        if(hivefile.isOpen())
+        mboxfilepath = openmboxdialog.selectedFiles().first();
+	prevmboxpath = mboxfilepath;
+	mboxes.append(mboxfilepath);
+        mboxfile.setFileName(mboxfilepath);
+        if(mboxfile.exists())
         {
-            //hivefile.seek(0);
-            //uint32_t hiveheader = qFromBigEndian<uint32_t>(hivefile.read(4));
+            QTreeWidgetItem* rootitem = new QTreeWidgetItem(ui->treewidget);
+            rootitem->setText(0, mboxfilepath.split("/").last().toUpper() + " (" + mboxfilepath + ")");
+            ui->treewidget->addTopLevelItem(rootitem);
+        }
+        //rootitem->setText(0, mboxfilepath.split("/").last().toUpper() + " (" + mboxfilepath + ")");
+        //ui->treewidget->addTopLevelItem(rootitem);
+        //if(!mboxfile.isOpen())
+        //    mboxfile.open(QIODevice::ReadOnly);
+        //if(mboxfile.isOpen())
+        //{
+            //mboxfile.seek(0);
+            //uint32_t mboxheader = qFromBigEndian<uint32_t>(mboxfile.read(4));
             /*
-            if(hiveheader == 0x72656766) // valid "regf" header
+            if(mboxheader == 0x72656766) // valid "regf" header
             {
                 //LoadRegistryFile();
-                StatusUpdate("Mail Box: " + openhivedialog.selectedFiles().first() + " successfully opened.");
+                StatusUpdate("Mail Box: " + openmboxdialog.selectedFiles().first() + " successfully opened.");
             }
             */
-	    hivefile.close();
-        }
+	//    mboxfile.close();
+        //}
     }
 }
 
@@ -263,13 +271,13 @@ void WombatMail::ValueSelected(void)
     {
 	QTreeWidgetItem* curitem = ui->treewidget->selectedItems().first();
 	int rootindex = GetRootIndex(curitem);
-	hivefilepath = hives.at(rootindex);
+	mboxfilepath = mboxes.at(rootindex);
 	int valueindex = ui->tablewidget->selectedItems().at(1)->row();
 	QString keypath = statuslabel->text();
 	libregf_file_t* regfile = NULL;
 	libregf_error_t* regerr = NULL;
 	libregf_file_initialize(&regfile, &regerr);
-	libregf_file_open(regfile, hivefilepath.toStdString().c_str(), LIBREGF_OPEN_READ, &regerr);
+	libregf_file_open(regfile, mboxfilepath.toStdString().c_str(), LIBREGF_OPEN_READ, &regerr);
 	libregf_key_t* curkey = NULL;
 	libregf_file_get_key_by_utf8_path(regfile, (uint8_t*)(keypath.toUtf8().data()), keypath.toUtf8().size(), &curkey, &regerr);
 	libregf_value_t* curval = NULL;
@@ -425,7 +433,7 @@ void WombatMail::KeySelected(void)
     int itemindex = 0;
     QTreeWidgetItem* curitem = ui->treewidget->selectedItems().first();
     int rootindex = GetRootIndex(curitem);
-    hivefilepath = hives.at(rootindex);
+    mboxfilepath = mboxes.at(rootindex);
     bool toplevel = false;
     QStringList pathitems;
     pathitems.clear();
@@ -457,7 +465,7 @@ void WombatMail::KeySelected(void)
     libregf_file_t* regfile = NULL;
     libregf_error_t* regerr = NULL;
     libregf_file_initialize(&regfile, &regerr);
-    libregf_file_open(regfile, hivefilepath.toStdString().c_str(), LIBREGF_OPEN_READ, &regerr);
+    libregf_file_open(regfile, mboxfilepath.toStdString().c_str(), LIBREGF_OPEN_READ, &regerr);
     libregf_key_t* curkey = NULL;
     libregf_file_get_key_by_utf8_path(regfile, (uint8_t*)(keypath.toUtf8().data()), keypath.toUtf8().size(), &curkey, &regerr);
     // valid key, get values...
@@ -571,7 +579,7 @@ void WombatMail::LoadRegistryFile(void)
     libregf_file_t* regfile = NULL;
     libregf_error_t* regerr = NULL;
     libregf_file_initialize(&regfile, &regerr);
-    libregf_file_open(regfile, hivefilepath.toStdString().c_str(), LIBREGF_OPEN_READ, &regerr);
+    libregf_file_open(regfile, mboxfilepath.toStdString().c_str(), LIBREGF_OPEN_READ, &regerr);
     libregf_error_fprint(regerr, stderr);
     libregf_key_t* rootkey = NULL;
     libregf_file_get_root_key(regfile, &rootkey, &regerr);
@@ -580,8 +588,8 @@ void WombatMail::LoadRegistryFile(void)
     libregf_key_get_number_of_sub_keys(rootkey, &rootsubkeycnt, &regerr);
     libregf_error_fprint(regerr, stderr);
         QTreeWidgetItem* rootitem = new QTreeWidgetItem(ui->treewidget);
-    rootitem->setText(0, hivefilepath.split("/").last().toUpper() + " (" + hivefilepath + ")");
-    //rootitem->setText(0, hivefilepath.split("/").last().toUpper());
+    rootitem->setText(0, mboxfilepath.split("/").last().toUpper() + " (" + mboxfilepath + ")");
+    //rootitem->setText(0, mboxfilepath.split("/").last().toUpper());
     ui->treewidget->addTopLevelItem(rootitem);
     PopulateChildKeys(rootkey, rootitem, regerr);
     ui->treewidget->expandItem(rootitem);

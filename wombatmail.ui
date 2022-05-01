@@ -14,7 +14,7 @@
    <string>Wombat Mail Viewer</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../wombatregistry/wombatregistry.qrc">
+   <iconset resource="wombatmail.qrc">
     <normaloff>:/wombat</normaloff>:/wombat</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -131,7 +131,7 @@
   </widget>
   <action name="actionOpenMailBox">
    <property name="icon">
-    <iconset resource="../wombatregistry/wombatregistry.qrc">
+    <iconset resource="wombatmail.qrc">
      <normaloff>:/bar/openfolder</normaloff>:/bar/openfolder</iconset>
    </property>
    <property name="text">
@@ -146,7 +146,7 @@
   </action>
   <action name="actionManageTags">
    <property name="icon">
-    <iconset resource="../wombatregistry/wombatregistry.qrc">
+    <iconset resource="wombatmail.qrc">
      <normaloff>:/bar/managetags</normaloff>:/bar/managetags</iconset>
    </property>
    <property name="text">
@@ -161,7 +161,7 @@
   </action>
   <action name="actionAbout">
    <property name="icon">
-    <iconset resource="../wombatregistry/wombatregistry.qrc">
+    <iconset resource="wombatmail.qrc">
      <normaloff>:/help</normaloff>:/help</iconset>
    </property>
    <property name="text">
@@ -176,7 +176,7 @@
   </action>
   <action name="actionPreviewReport">
    <property name="icon">
-    <iconset resource="../wombatregistry/wombatregistry.qrc">
+    <iconset resource="wombatmail.qrc">
      <normaloff>:/bar/preview</normaloff>:/bar/preview</iconset>
    </property>
    <property name="text">
@@ -191,7 +191,7 @@
   </action>
   <action name="actionPublish">
    <property name="icon">
-    <iconset resource="../wombatregistry/wombatregistry.qrc">
+    <iconset resource="wombatmail.qrc">
      <normaloff>:/bar/publish</normaloff>:/bar/publish</iconset>
    </property>
    <property name="text">
@@ -206,7 +206,7 @@
   </action>
  </widget>
  <resources>
-  <include location="../wombatregistry/wombatregistry.qrc"/>
+  <include location="wombatmail.qrc"/>
  </resources>
  <connections/>
 </ui>
