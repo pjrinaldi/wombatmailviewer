@@ -10,7 +10,7 @@ SOURCES = main.cpp wombatmail.cpp tagmanager.cpp htmlviewer.cpp aboutbox.cpp css
 RESOURCES += wombatmail.qrc
 release: DESTDIR = release
 debug:   DESTDIR = debug
-linux:LIBS = libpff.a
+linux:LIBS = -lz libpff.a
 
 if(!debug_and_release|build_pass):CONFIG(debug, debug|release) {
 }
