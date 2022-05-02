@@ -5,6 +5,14 @@
 
 WombatMail::WombatMail(QWidget* parent) : QMainWindow(parent), ui(new Ui::WombatMail)
 {
+
+
+    //  QRegExp mSeparatorMatcher(QStringLiteral("^From .*[0-9][0-9]:[0-9][0-9]")) // kmbox regular expression for mbox file
+    //  return mSeparatorMatcher.indexIn(QString::fromLatin1(line)) >= 0;
+    // my regularexpressions 
+        //QRegularExpression mboxre1("From [A-Za-z0-9\\@\\.]+ \\w+ \\w+ \\w+ \\d\\d:\\d\\d:\\d\\d [[A-Za-z0-9\\+]+\\n"); // no tz
+        //QRegularExpression mboxre2("From [A-Za-z0-9\\@\\.]+ \\w+ \\w+ \\w+ \\d\\d:\\d\\d:\\d\\d [[A-Za-z0-9\\+]+ [0-9]+\\n"); // tz
+
     ui->setupUi(this);
     this->menuBar()->hide();
     statuslabel = new QLabel(this);
