@@ -102,9 +102,11 @@ void WombatMail::OpenMailBox()
 	    }
 	    if(mailboxtype == 0x01) // PST/OST
 	    {
+		//populate tree and table
 	    }
 	    else if(mailboxtype == 0x02) // MBOX
 	    {
+		//populate table which needs to be reproducible
 	    }
 	}
 	else // OTHER FILE
