@@ -1,7 +1,7 @@
 #include "wombatmail.h"
 
 // Copyright 2013-2020 Pasquale J. Rinaldi, Jr.
-// Distrubted under the terms of the GNU General Public License version 2
+// Distributed under the terms of the GNU General Public License version 2
 
 WombatMail::WombatMail(QWidget* parent) : QMainWindow(parent), ui(new Ui::WombatMail)
 {
@@ -46,6 +46,37 @@ WombatMail::~WombatMail()
     tmpdir.removeRecursively();
 }
 
+uint8_t WombatMail::MailBoxType(QString mailboxpath)
+{
+    int reterr = 0;
+    uint8_t mailboxtype = 0x00;
+    libpff_error_t* pfferr = NULL;
+    if(libpff_check_file_signature(mailboxpath.toStdString().c_str(), &pfferr)) // is pst/ost
+	mailboxtype = 0x01; // PST/OST
+    else // might be mbox
+    {
+	QFile mboxfile(mailboxpath);
+	if(!mboxfile.isOpen())
+	    mboxfile.open(QIODevice::ReadOnly | QIODevice::Text);
+	if(mboxfile.isOpen())
+	{
+	    while(!mboxfile.atEnd())
+	    {
+		QString line = mboxfile.readLine();
+		int pos = mboxheader.indexIn(line);
+		if(pos >= 0)
+		{
+		    mailboxtype = 0x02; // mbox
+		    break;
+		}
+	    }
+	    mboxfile.close();
+	}
+    }
+    libpff_error_free(&pfferr);
+
+    return mailboxtype;
+}
 
 void WombatMail::OpenMailBox()
 {
@@ -57,14 +88,32 @@ void WombatMail::OpenMailBox()
     {
         mboxfilepath = openmboxdialog.selectedFiles().first();
 	prevmboxpath = mboxfilepath;
-	mboxes.append(mboxfilepath);
-        mboxfile.setFileName(mboxfilepath);
-        if(mboxfile.exists())
-        {
-            QTreeWidgetItem* rootitem = new QTreeWidgetItem(ui->treewidget);
-            rootitem->setText(0, mboxfilepath.split("/").last().toUpper() + " (" + mboxfilepath + ")");
-            ui->treewidget->addTopLevelItem(rootitem);
-        }
+	// check mailbox type
+	uint8_t mailboxtype = MailBoxType(mboxfilepath);
+	if(mailboxtype == 0x01 || mailboxtype == 0x02)
+	{
+	    mboxes.append(mboxfilepath);
+	    mboxfile.setFileName(mboxfilepath);
+	    if(mboxfile.exists())
+	    {
+		QTreeWidgetItem* rootitem = new QTreeWidgetItem(ui->treewidget);
+		rootitem->setText(0, mboxfilepath.split("/").last().toUpper() + " (" + mboxfilepath + ")");
+		ui->treewidget->addTopLevelItem(rootitem);
+	    }
+	    if(mailboxtype == 0x01) // PST/OST
+	    {
+	    }
+	    else if(mailboxtype == 0x02) // MBOX
+	    {
+	    }
+	}
+	else // OTHER FILE
+	{
+	    // not a supported type.
+	}
+	
+	//qDebug() << "mail box type:" << MailBoxType(mboxfilepath);
+	/*
         int reterr = 0;
         libpff_error_t* pfferr = NULL;
         if(libpff_check_file_signature(mboxfilepath.toStdString().c_str(), &pfferr))
@@ -214,12 +263,13 @@ void WombatMail::OpenMailBox()
                         //qDebug() << "headerlist count:" << headerlist.count();
                     }
                     */
-                    }
+/*                    }
                 }
                 mboxfile.close();
             }
         }
         libpff_error_free(&pfferr);
+	*/
 
         //rootitem->setText(0, mboxfilepath.split("/").last().toUpper() + " (" + mboxfilepath + ")");
         //ui->treewidget->addTopLevelItem(rootitem);

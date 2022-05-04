@@ -2,7 +2,7 @@
 #define WOMBATMAIL_H
 
 // Copyright 2022-2022 Pasquale J. Rinaldi, Jr.
-// Distrubted under the terms of the GNU General Public License version 2
+// Distributed under the terms of the GNU General Public License version 2
 
 #include <QDebug>
 #include <QFileDialog>
@@ -70,6 +70,7 @@ private:
     //void PopulateChildKeys(libregf_key_t* curkey, QTreeWidgetItem* curitem, libregf_error_t* curerr);
     QString DecryptRot13(QString encstr);
     QChar Rot13Char(QChar curchar);
+    uint8_t MailBoxType(QString mailboxpath);
     QString ConvertUnixTimeToString(uint32_t input);
     QString ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
     int GetRootIndex(QTreeWidgetItem* curitem);
