@@ -89,7 +89,7 @@ void WombatMail::OpenMailBox()
         mboxfilepath = openmboxdialog.selectedFiles().first();
 	prevmboxpath = mboxfilepath;
 	// check mailbox type
-	uint8_t mailboxtype = MailBoxType(mboxfilepath);
+	mailboxtype = MailBoxType(mboxfilepath);
 	if(mailboxtype == 0x01 || mailboxtype == 0x02)
 	{
 	    mboxes.append(mboxfilepath);
