@@ -85,6 +85,9 @@ private:
     QStringList tags;
     QStringList taggeditems;
     QStringList mboxes;
+    QRegExp mboxheader;
+    //QRegularExpression mboxhead1;
+    //QRegularExpression mboxhead2;
 };
 
 #endif // WOMBATMAIL_H
