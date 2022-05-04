@@ -78,6 +78,176 @@ uint8_t WombatMail::MailBoxType(QString mailboxpath)
     return mailboxtype;
 }
 
+void WombatMail::PopulateMbox(QString mfpath)
+{
+    QString layout = "";
+    QList<qint64> poslist;
+    QList<qint64> linelength;
+    poslist.clear();
+    linelength.clear();
+    mboxfile.setFileName(mfpath);
+    if(!mboxfile.isOpen())
+        mboxfile.open(QIODevice::ReadOnly | QIODevice::Text);
+    if(mboxfile.isOpen())
+    {
+        while(!mboxfile.atEnd())
+        {
+            QString line = mboxfile.readLine();
+            int pos = mboxheader.indexIn(line);
+            if(pos >= 0)
+            {
+                poslist.append(mboxfile.pos());
+                linelength.append(line.count());
+            }
+        }
+        poslist.append(mboxfile.size());
+        mboxfile.close();
+    }
+    for(int i=0; i < poslist.count() - 1; i++)
+    {
+        QStringList headers;
+        QStringList bodies;
+        headers.clear();
+        bodies.clear();
+        QString tmpsubj = "";
+        QString tmpfrom = "";
+        QString tmpdate = "";
+        QString msg = "";
+        if(!mboxfile.isOpen())
+            mboxfile.open(QIODevice::ReadOnly | QIODevice::Text);
+        if(mboxfile.isOpen())
+        {
+            mboxfile.seek(poslist.at(i));
+            qint64 curpos = poslist.at(i);
+            msg = mboxfile.read(poslist.at(i+1) - poslist.at(i) - linelength.at(i));
+            mboxfile.close();
+        }
+        qDebug() << "msg:" << msg;
+        //while(line.at(0) != '\n' && 
+        //while(curpos <= mboxfile.at(poslist.at(i+1) - poslist.at(i) - linelength.at(i)))
+        //{
+        //}
+    }
+	/*
+                        }
+                        //qDebug() << "poslist:" << poslist;
+                        //qDebug() << "linelength:" << linelength;
+                        //QString mboxlayout = "";
+                        for(int i=0; i < poslist.count() - 1; i++)
+                        {
+                            QString tmpsubj = "";
+                            QString tmpfrom = "";
+                            QString tmpdate = "";
+                            QString propstr = wombatvariable.tmpmntpath + "mailboxes/" + objectid + "-m" + QString::number(i) + ".prop";
+                            if(!QFile::exists(propstr))
+                            {
+                                QFile propfile(propstr);
+                                if(!propfile.isOpen())
+                                    propfile.open(QIODevice::WriteOnly | QIODevice::Text);
+                                if(propfile.isOpen())
+                                {
+                                    if(!mboxfile.isOpen())
+                                        mboxfile.open(QIODevice::ReadOnly | QIODevice::Text);
+                                    if(mboxfile.isOpen())
+                                    {
+                                        QTextStream proplist(&propfile);
+                                        mboxfile.seek(poslist.at(i));
+                                        QString msg = mboxfile.read(poslist.at(i+1) - poslist.at(i) - linelength.at(i));
+                                        int fromstart = msg.indexOf("From: ");
+                                        int datestart = msg.indexOf("Date: ");
+                                        int subjstart = msg.indexOf("Subject: ");
+                                        int fromend = msg.mid(fromstart, datestart - fromstart).lastIndexOf("\n");
+                                        if(fromend == -1)
+                                            fromend = msg.mid(fromstart, subjstart - fromstart).lastIndexOf("\n");
+                                        int dateend = msg.mid(datestart, subjstart - datestart).indexOf("\n");
+                                        if(dateend == -1)
+                                            dateend = 50;
+                                        int subjend = msg.mid(subjstart).indexOf("\n");
+
+                                        //qDebug() << "from date subj start:" << fromstart << datestart << subjstart;
+                                        //qDebug() << "from date subj end:" << fromend << dateend << subjend;
+                                        proplist << "From|" + msg.mid(fromstart + 6, fromend - 6).remove("\n") + "|From field from the email message." << Qt::endl;
+                                        proplist << "Date|" + msg.mid(datestart + 6, dateend - 6).remove("\n") + "|Date field from the email message." << Qt::endl;
+                                        proplist << "Subject|" + msg.mid(subjstart + 9, subjend - 9).remove("\n") + "|Subject field from the email message." << Qt::endl;
+                                        //qDebug() << "from:" << msg.mid(fromstart + 6, fromend - 6);
+                                        //qDebug() << "date:" << msg.mid(datestart + 6, dateend - 6);
+                                        //qDebug() << "subj:" << msg.mid(subjstart + 9, subjend - 9);
+
+                                        //qDebug() << "msg:" << msg;
+                                        // the below mostly works, but doesn't account for multi line from: as in the sample....
+                                        /*
+                                        while(mboxfile.pos() <= poslist.at(i+1))
+                                        {
+                                            QString line = mboxfile.readLine();
+                                            if(line.startsWith("From:"))
+                                            {
+                                                if(tmpfrom.isEmpty())
+                                                    tmpfrom = line.mid(6);
+                                                qDebug() << propstr.split("/").last().split(".prop").first();
+                                                qDebug() << line.mid(6); 
+                                            }
+                                            else if(line.startsWith("Subject:"))
+                                            {
+                                                if(tmpsubj.isEmpty())
+                                                    tmpsubj = line.mid(9);
+                                                qDebug() << propstr.split("/").last().split(".prop").first();
+                                                qDebug() << line.mid(9);
+                                            }
+                                            else if(line.startsWith("Date:"))
+                                            {
+                                                if(tmpdate.isEmpty())
+                                                    tmpdate = line.mid(6);
+                                                qDebug() << propstr.split("/").last().split(".prop").first();
+                                                qDebug() << line.mid(6);
+                                            }
+                                            if(!tmpfrom.isEmpty() && !tmpsubj.isEmpty() && !tmpdate.isEmpty())
+                                                break;
+                                            if(mboxfile.atEnd())
+                                                break;
+                                        }
+                                        */
+                /*                        proplist << "Layout|" + QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i) - linelength.at(i)) + ";|Layout for the mbox email item in the format of (offset, length;) in bytes." << Qt::endl;
+                                        proplist.flush();
+                                        propfile.close();
+                                        mboxfile.close();
+                                    }
+                                }
+                            }
+                            //qDebug() << "prop fileid:" << objectid + "-m" + QString::number(i);
+                            //mboxlayout += QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i)) + ";";
+                        }
+                        //qDebug() << "mboxlayout:" << mboxlayout;
+                        //qDebug() << "headerlist:" << headerlist;
+                        //qDebug() << "headerlist count:" << headerlist.count();
+                    }
+                    */
+/*                    }
+                }
+                mboxfile.close();
+            }
+        }
+        libpff_error_free(&pfferr);
+	*/
+
+        //rootitem->setText(0, mboxfilepath.split("/").last().toUpper() + " (" + mboxfilepath + ")");
+        //ui->treewidget->addTopLevelItem(rootitem);
+        //if(!mboxfile.isOpen())
+        //    mboxfile.open(QIODevice::ReadOnly);
+        //if(mboxfile.isOpen())
+        //{
+            //mboxfile.seek(0);
+            //uint32_t mboxheader = qFromBigEndian<uint32_t>(mboxfile.read(4));
+            /*
+            if(mboxheader == 0x72656766) // valid "regf" header
+            {
+                //LoadRegistryFile();
+                StatusUpdate("Mail Box: " + openmboxdialog.selectedFiles().first() + " successfully opened.");
+            }
+            */
+	//    mboxfile.close();
+        //}
+}
+
 void WombatMail::OpenMailBox()
 {
     if(prevmboxpath.isEmpty())
@@ -106,6 +276,7 @@ void WombatMail::OpenMailBox()
 	    }
 	    else if(mailboxtype == 0x02) // MBOX
 	    {
+                PopulateMbox(mboxfilepath);
 		//populate table which needs to be reproducible
 	    }
 	}
