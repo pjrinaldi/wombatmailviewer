@@ -131,6 +131,12 @@ void WombatMail::PopulateMbox(QString mfpath)
 	    int fromstart = msg.indexOf("From: ");
 	    int datestart = msg.indexOf("Date: ");
 	    int subjstart = msg.indexOf("Subject: ");
+	    /*
+	     * this method for end is flawed because it assumes the next after from is date or subj... but it doesn't have to be in that order...
+	     * i may have to read the file by line while file's pos <= old (read() position).
+	     * then i can read it by line, get the header start and finish when i hit an empty line with just \n...
+	     * then i get the body for hte rest of the message and can break out of while...
+	     */
 	    int fromend = msg.mid(fromstart, datestart - fromstart).indexOf("\n");
 	    if(fromend == -1)
 		fromend = msg.mid(fromstart, subjstart - fromstart).indexOf("\n");
