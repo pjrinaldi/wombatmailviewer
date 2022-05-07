@@ -18,10 +18,7 @@
     <normaloff>:/wombat</normaloff>:/wombat</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="spacing">
-     <number>6</number>
-    </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -35,7 +32,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QSplitter" name="splitter_2">
+     <widget class="QSplitter" name="splitter_3">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -52,7 +49,7 @@
         </property>
        </column>
       </widget>
-      <widget class="QSplitter" name="splitter">
+      <widget class="QSplitter" name="splitter_2">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
          <horstretch>1</horstretch>
@@ -63,6 +60,12 @@
         <enum>Qt::Vertical</enum>
        </property>
        <widget class="QTableWidget" name="tablewidget">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
         <property name="alternatingRowColors">
          <bool>true</bool>
         </property>
@@ -87,15 +90,34 @@
         <column/>
         <column/>
        </widget>
-       <widget class="QPlainTextEdit" name="plaintext">
-        <property name="font">
-         <font>
-          <family>Source Code Pro</family>
-         </font>
+       <widget class="QSplitter" name="splitter">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="readOnly">
-         <bool>true</bool>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
         </property>
+        <widget class="QPlainTextEdit" name="plaintext">
+         <property name="font">
+          <font>
+           <family>Source Code Pro</family>
+          </font>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QTextBrowser" name="textbrowser">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>1</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
        </widget>
       </widget>
      </widget>

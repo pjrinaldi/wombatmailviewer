@@ -88,6 +88,7 @@ void WombatMail::PopulateMbox(QString mfpath)
     mboxfile.setFileName(mfpath);
     if(!mboxfile.isOpen())
         mboxfile.open(QIODevice::ReadOnly | QIODevice::Text);
+    // split mbox into messages...
     if(mboxfile.isOpen())
     {
         while(!mboxfile.atEnd())
@@ -103,17 +104,46 @@ void WombatMail::PopulateMbox(QString mfpath)
         poslist.append(mboxfile.size());
         mboxfile.close();
     }
+    //qDebug() << "poslist:" << poslist;
+    //qDebug() << "linelength:" << linelength;
     ui->tablewidget->clear();
     ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "Date Time", "Subject"});
     ui->plaintext->setPlainText("");
     ui->tablewidget->setRowCount(poslist.count() - 1);
-    //ui->tablewidget->setRowCount(mailboxfiles.count());
+    QStringList headers;
+    QStringList bodies;
+    headers.clear();
+    bodies.clear();
     for(int i=0; i < poslist.count() - 1; i++)
     {
-        QStringList headers;
-        QStringList bodies;
-        headers.clear();
-        bodies.clear();
+        int splitpos = 0;
+        if(!mboxfile.isOpen())
+            mboxfile.open(QIODevice::ReadOnly | QIODevice::Text);
+        int pos = poslist.at(i);
+        //qDebug() << "pos:" << pos << "endpos:" << poslist.at(i+1) - poslist.at(i) - linelength.at(i);
+        mboxfile.seek(poslist.at(i));
+        while(pos <= poslist.at(i+1) - linelength.at(i))
+        {
+            QString line = mboxfile.readLine();
+            if(line == "\n")
+            {
+                splitpos = mboxfile.pos() - poslist.at(i);
+                //qDebug() << "splitpos1:" << splitpos;
+                break;
+            }
+            pos = mboxfile.pos();
+        }
+        mboxfile.seek(poslist.at(i));
+        headers.append(mboxfile.read(splitpos));
+        bodies.append(mboxfile.read(poslist.at(i+1) - linelength.at(i) - splitpos - poslist.at(i)));
+        mboxfile.close();
+    }
+    for(int i=0; i < headers.count(); i++)
+    {
+        // need to figure out all the options for header entries, find their positions, put em in list and sort it, then i can split where i need to...
+        int fromstart = headers.indexOf("From: ");
+    }
+        /*
         QString tmpsubj = "";
         QString tmpfrom = "";
         QString tmpdate = "";
@@ -131,12 +161,14 @@ void WombatMail::PopulateMbox(QString mfpath)
 	    int fromstart = msg.indexOf("From: ");
 	    int datestart = msg.indexOf("Date: ");
 	    int subjstart = msg.indexOf("Subject: ");
+            */
 	    /*
 	     * this method for end is flawed because it assumes the next after from is date or subj... but it doesn't have to be in that order...
 	     * i may have to read the file by line while file's pos <= old (read() position).
 	     * then i can read it by line, get the header start and finish when i hit an empty line with just \n...
 	     * then i get the body for hte rest of the message and can break out of while...
 	     */
+        /*
 	    int fromend = msg.mid(fromstart, datestart - fromstart).indexOf("\n");
 	    if(fromend == -1)
 		fromend = msg.mid(fromstart, subjstart - fromstart).indexOf("\n");
@@ -144,6 +176,7 @@ void WombatMail::PopulateMbox(QString mfpath)
 	    if(dateend == -1)
 		dateend = 50;
 	    int subjend = msg.mid(subjstart).indexOf("\n");
+        */
 	    /*
 	    qDebug() << "message:" << i+1; // col 1
 	    qDebug() << "From|" << msg.mid(fromstart + 6, fromend - 6).remove("\n"); // col 2
@@ -151,12 +184,14 @@ void WombatMail::PopulateMbox(QString mfpath)
 	    qDebug() << "Subj|" << msg.mid(subjstart + 9, subjend - 9).remove("\n"); // col 4
 	    qDebug() << "layout|" << poslist.at(i) << "," << poslist.at(i+1) - poslist.at(i) - linelength.at(i); // plaintext
 	    */
+        /*
 	    QTableWidgetItem* tmpitem = new QTableWidgetItem(QString::number(i+1));
 	    tmpitem->setToolTip(QString(QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i) - linelength.at(i))));
 	    ui->tablewidget->setItem(i, 0, tmpitem);
 	    ui->tablewidget->setItem(i, 2, new QTableWidgetItem(msg.mid(fromstart + 6, fromend - 6).remove("\n")));
 	    ui->tablewidget->setItem(i, 3, new QTableWidgetItem(msg.mid(datestart + 6, dateend - 6).remove("\n")));
 	    ui->tablewidget->setItem(i, 4, new QTableWidgetItem(msg.mid(subjstart + 9, subjend - 9).remove("\n")));
+        */
 	    //ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "Date Time", "Subject"});
 	    // msgbody shows just the body, but i think it is more beneficial to see the whole message including headers...
 	    //QString msgbody = msg.mid(subjstart + subjend); // just body
@@ -173,8 +208,13 @@ void WombatMail::PopulateMbox(QString mfpath)
                 if(tmpstr.startsWith("Layout|"))
                     tmpitem->setToolTip(tmpstr.split("|").at(1));
 	    */
-        }
+        //}
+    /*
+    for(int i=0; i < headers.count(); i++)
+    {
+        qDebug() << "headers:" << headers.at(i);
     }
+    */
 }
 
 void WombatMail::OpenMailBox()
@@ -206,7 +246,7 @@ void WombatMail::OpenMailBox()
 	    }
 	    else if(mailboxtype == 0x02) // MBOX
 	    {
-                PopulateMbox(mboxfilepath);
+                //PopulateMbox(mboxfilepath);
 		//populate table which needs to be reproducible
 	    }
 	}
