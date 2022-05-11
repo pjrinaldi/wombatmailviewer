@@ -147,6 +147,10 @@ void WombatMail::PopulateMbox(QString mfpath)
         // so i should add an entry in the hash for the end of the header. when it's done.
         QList<qint64> headeritems;
         headeritems.clear();
+        int fromstart = headers.at(i).indexOf("From: ");
+        int subjstart = headers.at(i).indexOf("Subject: ");
+        int datestart = headers.at(i).indexOf("Date: ");
+        qDebug() << "i:" << i << "subjstart:" << subjstart;
         headeritems.append(headers.at(i).indexOf("From: "));
         headeritems.append(headers.at(i).indexOf("Date: "));
         headeritems.append(headers.at(i).indexOf("Bcc: "));
@@ -158,15 +162,39 @@ void WombatMail::PopulateMbox(QString mfpath)
         headeritems.append(headers.at(i).indexOf("Comment: "));
         headeritems.append(headers.at(i).indexOf("In-Reply-To: "));
         headeritems.append(headers.at(i).indexOf("X-Special-action: "));
-        //qDebug() << "headeritems before sort:" << headeritems;
+        headeritems.append(headers.at(i).indexOf("References: "));
+        headeritems.append(headers.at(i).indexOf("Newsgroups: "));
+        headeritems.append(headers.at(i).indexOf("Lines: "));
+        headeritems.append(headers.at(i).indexOf("Message-Id: "));
+        headeritems.append(headers.at(i).indexOf("Mime-Version: "));
+        headeritems.append(headers.at(i).indexOf("Content-Type: "));
         std::sort(headeritems.begin(), headeritems.end());
-        //qDebug() << "headeritems after sort:" << headeritems;
         auto last = std::unique(headeritems.begin(), headeritems.end());
         headeritems.erase(last, headeritems.end());
         headeritems.removeFirst();
+        headeritems.append(headers.at(i).length());
         qDebug() << "headeritems after unique:" << headeritems;
+
+        QString datestr = "";
+        QString subjstr = "";
+        //qDebug() << "From Header:" << headers.at(i).mid(headeritems.at(headeritems.indexOf(fromstart)), headeritems.at(headeritems.indexOf(fromstart) + 1) - headeritems.at(headeritems.indexOf(fromstart)));
+        QString fromstr = headers.at(i).mid(headeritems.at(headeritems.indexOf(fromstart)), headeritems.at(headeritems.indexOf(fromstart) + 1) - headeritems.at(headeritems.indexOf(fromstart)));
+        if(datestart > -1)
+            datestr = headers.at(i).mid(headeritems.at(headeritems.indexOf(datestart)), headeritems.at(headeritems.indexOf(datestart) + 1) - headeritems.at(headeritems.indexOf(datestart)));
+        if(subjstart > -1)
+            subjstr = headers.at(i).mid(headeritems.at(headeritems.indexOf(subjstart)), headeritems.at(headeritems.indexOf(subjstart) + 1) - headeritems.at(headeritems.indexOf(subjstart)));
+        QTableWidgetItem* tmpitem = new QTableWidgetItem(QString::number(i+1));
+        tmpitem->setToolTip(QString(QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i) - linelength.at(i))));
+        //tmpitem->setToolTip(QString(QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i) - linelength.at(i))));
+        ui->tablewidget->setItem(i, 0, tmpitem);
+        ui->tablewidget->setItem(i, 2, new QTableWidgetItem(fromstr.remove("\n")));
+        ui->tablewidget->setItem(i, 3, new QTableWidgetItem(datestr.remove("\n")));
+        ui->tablewidget->setItem(i, 4, new QTableWidgetItem(subjstr.remove("\n")));
+
+        //ui->tablewidget->setItem(i, 2, new QTableWidgetItem(msg.mid(fromstart + 6, fromend - 6).remove("\n")));
+        //ui->tablewidget->setItem(i, 3, new QTableWidgetItem(msg.mid(datestart + 6, dateend - 6).remove("\n")));
+        //ui->tablewidget->setItem(i, 4, new QTableWidgetItem(msg.mid(subjstart + 9, subjend - 9).remove("\n")));
         // need to figure out all the options for header entries, find their positions, put em in list and sort it, then i can split where i need to...
-        //int fromstart = headers.indexOf("From: ");
     }
         /*
         QString tmpsubj = "";
