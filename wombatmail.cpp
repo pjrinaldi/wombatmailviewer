@@ -140,8 +140,33 @@ void WombatMail::PopulateMbox(QString mfpath)
     }
     for(int i=0; i < headers.count(); i++)
     {
+        // maybe i need to use a qhash<qint64, qstring> and that will unique it and probably remove the need for the sort,
+        // i can then query the hash to get the offset for the i don't even need to find the other header items.
+        // since i'm going to place the header block in the plaintext... oh wait, i need them all so i know where it ends..
+        // so when i find the from, it's place goes to from its item start to the next items start...
+        // so i should add an entry in the hash for the end of the header. when it's done.
+        QList<qint64> headeritems;
+        headeritems.clear();
+        headeritems.append(headers.at(i).indexOf("From: "));
+        headeritems.append(headers.at(i).indexOf("Date: "));
+        headeritems.append(headers.at(i).indexOf("Bcc: "));
+        headeritems.append(headers.at(i).indexOf("To: "));
+        headeritems.append(headers.at(i).indexOf("Sender: "));
+        headeritems.append(headers.at(i).indexOf("Message-ID: "));
+        headeritems.append(headers.at(i).indexOf("Subject: "));
+        headeritems.append(headers.at(i).indexOf("cc: "));
+        headeritems.append(headers.at(i).indexOf("Comment: "));
+        headeritems.append(headers.at(i).indexOf("In-Reply-To: "));
+        headeritems.append(headers.at(i).indexOf("X-Special-action: "));
+        //qDebug() << "headeritems before sort:" << headeritems;
+        std::sort(headeritems.begin(), headeritems.end());
+        //qDebug() << "headeritems after sort:" << headeritems;
+        auto last = std::unique(headeritems.begin(), headeritems.end());
+        headeritems.erase(last, headeritems.end());
+        headeritems.removeFirst();
+        qDebug() << "headeritems after unique:" << headeritems;
         // need to figure out all the options for header entries, find their positions, put em in list and sort it, then i can split where i need to...
-        int fromstart = headers.indexOf("From: ");
+        //int fromstart = headers.indexOf("From: ");
     }
         /*
         QString tmpsubj = "";
