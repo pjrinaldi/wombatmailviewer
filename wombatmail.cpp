@@ -112,8 +112,10 @@ void WombatMail::PopulateMbox(QString mfpath)
     ui->tablewidget->setRowCount(poslist.count() - 1);
     QStringList headers;
     QStringList bodies;
+    QStringList msgs;
     headers.clear();
     bodies.clear();
+    msgs.clear();
     for(int i=0; i < poslist.count() - 1; i++)
     {
         int splitpos = 0;
@@ -136,6 +138,9 @@ void WombatMail::PopulateMbox(QString mfpath)
         mboxfile.seek(poslist.at(i));
         headers.append(mboxfile.read(splitpos));
         bodies.append(mboxfile.read(poslist.at(i+1) - linelength.at(i) - splitpos - poslist.at(i)));
+        mboxfile.seek(poslist.at(i));
+        msgs.append(mboxfile.read(poslist.at(i+1) - linelength.at(i) - poslist.at(i)));
+        
         mboxfile.close();
     }
     for(int i=0; i < headers.count(); i++)
@@ -149,7 +154,15 @@ void WombatMail::PopulateMbox(QString mfpath)
         headeritems.clear();
         int fromstart = headers.at(i).indexOf("From: ");
         int subjstart = headers.at(i).indexOf("Subject: ");
+        //int fromstart = msgs.at(i).indexOf("From: ");
+        //int subjstart = msgs.at(i).indexOf("Subject: ");
+        if(i == 8)
+        {
+            qDebug() << "headers.at(i):" << headers.at(i);
+            qDebug() << "headers.at(i).mid():" << headers.at(i).mid(headers.at(i).indexOf("Subject: "));
+        }
         int datestart = headers.at(i).indexOf("Date: ");
+        //int datestart = msgs.at(i).indexOf("Date: ");
         qDebug() << "i:" << i << "subjstart:" << subjstart;
         headeritems.append(headers.at(i).indexOf("From: "));
         headeritems.append(headers.at(i).indexOf("Date: "));
@@ -166,8 +179,9 @@ void WombatMail::PopulateMbox(QString mfpath)
         headeritems.append(headers.at(i).indexOf("Newsgroups: "));
         headeritems.append(headers.at(i).indexOf("Lines: "));
         headeritems.append(headers.at(i).indexOf("Message-Id: "));
-        headeritems.append(headers.at(i).indexOf("Mime-Version: "));
+        headeritems.append(headers.at(i).indexOf("MIME-Version: "));
         headeritems.append(headers.at(i).indexOf("Content-Type: "));
+        headeritems.append(headers.at(i).indexOf("Content-Transfer-Encoding: "));
         std::sort(headeritems.begin(), headeritems.end());
         auto last = std::unique(headeritems.begin(), headeritems.end());
         headeritems.erase(last, headeritems.end());
