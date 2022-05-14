@@ -453,7 +453,7 @@ void WombatMail::PopulateMboxEmail()
 	mboxfile.seek(layout.split(",").at(0).toULongLong());
 	QString msg = mboxfile.read(layout.split(",").at(1).toULongLong());
 	ui->plaintext->setPlainText(msg);
-	ui->textbrowser->setHtml(msg);
+	ui->textbrowser->setHtml(msg.replace("\n", "<br/>"));
 	mboxfile.close();
     }
 }
