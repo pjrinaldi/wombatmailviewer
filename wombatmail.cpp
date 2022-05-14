@@ -37,6 +37,8 @@ WombatMail::WombatMail(QWidget* parent) : QMainWindow(parent), ui(new Ui::Wombat
     ui->tablewidget->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->tablewidget, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(TagMenu(const QPoint &)), Qt::DirectConnection);
     mboxheader = QRegExp(QStringLiteral("^From .*[0-9][0-9]:[0-9][0-9]")); // kmbox regexp expression
+    ui->textbrowser->setOpenExternalLinks(false);
+    ui->textbrowser->setOpenLinks(false);
 }
 
 WombatMail::~WombatMail()
@@ -145,143 +147,45 @@ void WombatMail::PopulateMbox(QString mfpath)
     }
     for(int i=0; i < headers.count(); i++)
     {
-        // maybe i need to use a qhash<qint64, qstring> and that will unique it and probably remove the need for the sort,
-        // i can then query the hash to get the offset for the i don't even need to find the other header items.
-        // since i'm going to place the header block in the plaintext... oh wait, i need them all so i know where it ends..
-        // so when i find the from, it's place goes to from its item start to the next items start...
-        // so i should add an entry in the hash for the end of the header. when it's done.
+	QStringList mailheaders = { "From: ", "Date: ", "Bcc: ", "To: ", "Sender: ", "Message-ID: ", "Subject: ", "cc: ", "Comment: ", "In-Reply-To: ", "X-Special-action: ", "References: ", "Newsgroups: ", "Lines: ", "Message-Id: ", "MIME-Version: ", "Content-Type: ", "Content-Transfer-Encoding: ", "Mime-Version: " };
         QList<qint64> headeritems;
         headeritems.clear();
-        int fromstart = headers.at(i).indexOf("From: ");
-        int subjstart = headers.at(i).indexOf("Subject: ");
-        //int fromstart = msgs.at(i).indexOf("From: ");
-        //int subjstart = msgs.at(i).indexOf("Subject: ");
-        if(i == 8)
-        {
-            qDebug() << "headers.at(i):" << headers.at(i);
-            qDebug() << "headers.at(i).mid():" << headers.at(i).mid(headers.at(i).indexOf("Subject: "));
-        }
-        int datestart = headers.at(i).indexOf("Date: ");
-        //int datestart = msgs.at(i).indexOf("Date: ");
-        qDebug() << "i:" << i << "subjstart:" << subjstart;
-        headeritems.append(headers.at(i).indexOf("From: "));
-        headeritems.append(headers.at(i).indexOf("Date: "));
-        headeritems.append(headers.at(i).indexOf("Bcc: "));
-        headeritems.append(headers.at(i).indexOf("To: "));
-        headeritems.append(headers.at(i).indexOf("Sender: "));
-        headeritems.append(headers.at(i).indexOf("Message-ID: "));
-        headeritems.append(headers.at(i).indexOf("Subject: "));
-        headeritems.append(headers.at(i).indexOf("cc: "));
-        headeritems.append(headers.at(i).indexOf("Comment: "));
-        headeritems.append(headers.at(i).indexOf("In-Reply-To: "));
-        headeritems.append(headers.at(i).indexOf("X-Special-action: "));
-        headeritems.append(headers.at(i).indexOf("References: "));
-        headeritems.append(headers.at(i).indexOf("Newsgroups: "));
-        headeritems.append(headers.at(i).indexOf("Lines: "));
-        headeritems.append(headers.at(i).indexOf("Message-Id: "));
-        headeritems.append(headers.at(i).indexOf("MIME-Version: "));
-        headeritems.append(headers.at(i).indexOf("Content-Type: "));
-        headeritems.append(headers.at(i).indexOf("Content-Transfer-Encoding: "));
+        int fromstart = msgs.at(i).indexOf("From: ");
+        int subjstart = msgs.at(i).indexOf("Subject: ");
+        int datestart = msgs.at(i).indexOf("Date: ");
+	// get offset for the mail headers
+	for(int j=0; j < mailheaders.count(); j++)
+	    headeritems.append(msgs.at(i).indexOf(mailheaders.at(j), Qt::CaseInsensitive));
+	// get all the offsets for the line returns \n
+	int off = 0;
+	while(off <= msgs.at(i).length())
+	{
+	    off = msgs.at(i).indexOf("\n", off+1);
+	    if(off == -1)
+		break;
+	    headeritems.append(off);
+	}
         std::sort(headeritems.begin(), headeritems.end());
         auto last = std::unique(headeritems.begin(), headeritems.end());
         headeritems.erase(last, headeritems.end());
         headeritems.removeFirst();
-        headeritems.append(headers.at(i).length());
-        qDebug() << "headeritems after unique:" << headeritems;
+	headeritems.append(msgs.at(i).length());
+        //qDebug() << "headeritems after unique:" << headeritems;
 
         QString datestr = "";
         QString subjstr = "";
-        //qDebug() << "From Header:" << headers.at(i).mid(headeritems.at(headeritems.indexOf(fromstart)), headeritems.at(headeritems.indexOf(fromstart) + 1) - headeritems.at(headeritems.indexOf(fromstart)));
-        QString fromstr = headers.at(i).mid(headeritems.at(headeritems.indexOf(fromstart)), headeritems.at(headeritems.indexOf(fromstart) + 1) - headeritems.at(headeritems.indexOf(fromstart)));
+        QString fromstr = msgs.at(i).mid(headeritems.at(headeritems.indexOf(fromstart)) + 6, headeritems.at(headeritems.indexOf(fromstart) + 1) - headeritems.at(headeritems.indexOf(fromstart)) - 6);
         if(datestart > -1)
-            datestr = headers.at(i).mid(headeritems.at(headeritems.indexOf(datestart)), headeritems.at(headeritems.indexOf(datestart) + 1) - headeritems.at(headeritems.indexOf(datestart)));
+            datestr = msgs.at(i).mid(headeritems.at(headeritems.indexOf(datestart)) + 6, headeritems.at(headeritems.indexOf(datestart) + 1) - headeritems.at(headeritems.indexOf(datestart)) - 6);
         if(subjstart > -1)
-            subjstr = headers.at(i).mid(headeritems.at(headeritems.indexOf(subjstart)), headeritems.at(headeritems.indexOf(subjstart) + 1) - headeritems.at(headeritems.indexOf(subjstart)));
+            subjstr = msgs.at(i).mid(headeritems.at(headeritems.indexOf(subjstart)) + 9, headeritems.at(headeritems.indexOf(subjstart) + 1) - headeritems.at(headeritems.indexOf(subjstart)) - 9);
         QTableWidgetItem* tmpitem = new QTableWidgetItem(QString::number(i+1));
         tmpitem->setToolTip(QString(QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i) - linelength.at(i))));
-        //tmpitem->setToolTip(QString(QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i) - linelength.at(i))));
         ui->tablewidget->setItem(i, 0, tmpitem);
         ui->tablewidget->setItem(i, 2, new QTableWidgetItem(fromstr.remove("\n")));
         ui->tablewidget->setItem(i, 3, new QTableWidgetItem(datestr.remove("\n")));
         ui->tablewidget->setItem(i, 4, new QTableWidgetItem(subjstr.remove("\n")));
-
-        //ui->tablewidget->setItem(i, 2, new QTableWidgetItem(msg.mid(fromstart + 6, fromend - 6).remove("\n")));
-        //ui->tablewidget->setItem(i, 3, new QTableWidgetItem(msg.mid(datestart + 6, dateend - 6).remove("\n")));
-        //ui->tablewidget->setItem(i, 4, new QTableWidgetItem(msg.mid(subjstart + 9, subjend - 9).remove("\n")));
-        // need to figure out all the options for header entries, find their positions, put em in list and sort it, then i can split where i need to...
     }
-        /*
-        QString tmpsubj = "";
-        QString tmpfrom = "";
-        QString tmpdate = "";
-        QString msg = "";
-        if(!mboxfile.isOpen())
-            mboxfile.open(QIODevice::ReadOnly | QIODevice::Text);
-        if(mboxfile.isOpen())
-        {
-            mboxfile.seek(poslist.at(i));
-            qint64 curpos = poslist.at(i);
-            msg = mboxfile.read(poslist.at(i+1) - poslist.at(i) - linelength.at(i));
-            mboxfile.close();
-	    if(msg.contains("15 Aug"))
-		qDebug() << "msg:" << msg;
-	    int fromstart = msg.indexOf("From: ");
-	    int datestart = msg.indexOf("Date: ");
-	    int subjstart = msg.indexOf("Subject: ");
-            */
-	    /*
-	     * this method for end is flawed because it assumes the next after from is date or subj... but it doesn't have to be in that order...
-	     * i may have to read the file by line while file's pos <= old (read() position).
-	     * then i can read it by line, get the header start and finish when i hit an empty line with just \n...
-	     * then i get the body for hte rest of the message and can break out of while...
-	     */
-        /*
-	    int fromend = msg.mid(fromstart, datestart - fromstart).indexOf("\n");
-	    if(fromend == -1)
-		fromend = msg.mid(fromstart, subjstart - fromstart).indexOf("\n");
-	    int dateend = msg.mid(datestart, subjstart - datestart).indexOf("\n");
-	    if(dateend == -1)
-		dateend = 50;
-	    int subjend = msg.mid(subjstart).indexOf("\n");
-        */
-	    /*
-	    qDebug() << "message:" << i+1; // col 1
-	    qDebug() << "From|" << msg.mid(fromstart + 6, fromend - 6).remove("\n"); // col 2
-	    qDebug() << "Date|" << msg.mid(datestart + 6, dateend - 6).remove("\n"); // col 3
-	    qDebug() << "Subj|" << msg.mid(subjstart + 9, subjend - 9).remove("\n"); // col 4
-	    qDebug() << "layout|" << poslist.at(i) << "," << poslist.at(i+1) - poslist.at(i) - linelength.at(i); // plaintext
-	    */
-        /*
-	    QTableWidgetItem* tmpitem = new QTableWidgetItem(QString::number(i+1));
-	    tmpitem->setToolTip(QString(QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i) - linelength.at(i))));
-	    ui->tablewidget->setItem(i, 0, tmpitem);
-	    ui->tablewidget->setItem(i, 2, new QTableWidgetItem(msg.mid(fromstart + 6, fromend - 6).remove("\n")));
-	    ui->tablewidget->setItem(i, 3, new QTableWidgetItem(msg.mid(datestart + 6, dateend - 6).remove("\n")));
-	    ui->tablewidget->setItem(i, 4, new QTableWidgetItem(msg.mid(subjstart + 9, subjend - 9).remove("\n")));
-        */
-	    //ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "Date Time", "Subject"});
-	    // msgbody shows just the body, but i think it is more beneficial to see the whole message including headers...
-	    //QString msgbody = msg.mid(subjstart + subjend); // just body
-	    //qDebug() << "Body|" << msgbody;
-	    /*
-		ui->tablewidget->setRowCount(mailboxfiles.count());
-		QTableWidgetItem* tmpitem = new QTableWidgetItem(QString(mailboxfiles.at(i)).remove(".prop"));
-                if(tmpstr.startsWith("From|"))
-                    ui->tablewidget->setItem(i, 1, new QTableWidgetItem(tmpstr.split("|").at(1)));
-                if(tmpstr.startsWith("Date|"))
-                    ui->tablewidget->setItem(i, 2, new QTableWidgetItem(tmpstr.split("|").at(1)));
-                if(tmpstr.startsWith("Subject|"))
-                    ui->tablewidget->setItem(i, 3, new QTableWidgetItem(tmpstr.split("|").at(1)));
-                if(tmpstr.startsWith("Layout|"))
-                    tmpitem->setToolTip(tmpstr.split("|").at(1));
-	    */
-        //}
-    /*
-    for(int i=0; i < headers.count(); i++)
-    {
-        qDebug() << "headers:" << headers.at(i);
-    }
-    */
 }
 
 void WombatMail::OpenMailBox()
@@ -549,6 +453,7 @@ void WombatMail::PopulateMboxEmail()
 	mboxfile.seek(layout.split(",").at(0).toULongLong());
 	QString msg = mboxfile.read(layout.split(",").at(1).toULongLong());
 	ui->plaintext->setPlainText(msg);
+	ui->textbrowser->setHtml(msg);
 	mboxfile.close();
     }
 }
