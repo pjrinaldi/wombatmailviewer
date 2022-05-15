@@ -19,6 +19,8 @@
 #include "cssstrings.h"
 
 #include <mimetic/mimetic.h>
+//#include <KF5/KMime>
+//#include <KF5/KMime/kmime/kmime_message.h>
 
 #define TICKS_PER_SECOND 10000000
 #define EPOCH_DIFFERENCE 11644473600LL

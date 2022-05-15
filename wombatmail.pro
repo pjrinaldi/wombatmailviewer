@@ -1,4 +1,4 @@
-QT += widgets core
+QT += widgets core KMime
 linux:CONFIG += debug_and_release debug_and_release_target qt x11 build_all c++14 
 #INCLUDEPATH += /usr/local/lib/
 INCLUDEPATH += /usr/local/include/

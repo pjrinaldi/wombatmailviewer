@@ -145,8 +145,10 @@ void WombatMail::PopulateMbox(QString mfpath)
         
         mboxfile.close();
     }
-    for(int i=0; i < headers.count(); i++)
+    for(int i=0; i < msgs.count(); i++)
     {
+	// MY METHOD WORKS, BUT I NOW NEED TO FIGURE OUT HOW TO HANDLE MIME PARTS
+	/*
 	QStringList mailheaders = { "From: ", "Date: ", "Bcc: ", "To: ", "Sender: ", "Message-ID: ", "Subject: ", "cc: ", "Comment: ", "In-Reply-To: ", "X-Special-action: ", "References: ", "Newsgroups: ", "Lines: ", "Message-Id: ", "MIME-Version: ", "Content-Type: ", "Content-Transfer-Encoding: ", "Mime-Version: " };
         QList<qint64> headeritems;
         headeritems.clear();
@@ -185,6 +187,15 @@ void WombatMail::PopulateMbox(QString mfpath)
         ui->tablewidget->setItem(i, 2, new QTableWidgetItem(fromstr.remove("\n")));
         ui->tablewidget->setItem(i, 3, new QTableWidgetItem(datestr.remove("\n")));
         ui->tablewidget->setItem(i, 4, new QTableWidgetItem(subjstr.remove("\n")));
+	*/
+	// ATTEMPTING TO USE MIMETIC TO HANDLE IT
+	//std::istringstream tmpis(msgs.at(i).toStdString());
+	//mimetic::Message
+	//mimetic::MimeEntity tmpme(tmpis);
+	//mimetic::Header tmphead = tmpme.header();
+	//mimetic::Body tmpbody = tmpme.body();
+	// ATTEMPTING TO USE KMime TO HANDLE IT
+	
     }
 }
 
