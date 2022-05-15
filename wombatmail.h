@@ -18,6 +18,8 @@
 #include "libpff.h"
 #include "cssstrings.h"
 
+#include <mimetic/mimetic.h>
+
 #define TICKS_PER_SECOND 10000000
 #define EPOCH_DIFFERENCE 11644473600LL
 #define NSEC_BTWN_1904_1970	(uint32_t) 2082844800U
