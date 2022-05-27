@@ -506,7 +506,17 @@ void WombatMail::PopulateMboxEmail()
 	msgdata = msg.toStdString();
 	vmime::shared_ptr <vmime::message> vmsg = vmime::make_shared <vmime::message>();
 	vmsg->parse(msgdata);
-	//ui->plaintext->setPlainText(vmsg->getHeader()->getContents()
+	//vmime::shared_ptr <vmime::header> hdr = vmsg->getHeader();
+	// need to loop over all headers and then populate one per line to a string to populate plaintext
+	vmime::shared_ptr <vmime::body> bdy = vmsg->getBody();
+	vmime::shared_ptr <const vmime::contentHandler> cts = bdy->getContents();
+	vmime::string bstr;
+	vmime::utility::outputStreamStringAdapter ostr(bstr);
+	cts->extract(ostr);
+	// will need to actually use messageparser to get textparts and if it's text/plain, then surround it
+	// in <pre></pre> so it displays correctly...
+	// may need to see if the body has html content or else just set text...
+	ui->textbrowser->setHtml(QString::fromStdString(bstr));
 	/*
 	vmime::string msgdata;
 	msgdata = msgs.at(i).toStdString();
@@ -514,7 +524,7 @@ void WombatMail::PopulateMboxEmail()
 	vmsg->parse(msgdata);
 	 */ 
 	ui->plaintext->setPlainText(msg);
-	ui->textbrowser->setHtml(msg.replace("\n", "<br/>"));
+	//ui->textbrowser->setHtml(msg.replace("\n", "<br/>"));
 	mboxfile.close();
     }
 }
