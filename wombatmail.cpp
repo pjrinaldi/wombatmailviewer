@@ -39,6 +39,7 @@ WombatMail::WombatMail(QWidget* parent) : QMainWindow(parent), ui(new Ui::Wombat
     mboxheader = QRegExp(QStringLiteral("^From .*[0-9][0-9]:[0-9][0-9]")); // kmbox regexp expression
     ui->textbrowser->setOpenExternalLinks(false);
     ui->textbrowser->setOpenLinks(false);
+    ch = vmime::charset(vmime::charsets::UTF_8);
 }
 
 WombatMail::~WombatMail()
@@ -188,6 +189,7 @@ void WombatMail::PopulateMbox(QString mfpath)
         ui->tablewidget->setItem(i, 3, new QTableWidgetItem(datestr.remove("\n")));
         ui->tablewidget->setItem(i, 4, new QTableWidgetItem(subjstr.remove("\n")));
 	*/
+	/*
 	// ATTEMPTING TO USE MIMETIC TO HANDLE IT
 	std::istringstream tmpis(msgs.at(i).toStdString());
 	//mimetic::Message tmpmsg(tmpis);
@@ -207,6 +209,30 @@ void WombatMail::PopulateMbox(QString mfpath)
 	ui->tablewidget->setItem(i, 4, new QTableWidgetItem(QString::fromStdString(tmpsubj.str())));
 	//tmpos << tmphead.date();
 	//qDebug() << "i:" << i << "from:" << QString::fromStdString(tmpos.str());
+	*/
+	// ATTEMPTING TO USE VMIME TO HANDLE IT
+	//vmime::charset ch(vmime::charsets::UTF_8);
+	vmime::string msgdata;
+	msgdata = msgs.at(i).toStdString();
+	vmime::shared_ptr <vmime::message> vmsg = vmime::make_shared <vmime::message>();
+	vmsg->parse(msgdata);
+	vmime::messageParser vmp(vmsg);
+	vmime::text vsubj = vmp.getSubject();
+	vmime::mailbox vfrom = vmp.getExpeditor();
+	vmime::datetime vdate = vmp.getDate();
+        QTableWidgetItem* tmpitem = new QTableWidgetItem(QString::number(i+1));
+        tmpitem->setToolTip(QString(QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i) - linelength.at(i))));
+	ui->tablewidget->setItem(i, 0, tmpitem);
+	ui->tablewidget->setItem(i, 2, new QTableWidgetItem(QString(QString::fromStdString(vfrom.getName().getConvertedText(ch)) + " <" + QString::fromStdString(vfrom.getEmail().toString()) + ">")));
+	ui->tablewidget->setItem(i, 3, new QTableWidgetItem(QString(QString::number(vdate.getMonth()) + "/" + QString::number(vdate.getDay()) + "/" + QString::number(vdate.getYear()) + " " + QString::number(vdate.getHour()) + ":" + QString::number(vdate.getMinute()) + ":" + QString::number(vdate.getSecond()))));
+	ui->tablewidget->setItem(i, 4, new QTableWidgetItem(QString::fromStdString(vsubj.getConvertedText(ch))));
+	/*
+	qDebug() << "i:" << i;
+	qDebug() << "from:" << QString::fromStdString(vfrom.getName().getConvertedText(ch)) << QString::fromStdString(vfrom.getEmail().toString());
+	//qDebug() << "from:" << QString::fromStdString(vfrom.getConvertedText(ch));
+	qDebug() << "subj:" << QString::fromStdString(vsubj.getConvertedText(ch));
+	qDebug() << "date:" << vdate.getMonth() << vdate.getDay() << vdate.getYear() << vdate.getHour() << vdate.getMinute() << vdate.getSecond();
+	*/
 	// ATTEMPTING TO USE KMime TO HANDLE IT
 	
     }
@@ -476,6 +502,17 @@ void WombatMail::PopulateMboxEmail()
     {
 	mboxfile.seek(layout.split(",").at(0).toULongLong());
 	QString msg = mboxfile.read(layout.split(",").at(1).toULongLong());
+	vmime::string msgdata;
+	msgdata = msg.toStdString();
+	vmime::shared_ptr <vmime::message> vmsg = vmime::make_shared <vmime::message>();
+	vmsg->parse(msgdata);
+	//ui->plaintext->setPlainText(vmsg->getHeader()->getContents()
+	/*
+	vmime::string msgdata;
+	msgdata = msgs.at(i).toStdString();
+	vmime::shared_ptr <vmime::message> vmsg = vmime::make_shared <vmime::message>();
+	vmsg->parse(msgdata);
+	 */ 
 	ui->plaintext->setPlainText(msg);
 	ui->textbrowser->setHtml(msg.replace("\n", "<br/>"));
 	mboxfile.close();

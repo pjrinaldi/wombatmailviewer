@@ -19,6 +19,7 @@
 #include "cssstrings.h"
 
 #include <mimetic/mimetic.h>
+#include <vmime.hpp>
 //#include <KF5/KMime>
 //#include <KF5/KMime/kmime/kmime_message.h>
 
@@ -94,6 +95,8 @@ private:
     QStringList taggeditems;
     QStringList mboxes;
     QRegExp mboxheader;
+
+    vmime::charset ch;
 };
 
 #endif // WOMBATMAIL_H
