@@ -189,11 +189,24 @@ void WombatMail::PopulateMbox(QString mfpath)
         ui->tablewidget->setItem(i, 4, new QTableWidgetItem(subjstr.remove("\n")));
 	*/
 	// ATTEMPTING TO USE MIMETIC TO HANDLE IT
-	//std::istringstream tmpis(msgs.at(i).toStdString());
-	//mimetic::Message
-	//mimetic::MimeEntity tmpme(tmpis);
-	//mimetic::Header tmphead = tmpme.header();
-	//mimetic::Body tmpbody = tmpme.body();
+	std::istringstream tmpis(msgs.at(i).toStdString());
+	//mimetic::Message tmpmsg(tmpis);
+	//tmpsg(tmpis);
+	//
+	mimetic::MimeEntity tmpme(tmpis);
+	mimetic::Header tmphead = tmpme.header();
+	mimetic::Body tmpbody = tmpme.body();
+	std::ostringstream tmpfrom;
+	std::ostringstream tmpsubj;
+        QTableWidgetItem* tmpitem = new QTableWidgetItem(QString::number(i+1));
+        tmpitem->setToolTip(QString(QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i) - linelength.at(i))));
+	ui->tablewidget->setItem(i, 0, tmpitem);
+	tmpfrom << tmphead.from();
+	ui->tablewidget->setItem(i, 2, new QTableWidgetItem(QString::fromStdString(tmpfrom.str())));
+	tmpsubj << tmphead.subject();
+	ui->tablewidget->setItem(i, 4, new QTableWidgetItem(QString::fromStdString(tmpsubj.str())));
+	//tmpos << tmphead.date();
+	//qDebug() << "i:" << i << "from:" << QString::fromStdString(tmpos.str());
 	// ATTEMPTING TO USE KMime TO HANDLE IT
 	
     }
