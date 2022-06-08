@@ -506,6 +506,44 @@ void WombatMail::PopulateMboxEmail()
 	msgdata = msg.toStdString();
 	vmime::shared_ptr <vmime::message> vmsg = vmime::make_shared <vmime::message>();
 	vmsg->parse(msgdata);
+
+        vmime::messageParser mp(vmsg);
+        qDebug() << "attachment count:" << mp.getAttachmentCount();
+        // handle attachments here
+        // for ( int i = 0 ; i < mp.getAttachmentCount() ; ++i )
+        //{
+            //vmime: : shared ptr <const vmime: : attachment> att = mp.getAttachmentAt( i ) ;
+            //std : : cout << ” − ” << att−>getType ( ) . generate () << std : : endl ;
+        //}
+
+        qDebug() << "text parts:" << mp.getTextPartCount();
+        // handle text parts here
+        // for ( int i = 0 ; i < mp. getTextPartCount() ; ++i )
+        // {
+            // vmime: : shared ptr <const vmime: : textPart> tp = mp. getTextPartAt( i ) ;
+            // text/html
+            // if (tp−>getType ( ) .getSubType() == vmime: : mediaTypes : :TEXTHTML)
+            // {
+                // vmime: : shared ptr <const vmime: : htmlTextPart> htp =
+                // vmime: : dynamicCast <const vmime: : htmlTextPart>(tp ) ;
+                // HTML text i s in tp−>getText ()
+                // Plain text i s in tp−>getPlainText ()
+                // Enumerate embedded objects
+                // for ( int j = 0 ; j < htp−>getObjectCount() ; ++j )
+                // {
+                    // vmime: : shared ptr <const vmime: : htmlTextPart : : embeddedObject> obj =
+                    // htp−>getObjectAt( j ) ;
+                    // Identifier (Content−Id or Content−Location) i s obj−>getId ()
+                    // Object data i s in obj−>getData()
+                // }
+            // }
+            // text/plain or anything else
+            // else
+            // {
+                // Text i s in tp−>getText ()
+            // }
+        // }
+        /*
 	//vmime::shared_ptr <vmime::header> hdr = vmsg->getHeader();
 	// need to loop over all headers and then populate one per line to a string to populate plaintext
 	vmime::shared_ptr <vmime::body> bdy = vmsg->getBody();
@@ -517,13 +555,14 @@ void WombatMail::PopulateMboxEmail()
 	// in <pre></pre> so it displays correctly...
 	// may need to see if the body has html content or else just set text...
 	ui->textbrowser->setHtml(QString::fromStdString(bstr));
+        */
 	/*
 	vmime::string msgdata;
 	msgdata = msgs.at(i).toStdString();
 	vmime::shared_ptr <vmime::message> vmsg = vmime::make_shared <vmime::message>();
 	vmsg->parse(msgdata);
-	 */ 
-	ui->plaintext->setPlainText(msg);
+	*/ 
+        ui->plaintext->setPlainText(msg);
 	//ui->textbrowser->setHtml(msg.replace("\n", "<br/>"));
 	mboxfile.close();
     }
