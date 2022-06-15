@@ -111,7 +111,7 @@ void WombatMail::PopulateMbox(QString mfpath)
     //qDebug() << "linelength:" << linelength;
     ui->tablewidget->clear();
     ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "Date Time", "Subject"});
-    ui->plaintext->setPlainText("");
+    //ui->plaintext->setPlainText("");
     ui->tablewidget->setRowCount(poslist.count() - 1);
     QStringList headers;
     QStringList bodies;
@@ -409,7 +409,7 @@ void WombatMail::CreateNewTag()
         if(taggeditems.at(i).contains(idkeyvalue))
             taggeditems.removeAt(i);
     }
-    taggeditems.append(tagname + "|" + statuslabel->text() + "\\" + ui->tablewidget->selectedItems().at(1)->text() + "|" + ui->plaintext->toPlainText());
+    //taggeditems.append(tagname + "|" + statuslabel->text() + "\\" + ui->tablewidget->selectedItems().at(1)->text() + "|" + ui->plaintext->toPlainText());
 }
 
 void WombatMail::UpdateTagsMenu()
@@ -447,7 +447,7 @@ void WombatMail::SetTag()
                 taggeditems.removeAt(i);
         }
     }
-    taggeditems.append(tagaction->iconText() + "|" + statuslabel->text() + "\\" + ui->tablewidget->selectedItems().at(1)->text() + "|" + ui->plaintext->toPlainText());
+    //taggeditems.append(tagaction->iconText() + "|" + statuslabel->text() + "\\" + ui->tablewidget->selectedItems().at(1)->text() + "|" + ui->plaintext->toPlainText());
 
     ui->tablewidget->selectedItems().first()->setText(tagaction->iconText());
 }
@@ -562,7 +562,7 @@ void WombatMail::PopulateMboxEmail()
 	vmime::shared_ptr <vmime::message> vmsg = vmime::make_shared <vmime::message>();
 	vmsg->parse(msgdata);
 	*/ 
-        ui->plaintext->setPlainText(msg);
+        //ui->plaintext->setPlainText(msg);
 	//ui->textbrowser->setHtml(msg.replace("\n", "<br/>"));
 	mboxfile.close();
     }
