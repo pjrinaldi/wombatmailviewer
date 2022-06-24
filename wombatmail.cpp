@@ -81,6 +81,16 @@ uint8_t WombatMail::MailBoxType(QString mailboxpath)
     return mailboxtype;
 }
 
+void WombatMail::PopulatePst(QString mfpath)
+{
+    libpff_error_t* pfferr = NULL;
+    if(libpff_check_file_signature(mfpath.toStdString().c_str(), &pfferr)); // is pst/ost
+    {
+        // this is a pst/ost file, start processing it.
+        
+    }
+}
+
 void WombatMail::PopulateMbox(QString mfpath)
 {
     QString layout = "";
@@ -469,6 +479,7 @@ void WombatMail::MailBoxSelected(void)
     if(mailboxtype == 0x01) // PST/OST
     {
 	//populate tree and table
+        PopulatePst(mboxfilepath);
     }
     else if(mailboxtype == 0x02) // MBOX
     {

@@ -78,6 +78,7 @@ private:
     QChar Rot13Char(QChar curchar);
     uint8_t MailBoxType(QString mailboxpath);
     void PopulateMbox(QString mailboxpath);
+    void PopulatePst(QString mailboxpath);
     void PopulateMboxEmail(void);
     QString ConvertUnixTimeToString(uint32_t input);
     QString ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
