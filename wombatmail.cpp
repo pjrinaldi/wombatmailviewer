@@ -83,12 +83,26 @@ uint8_t WombatMail::MailBoxType(QString mailboxpath)
 
 void WombatMail::PopulatePst(QString mfpath)
 {
+    int reterr = 0;
     libpff_error_t* pfferr = NULL;
     if(libpff_check_file_signature(mfpath.toStdString().c_str(), &pfferr)); // is pst/ost
     {
         // this is a pst/ost file, start processing it.
-        
+        libpff_file_t* pffile = NULL;
+        reterr = libpff_file_initialize(&pffile, &pfferr);
+        //if(reterr == -1)
+
+        libpff_file_open(pffile, mfpath.toStdString().c_str(), 0, &pfferr);
+        libpff_item_t* rootfolder = NULL;
+        reterr = libpff_file_get_root_folder(pffile, &rootfolder, &pfferr);
+        int subitemcnt = 0;
+        reterr = libpff_item_get_number_of_sub_items(rootfolder, &subitemcnt, &pfferr);
+        qDebug() << "subitemcnt:" << subitemcnt;
+
+        reterr = libpff_file_close(pffile, &pfferr);
+        reterr = libpff_file_free(&pffile, &pfferr);
     }
+    libpff_error_free(&pfferr);
 }
 
 void WombatMail::PopulateMbox(QString mfpath)
