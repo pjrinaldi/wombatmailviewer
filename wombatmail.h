@@ -81,6 +81,7 @@ private:
     void PopulatePst(QString mailboxpath);
     void PopulateMboxEmail(void);
     void PopulatePstFolder(QString mailboxpath, QString subfolders);
+    void PopulateSubFolders(QString mailboxpath, libpff_item_t* subfolder, QTreeWidgetItem* subitem);
     QString ConvertUnixTimeToString(uint32_t input);
     QString ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
     int GetRootIndex(QTreeWidgetItem* curitem);
