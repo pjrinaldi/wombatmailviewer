@@ -80,6 +80,7 @@ private:
     void PopulateMbox(QString mailboxpath);
     void PopulatePst(QString mailboxpath);
     void PopulateMboxEmail(void);
+    void PopulatePstFolder(QString mailboxpath, QString subfolders);
     QString ConvertUnixTimeToString(uint32_t input);
     QString ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
     int GetRootIndex(QTreeWidgetItem* curitem);
@@ -96,6 +97,7 @@ private:
     QStringList taggeditems;
     QStringList mboxes;
     QRegExp mboxheader;
+    QTreeWidgetItem* rootitem;
 
     vmime::charset ch;
 };

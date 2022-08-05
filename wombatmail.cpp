@@ -91,14 +91,50 @@ void WombatMail::PopulatePst(QString mfpath)
         libpff_file_t* pffile = NULL;
         reterr = libpff_file_initialize(&pffile, &pfferr);
         //if(reterr == -1)
-
-        libpff_file_open(pffile, mfpath.toStdString().c_str(), 0, &pfferr);
+        reterr = libpff_file_open(pffile, mfpath.toStdString().c_str(), LIBPFF_OPEN_READ, &pfferr);
+	libpff_error_fprint(pfferr, stderr);
+	//libpff_item_t* rootitem = NULL;
+	//reterr = libpff_file_get_root_item(pffile, &rootitem, &pfferr);
         libpff_item_t* rootfolder = NULL;
         reterr = libpff_file_get_root_folder(pffile, &rootfolder, &pfferr);
-        int subitemcnt = 0;
-        reterr = libpff_item_get_number_of_sub_items(rootfolder, &subitemcnt, &pfferr);
-        qDebug() << "subitemcnt:" << subitemcnt;
+	int subfoldercnt = 0;
+	reterr = libpff_folder_get_number_of_sub_folders(rootfolder, &subfoldercnt, &pfferr);
+	qDebug() << "sub folder cnt:" << subfoldercnt;
+	for(int i=0; i < subfoldercnt; i++)
+	{
+	    libpff_item_t* cursubfolder = NULL;
+	    reterr = libpff_folder_get_sub_folder(rootfolder, i, &cursubfolder, &pfferr);
+	    libpff_error_fprint(pfferr, stderr);
+	    size_t subnamesize = 0;
+	    reterr = libpff_folder_get_utf8_name_size(cursubfolder, &subnamesize, &pfferr);
+	    libpff_error_fprint(pfferr, stderr);
+	    uint8_t subname[subnamesize];
+	    reterr = libpff_folder_get_utf8_name(cursubfolder, subname, subnamesize, &pfferr);
+	    libpff_error_fprint(pfferr, stderr);
+	    QTreeWidgetItem* subdir = new QTreeWidgetItem(rootitem);
+	    subdir->setText(0, QString::fromUtf8(reinterpret_cast<char*>(subname)));
+	    rootitem->addChild(subdir);
+	    int subdircnt = 0;
+	    reterr = libpff_folder_get_number_of_sub_folders(cursubfolder, &subdircnt, &pfferr);
+	    if(subdircnt > 0)
+	    {
+		//PopulatePstFolders(mfpath, cursubfolder, subdir); // filepath, pff_subfolder_item, treewidget-curitem
+	    }
 
+	    //qDebug() << "subnamesize:" << subnamesize << "subname:" << QString::fromUtf8(reinterpret_cast<char*>(subname));
+	    //QTreeWidgetItem* subitem = new QTreeWidgetItem(curitem);
+	    //subitem->setText(0, QString::fromUtf8(reinterpret_cast<char*>(name)));
+	    //curitem->addChild(subitem);
+	    // need to add these folders to the root tree item on the left...
+	    reterr = libpff_item_free(&cursubfolder, &pfferr);
+	}
+
+        //int subitemcnt = 0;
+        //reterr = libpff_item_get_number_of_sub_items(rootfolder, &subitemcnt, &pfferr);
+        //qDebug() << "subitemcnt:" << subitemcnt;
+
+	//reterr = libpff_item_free(&rootitem, &pfferr);
+	reterr = libpff_item_free(&rootfolder, &pfferr);
         reterr = libpff_file_close(pffile, &pfferr);
         reterr = libpff_file_free(&pffile, &pfferr);
     }
@@ -280,7 +316,7 @@ void WombatMail::OpenMailBox()
 	    mboxfile.setFileName(mboxfilepath);
 	    if(mboxfile.exists())
 	    {
-		QTreeWidgetItem* rootitem = new QTreeWidgetItem(ui->treewidget);
+		rootitem = new QTreeWidgetItem(ui->treewidget);
 		rootitem->setText(0, mboxfilepath.split("/").last().toUpper() + " (" + mboxfilepath + ")");
 		ui->treewidget->addTopLevelItem(rootitem);
 		ui->treewidget->setCurrentItem(rootitem);
@@ -493,13 +529,91 @@ void WombatMail::MailBoxSelected(void)
     if(mailboxtype == 0x01) // PST/OST
     {
 	//populate tree and table
-        PopulatePst(mboxfilepath);
+	if(rootitem->childCount() <= 0)
+	    PopulatePst(mboxfilepath);
+	else
+	{
+	    QString itempath = "";
+	    QTreeWidgetItem* curitem = ui->treewidget->currentItem();
+	    while(curitem != NULL)
+	    //for(int i=0; i < 5; i++)
+	    {
+		qDebug() << "curitem:" << curitem->text(0);
+		//if(curitem != ui->treewidget->topLevelItem())
+		if(curitem->parent() != NULL)
+		{
+		    itempath += QString::number(curitem->parent()->indexOfChild(curitem)) + ",";
+		    //qDebug() << "curitem index:" << curitem->parent()->indexOfChild(curitem);
+		}
+		else // might not need toplevel item index...
+		{
+		    itempath += QString::number(ui->treewidget->indexOfTopLevelItem(curitem)) + ",";
+		    //qDebug() << "curitem index:" << ui->treewidget->indexOfTopLevelItem(curitem);
+		}
+		//qDebug() << curitem->parent();
+		curitem = curitem->parent();
+	    }
+	    PopulatePstFolder(mboxfilepath, itempath);
+	    //qDebug() << ui->treewidget->currentItem()->text(0);
+	    //qDebug() << "current item index:" << ui->treewidget->currentItem()->parent()->indexOfChild(ui->treewidget->currentItem());
+	    //PopulatePstFolder(mboxfilepath, "tree index reverse path: 1,0");
+	}
     }
     else if(mailboxtype == 0x02) // MBOX
     {
 	PopulateMbox(mboxfilepath);
 	//populate table which needs to be reproducible
     }
+}
+
+void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
+{
+    qDebug() << mfpath << subfolders;
+    QStringList subdirlist = subfolders.split(",", Qt::SkipEmptyParts);
+    qDebug() << "subdirlist count:" << subdirlist.count() << subdirlist;
+    int reterr = 0;
+    libpff_error_t* pfferr = NULL;
+    if(libpff_check_file_signature(mfpath.toStdString().c_str(), &pfferr)); // is pst/ost
+    {
+        // this is a pst/ost file, start processing it.
+        libpff_file_t* pffile = NULL;
+        reterr = libpff_file_initialize(&pffile, &pfferr);
+        //if(reterr == -1)
+        reterr = libpff_file_open(pffile, mfpath.toStdString().c_str(), LIBPFF_OPEN_READ, &pfferr);
+	libpff_error_fprint(pfferr, stderr);
+	//libpff_item_t* rootitem = NULL;
+	//reterr = libpff_file_get_root_item(pffile, &rootitem, &pfferr);
+        libpff_item_t* rootfolder = NULL;
+        reterr = libpff_file_get_root_folder(pffile, &rootfolder, &pfferr);
+	for(int i=0; i < subdirlist.count() - 1; i++)
+	{
+	    qDebug() << "i:" << i << "subdirlist.at(" + QString::number(i) + "):" << subdirlist.at(i);
+	}
+	//int subfoldercnt = 0;
+	//reterr = libpff_folder_get_number_of_sub_folders(rootfolder, &subfoldercnt, &pfferr);
+	/*
+	{
+	    libpff_item_t* cursubfolder = NULL;
+	    reterr = libpff_folder_get_sub_folder(rootfolder, i, &cursubfolder, &pfferr);
+	    libpff_error_fprint(pfferr, stderr);
+	    size_t subnamesize = 0;
+	    reterr = libpff_folder_get_utf8_name_size(cursubfolder, &subnamesize, &pfferr);
+	    libpff_error_fprint(pfferr, stderr);
+	    uint8_t subname[subnamesize];
+	    reterr = libpff_folder_get_utf8_name(cursubfolder, subname, subnamesize, &pfferr);
+	    libpff_error_fprint(pfferr, stderr);
+	    //QTreeWidgetItem* subdir = new QTreeWidgetItem(rootitem);
+	    //subdir->setText(0, QString::fromUtf8(reinterpret_cast<char*>(subname)));
+	    //rootitem->addChild(subdir);
+	    reterr = libpff_item_free(&cursubfolder, &pfferr);
+	}
+	*/
+	reterr = libpff_item_free(&rootfolder, &pfferr);
+        reterr = libpff_file_close(pffile, &pfferr);
+        reterr = libpff_file_free(&pffile, &pfferr);
+    }
+    libpff_error_free(&pfferr);
+
 }
 
 void WombatMail::MailItemSelected(void)
