@@ -93,8 +93,6 @@ void WombatMail::PopulatePst(QString mfpath)
         //if(reterr == -1)
         reterr = libpff_file_open(pffile, mfpath.toStdString().c_str(), LIBPFF_OPEN_READ, &pfferr);
 	libpff_error_fprint(pfferr, stderr);
-	//libpff_item_t* rootitem = NULL;
-	//reterr = libpff_file_get_root_item(pffile, &rootitem, &pfferr);
         libpff_item_t* rootfolder = NULL;
         reterr = libpff_file_get_root_folder(pffile, &rootfolder, &pfferr);
 	int subfoldercnt = 0;
@@ -557,6 +555,8 @@ void WombatMail::MailBoxSelected(void)
     //qDebug() << "populate mail items here...";
     if(mailboxtype == 0x01) // PST/OST
     {
+        PopulatePst(mboxfilepath);
+        /*
 	//populate tree and table
 	if(rootitem->childCount() <= 0)
 	    PopulatePst(mboxfilepath);
@@ -584,6 +584,7 @@ void WombatMail::MailBoxSelected(void)
 	    //qDebug() << ui->treewidget->currentItem()->text(0);
 	    //qDebug() << "current item index:" << ui->treewidget->currentItem()->parent()->indexOfChild(ui->treewidget->currentItem());
 	}
+        */
     }
     else if(mailboxtype == 0x02) // MBOX
     {
@@ -608,8 +609,6 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
         //if(reterr == -1)
         reterr = libpff_file_open(pffile, mfpath.toStdString().c_str(), LIBPFF_OPEN_READ, &pfferr);
 	libpff_error_fprint(pfferr, stderr);
-	//libpff_item_t* rootitem = NULL;
-	//reterr = libpff_file_get_root_item(pffile, &rootitem, &pfferr);
         libpff_item_t* rootfolder = NULL;
         reterr = libpff_file_get_root_folder(pffile, &rootfolder, &pfferr);
         libpff_item_t* selectedfolder = NULL;
@@ -679,17 +678,7 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
                     }
                 }
             }
-            //qDebug() << "msgsubjectsize:" << msgsubjectsize << "msgtime:" << msgtime << "msgsendersize:" << msgsendersize;
-            //qDebug() << "msgdate:" << ConvertWindowsTimeToUnixTimeUTC(msgtime) << "UTC";
-            //QString valuedata = "Last Written Time:\t" + ConvertWindowsTimeToUnixTimeUTC(lastwritetime) + " UTC\n\n";
-            //qDebug() << "msgsubject:" << QString::fromUtf8(reinterpret_cast<char*>(msgsubject));
-            //qDebug() << "msgsenderemail:" << QString::fromUtf8(reinterpret_cast<char*>(msgsender));
-            //QTableWidgetItem* tmpitem = new QTableWidgetItem(QString::number(i+1));
-            //tmpitem->setToolTip(QString(QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i) - linelength.at(i))));
-            //ui->tablewidget->setItem(i, 0, tmpitem);
-
             //qDebug() << "final msgid:" << msgid;
-            
             ui->tablewidget->setItem(i, 0, new QTableWidgetItem(msgid));
             ui->tablewidget->setItem(i, 2, new QTableWidgetItem(QString::fromUtf8(reinterpret_cast<char*>(msgsender))));
             ui->tablewidget->setItem(i, 3, new QTableWidgetItem(ConvertWindowsTimeToUnixTimeUTC(msgtime)));
@@ -700,25 +689,6 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
         ui->tablewidget->setCurrentCell(0, 0);
 
         reterr = libpff_item_free(&selectedfolder, &pfferr);
-	//int subfoldercnt = 0;
-	//reterr = libpff_folder_get_number_of_sub_folders(rootfolder, &subfoldercnt, &pfferr);
-	/*
-	{
-	    libpff_item_t* cursubfolder = NULL;
-	    reterr = libpff_folder_get_sub_folder(rootfolder, i, &cursubfolder, &pfferr);
-	    libpff_error_fprint(pfferr, stderr);
-	    size_t subnamesize = 0;
-	    reterr = libpff_folder_get_utf8_name_size(cursubfolder, &subnamesize, &pfferr);
-	    libpff_error_fprint(pfferr, stderr);
-	    uint8_t subname[subnamesize];
-	    reterr = libpff_folder_get_utf8_name(cursubfolder, subname, subnamesize, &pfferr);
-	    libpff_error_fprint(pfferr, stderr);
-	    //QTreeWidgetItem* subdir = new QTreeWidgetItem(rootitem);
-	    //subdir->setText(0, QString::fromUtf8(reinterpret_cast<char*>(subname)));
-	    //rootitem->addChild(subdir);
-	    reterr = libpff_item_free(&cursubfolder, &pfferr);
-	}
-	*/
 	reterr = libpff_item_free(&rootfolder, &pfferr);
         reterr = libpff_file_close(pffile, &pfferr);
         reterr = libpff_file_free(&pffile, &pfferr);
@@ -744,12 +714,126 @@ void WombatMail::MailItemSelected(void)
 
 void WombatMail::PopulatePstEmail()
 {
+    QString mfpath = "";
+    QTreeWidgetItem* curitem = ui->treewidget->selectedItems().first();
+    qDebug() << "mboxes:" << mboxes;
+    qDebug() << "index of top level item:" << GetRootIndex(curitem);
+    //QString mfpath = mboxes.at(ui->treewidget->indexOfTopLevelItem(ui->treewidget->selectedItems().first()));
+    //qDebug() << "mfpath:" << mfpath;
+
+    //QTreeWidgetItem* curitem = ui->treewidget->selectedItems().first();
+    //int rootindex = GetRootIndex(curitem);
+    //mboxfilepath = mboxes.at(rootindex);
+    //QString mfpath = ui->treewidget->
     QList<QTableWidgetItem*> curitems = ui->tablewidget->selectedItems();
-    qDebug() << "msg id:" << curitems.at(0)->text();
+    //qDebug() << "msg id:" << curitems.at(0)->text();
+    QString msgid = curitems.at(0)->text();
+    QStringList subdirlist = msgid.split("-", Qt::SkipEmptyParts);
+    qDebug() << "subdirlist:" << subdirlist;
+    int reterr = 0;
+    /*
+    int reterr = 0;
+    libpff_error_t* pfferr = NULL;
+    if(libpff_check_file_signature(mfpath.toStdString().c_str(), &pfferr)); // is pst/ost
+    {
+        // this is a pst/ost file, start processing it.
+        libpff_file_t* pffile = NULL;
+        reterr = libpff_file_initialize(&pffile, &pfferr);
+        //if(reterr == -1)
+        reterr = libpff_file_open(pffile, mfpath.toStdString().c_str(), LIBPFF_OPEN_READ, &pfferr);
+	libpff_error_fprint(pfferr, stderr);
+        libpff_item_t* rootfolder = NULL;
+        reterr = libpff_file_get_root_folder(pffile, &rootfolder, &pfferr);
+        libpff_item_t* selectedfolder = NULL;
+        libpff_item_t* tmpitem = NULL;
+        tmpitem = rootfolder;
+	//for(int i=0; i < subdirlist.count() - 1; i++)
+        for(int i = subdirlist.count() - 2; i >= 0; i--)
+	{
+            msgid += subdirlist.at(i) + "-";
+            libpff_item_t* curitem = NULL;
+	    //qDebug() << "subdirlist.at(" + QString::number(i) + "):" << subdirlist.at(i);
+            reterr = libpff_folder_get_sub_folder(tmpitem, subdirlist.at(i).toInt(), &curitem, &pfferr);
+            if(i > 0)
+            {
+                tmpitem = curitem;
+                curitem = NULL;
+            }
+            else
+            {
+                selectedfolder = curitem;
+                tmpitem = NULL;
+            }
+	}
+        size_t selnamesize = 0;
+        reterr = libpff_folder_get_utf8_name_size(selectedfolder, &selnamesize, &pfferr);
+        uint8_t selname[selnamesize];
+        reterr = libpff_folder_get_utf8_name(selectedfolder, selname, selnamesize, &pfferr);
+        //qDebug() << "sel name size:" << selnamesize << "sel name:" << QString::fromUtf8(reinterpret_cast<char*>(selname));
+
+        // POPULATE THE TABLEWIDGET WITH MAIL ITEMS FOR THE FOLDER HERE...
+        int msgcnt = 0;
+        reterr = libpff_folder_get_number_of_sub_messages(selectedfolder, &msgcnt, &pfferr);
+        //qDebug() << "msg cnt:" << msgcnt;
+
+        ui->tablewidget->clear();
+        ui->tablewidget->setRowCount(msgcnt);
+        ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "DateTime", "Subject"});
+
+        //qDebug() << "subfolders:" << subfolders;
+        //qDebug() << "msgid:" << msgid;
+
+        for(int i=0; i < msgcnt; i++)
+        {
+            msgid += QString::number(i);
+            libpff_item_t* curmsg = NULL;
+            reterr = libpff_folder_get_sub_message(selectedfolder, i, &curmsg, &pfferr);
+            size_t msgsubjectsize = 0;
+            reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT, &msgsubjectsize, &pfferr);
+            uint8_t msgsubject[msgsubjectsize];
+            reterr = libpff_message_get_entry_value_utf8_string(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT, msgsubject, msgsubjectsize, &pfferr);
+            size_t msgsendersize = 0;
+            reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS, &msgsendersize, &pfferr);
+            uint8_t msgsender[msgsendersize];
+            reterr = libpff_message_get_entry_value_utf8_string(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS, msgsender, msgsendersize, &pfferr);
+
+            uint64_t msgtime = 0;
+            reterr = libpff_message_get_delivery_time(curmsg, &msgtime, &pfferr);
+            if(reterr < 1)
+            {
+                reterr = libpff_message_get_client_submit_time(curmsg, &msgtime, &pfferr);
+                if(reterr < 1)
+                {
+                    reterr = libpff_message_get_creation_time(curmsg, &msgtime, &pfferr);
+                    if(reterr < 1)
+                    {
+                        reterr = libpff_message_get_modification_time(curmsg, &msgtime, &pfferr);
+                    }
+                }
+            }
+            //qDebug() << "final msgid:" << msgid;
+            ui->tablewidget->setItem(i, 0, new QTableWidgetItem(msgid));
+            ui->tablewidget->setItem(i, 2, new QTableWidgetItem(QString::fromUtf8(reinterpret_cast<char*>(msgsender))));
+            ui->tablewidget->setItem(i, 3, new QTableWidgetItem(ConvertWindowsTimeToUnixTimeUTC(msgtime)));
+            ui->tablewidget->setItem(i, 4, new QTableWidgetItem(QString::fromUtf8(reinterpret_cast<char*>(msgsubject))));
+        }
+
+        ui->tablewidget->resizeColumnToContents(0);
+        ui->tablewidget->setCurrentCell(0, 0);
+
+        reterr = libpff_item_free(&selectedfolder, &pfferr);
+	reterr = libpff_item_free(&rootfolder, &pfferr);
+        reterr = libpff_file_close(pffile, &pfferr);
+        reterr = libpff_file_free(&pffile, &pfferr);
+    }
+    libpff_error_free(&pfferr);
+
+     */ 
 }
 
 void WombatMail::PopulateMboxEmail()
 {
+    /*
     mboxfilepath = ui->treewidget->currentItem()->text(0).split("(").last().split(")").first();
     QString layout = ui->tablewidget->item(ui->tablewidget->currentRow(), 0)->toolTip();
     mboxfile.setFileName(mboxfilepath);
@@ -800,6 +884,7 @@ void WombatMail::PopulateMboxEmail()
                 // Text i s in tp−>getText ()
             // }
         // }
+    */
         /*
 	//vmime::shared_ptr <vmime::header> hdr = vmsg->getHeader();
 	// need to loop over all headers and then populate one per line to a string to populate plaintext
@@ -821,8 +906,10 @@ void WombatMail::PopulateMboxEmail()
 	*/ 
         //ui->plaintext->setPlainText(msg);
 	//ui->textbrowser->setHtml(msg.replace("\n", "<br/>"));
+    /*
 	mboxfile.close();
     }
+    */
 }
 /*
 void MBoxDialog::EmailSelected()

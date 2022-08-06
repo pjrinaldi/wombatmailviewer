@@ -100,7 +100,7 @@ private:
     QStringList mboxes;
     QRegExp mboxheader;
     QTreeWidgetItem* rootitem;
-
+    //QString curmailboxpath;
     vmime::charset ch;
 };
 
