@@ -643,6 +643,11 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
         int msgcnt = 0;
         reterr = libpff_folder_get_number_of_sub_messages(selectedfolder, &msgcnt, &pfferr);
         //qDebug() << "msg cnt:" << msgcnt;
+
+        ui->tablewidget->clear();
+        ui->tablewidget->setRowCount(msgcnt);
+        ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "DateTime", "Subject"});
+
         for(int i=0; i < msgcnt; i++)
         {
             libpff_item_t* curmsg = NULL;
@@ -670,10 +675,18 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
                     }
                 }
             }
-            qDebug() << "msgsubjectsize:" << msgsubjectsize << "msgtime:" << msgtime << "msgsendersize:" << msgsendersize;
-            qDebug() << "msgsubject:" << QString::fromUtf8(reinterpret_cast<char*>(msgsubject));
-            qDebug() << "msgsenderemail:" << QString::fromUtf8(reinterpret_cast<char*>(msgsender));
+            //qDebug() << "msgsubjectsize:" << msgsubjectsize << "msgtime:" << msgtime << "msgsendersize:" << msgsendersize;
+            //qDebug() << "msgdate:" << ConvertWindowsTimeToUnixTimeUTC(msgtime) << "UTC";
+            //QString valuedata = "Last Written Time:\t" + ConvertWindowsTimeToUnixTimeUTC(lastwritetime) + " UTC\n\n";
+            //qDebug() << "msgsubject:" << QString::fromUtf8(reinterpret_cast<char*>(msgsubject));
+            //qDebug() << "msgsenderemail:" << QString::fromUtf8(reinterpret_cast<char*>(msgsender));
+            ui->tablewidget->setItem(i, 2, new QTableWidgetItem(QString::fromUtf8(reinterpret_cast<char*>(msgsender))));
+            ui->tablewidget->setItem(i, 3, new QTableWidgetItem(ConvertWindowsTimeToUnixTimeUTC(msgtime)));
+            ui->tablewidget->setItem(i, 4, new QTableWidgetItem(QString::fromUtf8(reinterpret_cast<char*>(msgsubject))));
         }
+
+        ui->tablewidget->resizeColumnToContents(0);
+        ui->tablewidget->setCurrentCell(0, 0);
 
         reterr = libpff_item_free(&selectedfolder, &pfferr);
 	//int subfoldercnt = 0;
