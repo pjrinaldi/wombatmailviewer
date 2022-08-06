@@ -649,6 +649,13 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
             reterr = libpff_folder_get_sub_message(selectedfolder, i, &curmsg, &pfferr);
             size_t msgsubjectsize = 0;
             reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT, &msgsubjectsize, &pfferr);
+            uint8_t msgsubject[msgsubjectsize];
+            reterr = libpff_message_get_entry_value_utf8_string(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT, msgsubject, msgsubjectsize, &pfferr);
+            size_t msgsendersize = 0;
+            reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS, &msgsendersize, &pfferr);
+            uint8_t msgsender[msgsendersize];
+            reterr = libpff_message_get_entry_value_utf8_string(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS, msgsender, msgsendersize, &pfferr);
+
             uint64_t msgtime = 0;
             reterr = libpff_message_get_delivery_time(curmsg, &msgtime, &pfferr);
             if(reterr < 1)
@@ -666,11 +673,9 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
             //qDebug() << "client submit time reterr:" << reterr;
             //qDebug() << "delivery time reterr:" << reterr;
             //qDebug() << "creation time reterr:" << reterr;
-            //size_t msgtimesize = 0;
-            //reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_CLIENT_SUBMIT_TIME, &msgtimesize, &pfferr);
-            size_t msgsendersize = 0;
-            reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS, &msgsendersize, &pfferr);
             qDebug() << "msgsubjectsize:" << msgsubjectsize << "msgtime:" << msgtime << "msgsendersize:" << msgsendersize;
+            qDebug() << "msgsubject:" << QString::fromUtf8(reinterpret_cast<char*>(msgsubject));
+            qDebug() << "msgsenderemail:" << QString::fromUtf8(reinterpret_cast<char*>(msgsender));
         }
 
         reterr = libpff_item_free(&selectedfolder, &pfferr);
