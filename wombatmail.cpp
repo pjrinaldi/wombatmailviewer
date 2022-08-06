@@ -640,6 +640,25 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
         //qDebug() << "sel name size:" << selnamesize << "sel name:" << QString::fromUtf8(reinterpret_cast<char*>(selname));
 
         // POPULATE THE TABLEWIDGET WITH MAIL ITEMS FOR THE FOLDER HERE...
+        int msgcnt = 0;
+        reterr = libpff_folder_get_number_of_sub_messages(selectedfolder, &msgcnt, &pfferr);
+        //qDebug() << "msg cnt:" << msgcnt;
+        // LIBPFF_ENTRY_TYPE_(DISPLAY_NAME, ADDRESS_TYPE, EMAIL_ADDRESS)
+        for(int i=0; i < msgcnt; i++)
+        {
+            libpff_item_t* curmsg = NULL;
+            reterr = libpff_folder_get_sub_message(selectedfolder, i, &curmsg, &pfferr);
+            size_t msgsubjectsize = 0;
+            reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT, &msgsubjectsize, &pfferr);
+            uint64_t msgtime = 0;
+            reterr = libpff_message_get_client_submit_time(curmsg, &msgtime, &pfferr);
+            //reterr = libpff_message_get_delivery_time(curmsg, &msgtime, &pfferr);
+            //size_t msgtimesize = 0;
+            //reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_CLIENT_SUBMIT_TIME, &msgtimesize, &pfferr);
+            size_t msgsendersize = 0;
+            reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS, &msgsendersize, &pfferr);
+            qDebug() << "msgsubjectsize:" << msgsubjectsize << "msgtime:" << msgtime << "msgsendersize:" << msgsendersize;
+        }
 
         reterr = libpff_item_free(&selectedfolder, &pfferr);
 	//int subfoldercnt = 0;
