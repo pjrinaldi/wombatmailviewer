@@ -74,8 +74,8 @@ private:
     QFile mboxfile;
     uint8_t mailboxtype;
     //void PopulateChildKeys(libregf_key_t* curkey, QTreeWidgetItem* curitem, libregf_error_t* curerr);
-    QString DecryptRot13(QString encstr);
-    QChar Rot13Char(QChar curchar);
+    //QString DecryptRot13(QString encstr);
+    //QChar Rot13Char(QChar curchar);
     uint8_t MailBoxType(QString mailboxpath);
     void PopulateMbox(QString mailboxpath);
     void PopulatePst(QString mailboxpath);
@@ -83,7 +83,7 @@ private:
     void PopulatePstEmail(void);
     void PopulatePstFolder(QString mailboxpath, QString subfolders);
     void PopulateSubFolders(QString mailboxpath, libpff_item_t* subfolder, QTreeWidgetItem* subitem);
-    QString ConvertUnixTimeToString(uint32_t input);
+    //QString ConvertUnixTimeToString(uint32_t input);
     QString ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
     int GetRootIndex(QTreeWidgetItem* curitem);
     QMenu* tagmenu;
