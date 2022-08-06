@@ -566,10 +566,8 @@ void WombatMail::MailBoxSelected(void)
 	    QString itempath = "";
 	    QTreeWidgetItem* curitem = ui->treewidget->currentItem();
 	    while(curitem != NULL)
-	    //for(int i=0; i < 5; i++)
 	    {
-		qDebug() << "curitem:" << curitem->text(0);
-		//if(curitem != ui->treewidget->topLevelItem())
+		//qDebug() << "curitem:" << curitem->text(0);
 		if(curitem->parent() != NULL)
 		{
 		    itempath += QString::number(curitem->parent()->indexOfChild(curitem)) + ",";
@@ -598,9 +596,9 @@ void WombatMail::MailBoxSelected(void)
 
 void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
 {
-    qDebug() << mfpath << subfolders;
+    //qDebug() << mfpath << subfolders;
     QStringList subdirlist = subfolders.split(",", Qt::SkipEmptyParts);
-    qDebug() << "subdirlist count:" << subdirlist.count() << subdirlist;
+    //qDebug() << "subdirlist count:" << subdirlist.count() << subdirlist;
     int reterr = 0;
     libpff_error_t* pfferr = NULL;
     if(libpff_check_file_signature(mfpath.toStdString().c_str(), &pfferr)); // is pst/ost
@@ -615,10 +613,35 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
 	//reterr = libpff_file_get_root_item(pffile, &rootitem, &pfferr);
         libpff_item_t* rootfolder = NULL;
         reterr = libpff_file_get_root_folder(pffile, &rootfolder, &pfferr);
-	for(int i=0; i < subdirlist.count() - 1; i++)
+        libpff_item_t* selectedfolder = NULL;
+        libpff_item_t* tmpitem = NULL;
+        tmpitem = rootfolder;
+	//for(int i=0; i < subdirlist.count() - 1; i++)
+        for(int i = subdirlist.count() - 2; i >= 0; i--)
 	{
-	    qDebug() << "i:" << i << "subdirlist.at(" + QString::number(i) + "):" << subdirlist.at(i);
+            libpff_item_t* curitem = NULL;
+	    //qDebug() << "subdirlist.at(" + QString::number(i) + "):" << subdirlist.at(i);
+            reterr = libpff_folder_get_sub_folder(tmpitem, subdirlist.at(i).toInt(), &curitem, &pfferr);
+            if(i > 0)
+            {
+                tmpitem = curitem;
+                curitem = NULL;
+            }
+            else
+            {
+                selectedfolder = curitem;
+                tmpitem = NULL;
+            }
 	}
+        size_t selnamesize = 0;
+        reterr = libpff_folder_get_utf8_name_size(selectedfolder, &selnamesize, &pfferr);
+        uint8_t selname[selnamesize];
+        reterr = libpff_folder_get_utf8_name(selectedfolder, selname, selnamesize, &pfferr);
+        //qDebug() << "sel name size:" << selnamesize << "sel name:" << QString::fromUtf8(reinterpret_cast<char*>(selname));
+
+        // POPULATE THE TABLEWIDGET WITH MAIL ITEMS FOR THE FOLDER HERE...
+
+        reterr = libpff_item_free(&selectedfolder, &pfferr);
 	//int subfoldercnt = 0;
 	//reterr = libpff_folder_get_number_of_sub_folders(rootfolder, &subfoldercnt, &pfferr);
 	/*
