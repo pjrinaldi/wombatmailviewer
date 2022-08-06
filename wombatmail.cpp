@@ -650,13 +650,22 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
             size_t msgsubjectsize = 0;
             reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT, &msgsubjectsize, &pfferr);
             uint64_t msgtime = 0;
-            reterr = libpff_message_get_client_submit_time(curmsg, &msgtime, &pfferr);
-            // NEED TO IF/ELSE FOR THE TIME I WANT INTO THE MSG TABLE ITEM
-            qDebug() << "client submit time reterr:" << reterr;
             reterr = libpff_message_get_delivery_time(curmsg, &msgtime, &pfferr);
-            qDebug() << "delivery time reterr:" << reterr;
-            reterr = libpff_message_get_creation_time(curmsg, &msgtime, &pfferr);
-            qDebug() << "creation time reterr:" << reterr;
+            if(reterr < 1)
+            {
+                reterr = libpff_message_get_client_submit_time(curmsg, &msgtime, &pfferr);
+                if(reterr < 1)
+                {
+                    reterr = libpff_message_get_creation_time(curmsg, &msgtime, &pfferr);
+                    if(reterr < 1)
+                    {
+                        reterr = libpff_message_get_modification_time(curmsg, &msgtime, &pfferr);
+                    }
+                }
+            }
+            //qDebug() << "client submit time reterr:" << reterr;
+            //qDebug() << "delivery time reterr:" << reterr;
+            //qDebug() << "creation time reterr:" << reterr;
             //size_t msgtimesize = 0;
             //reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_CLIENT_SUBMIT_TIME, &msgtimesize, &pfferr);
             size_t msgsendersize = 0;
