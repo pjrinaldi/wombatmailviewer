@@ -751,6 +751,14 @@ void WombatMail::PopulatePstEmail()
                 qDebug() << "attach name size:" << attachnamesize;
                 // LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG
                 // LIBPFF_ENTRY_TYPE_ATTACHMENT_SIZE
+                /*
+                 * MAY NOT NEED ANY OF THIS SINCE THE LISTWIDGET ITEM INDEX, SHOULD LET ME GET THE ATTACHMENT CONTENT
+                QString tmpstr = ""; // contain something to get attachment content [data] when i click on it.
+                QListWidgetItem tmpitem;
+                tmpitem->setText("attachment filename (size)");
+                tmpitem->setToolTip(tmpstr.split("|").at(1));
+                ui->listwidget->addItem(new QListWidgetItem(tmpitem));
+                */
             }
 
             reterr = libpff_item_free(&selectedfolder, &pfferr);
