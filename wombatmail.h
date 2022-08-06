@@ -80,6 +80,7 @@ private:
     void PopulateMbox(QString mailboxpath);
     void PopulatePst(QString mailboxpath);
     void PopulateMboxEmail(void);
+    void PopulatePstEmail(void);
     void PopulatePstFolder(QString mailboxpath, QString subfolders);
     void PopulateSubFolders(QString mailboxpath, libpff_item_t* subfolder, QTreeWidgetItem* subitem);
     QString ConvertUnixTimeToString(uint32_t input);
