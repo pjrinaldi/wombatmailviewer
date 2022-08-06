@@ -670,9 +670,6 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
                     }
                 }
             }
-            //qDebug() << "client submit time reterr:" << reterr;
-            //qDebug() << "delivery time reterr:" << reterr;
-            //qDebug() << "creation time reterr:" << reterr;
             qDebug() << "msgsubjectsize:" << msgsubjectsize << "msgtime:" << msgtime << "msgsendersize:" << msgsendersize;
             qDebug() << "msgsubject:" << QString::fromUtf8(reinterpret_cast<char*>(msgsubject));
             qDebug() << "msgsenderemail:" << QString::fromUtf8(reinterpret_cast<char*>(msgsender));
