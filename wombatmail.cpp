@@ -83,6 +83,8 @@ uint8_t WombatMail::MailBoxType(QString mailboxpath)
 
 void WombatMail::PopulatePst(QString mfpath)
 {
+    qDebug() << "run populatepst...";
+
     int reterr = 0;
     libpff_error_t* pfferr = NULL;
     if(libpff_check_file_signature(mfpath.toStdString().c_str(), &pfferr)); // is pst/ost
@@ -350,6 +352,7 @@ void WombatMail::OpenMailBox()
 	    }
 	    if(mailboxtype == 0x01) // PST/OST
 	    {
+                PopulatePst(mboxfilepath);
 		//populate tree and table
 	    }
 	    else if(mailboxtype == 0x02) // MBOX
@@ -553,13 +556,41 @@ void WombatMail::RemoveTag()
 void WombatMail::MailBoxSelected(void)
 {
     //qDebug() << "populate mail items here...";
+    QTreeWidgetItem* curitem = ui->treewidget->currentItem();
+    mboxfilepath = mboxes.at(GetRootIndex(curitem));
+    mailboxtype = MailBoxType(mboxfilepath);
+    qDebug() << "mailboxtype:" << mailboxtype << "mboxfilepath:" << mboxfilepath;
+
     if(mailboxtype == 0x01) // PST/OST
     {
-        PopulatePst(mboxfilepath);
+        //QString mfpath = "";
+        //QTreeWidgetItem* curitem = ui->treewidget->selectedItems().first();
+        //qDebug() << "mboxes:" << mboxes;
+        //qDebug() << "index of top level item:" << GetRootIndex(curitem);
+
+        QString itempath = "";
+        while(curitem != NULL)
+        {
+            //qDebug() << "curitem:" << curitem->text(0);
+            if(curitem->parent() != NULL)
+            {
+                itempath += QString::number(curitem->parent()->indexOfChild(curitem)) + ",";
+                //qDebug() << "curitem index:" << curitem->parent()->indexOfChild(curitem);
+            }
+            else // might not need toplevel item index...
+            {
+                itempath += QString::number(ui->treewidget->indexOfTopLevelItem(curitem)) + ",";
+                //qDebug() << "curitem index:" << ui->treewidget->indexOfTopLevelItem(curitem);
+            }
+            //qDebug() << curitem->parent();
+            curitem = curitem->parent();
+        }
+        PopulatePstFolder(mboxfilepath, itempath);
+        //PopulatePst(mboxfilepath);
         /*
 	//populate tree and table
 	if(rootitem->childCount() <= 0)
-	    PopulatePst(mboxfilepath);
+	    //PopulatePst(mboxfilepath);
 	else
 	{
 	    QString itempath = "";
@@ -595,6 +626,9 @@ void WombatMail::MailBoxSelected(void)
 
 void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
 {
+    qDebug() << "run populatepstfolder...";
+    qDebug() << "mailbox type:" << mailboxtype;
+
     //qDebug() << mfpath << subfolders;
     QStringList subdirlist = subfolders.split(",", Qt::SkipEmptyParts);
     QString msgid = "";
