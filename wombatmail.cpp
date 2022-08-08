@@ -563,7 +563,7 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
     ui->listwidget->clear();
     
     QStringList subdirlist = subfolders.split(",", Qt::SkipEmptyParts);
-    QString msgid = "";
+    //QString msgid = "";
     int reterr = 0;
     libpff_error_t* pfferr = NULL;
     if(libpff_check_file_signature(mfpath.toStdString().c_str(), &pfferr)) // is pst/ost
@@ -580,7 +580,7 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
         tmpitem = rootfolder;
         for(int i = subdirlist.count() - 2; i >= 0; i--)
 	{
-            msgid += subdirlist.at(i) + "-";
+            //msgid += subdirlist.at(i) + "-";
             libpff_item_t* curitem = NULL;
             reterr = libpff_folder_get_sub_folder(tmpitem, subdirlist.at(i).toInt(), &curitem, &pfferr);
             if(i > 0)
@@ -608,7 +608,7 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
             ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "DateTime", "Subject"});
             for(int i=0; i < msgcnt; i++)
             {
-                msgid += QString::number(i);
+                //msgid += QString::number(i);
                 libpff_item_t* curmsg = NULL;
                 reterr = libpff_folder_get_sub_message(selectedfolder, i, &curmsg, &pfferr);
                 size_t msgsubjectsize = 0;
@@ -634,7 +634,8 @@ void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
                         }
                     }
                 }
-                ui->tablewidget->setItem(i, 0, new QTableWidgetItem(msgid));
+                ui->tablewidget->setItem(i, 0, new QTableWidgetItem(QString::number(i)));
+                //ui->tablewidget->setItem(i, 0, new QTableWidgetItem(msgid));
                 ui->tablewidget->setItem(i, 2, new QTableWidgetItem(QString::fromUtf8(reinterpret_cast<char*>(msgsender))));
                 ui->tablewidget->setItem(i, 3, new QTableWidgetItem(ConvertWindowsTimeToUnixTimeUTC(msgtime)));
                 ui->tablewidget->setItem(i, 4, new QTableWidgetItem(QString::fromUtf8(reinterpret_cast<char*>(msgsubject))));
@@ -674,12 +675,21 @@ void WombatMail::PopulatePstEmail()
     mboxfilepath = mboxes.at(GetRootIndex(curitem));
     mailboxtype = MailBoxType(mboxfilepath);
 
+    QList<int> itemlist;
+    itemlist.clear();
+    while(curitem != NULL)
+    {
+        if(curitem->parent() != NULL)
+            itemlist.prepend(curitem->parent()->indexOfChild(curitem));
+        else
+            itemlist.prepend(ui->treewidget->indexOfTopLevelItem(curitem));
+        curitem = curitem->parent();
+    }
     QList<QTableWidgetItem*> curitems = ui->tablewidget->selectedItems();
     if(curitems.count() > 0)
     {
         QString msgid = curitems.at(0)->text();
         int curmsgid = msgid.split("-").last().toInt();
-        QStringList subdirlist = msgid.split("-", Qt::SkipEmptyParts);
         int reterr = 0;
         libpff_error_t* pfferr = NULL;
         if(libpff_check_file_signature(mboxfilepath.toStdString().c_str(), &pfferr)) //if it's pst/ost
@@ -693,11 +703,11 @@ void WombatMail::PopulatePstEmail()
             libpff_item_t* selectedfolder = NULL;
             libpff_item_t* tmpitem = NULL;
             tmpitem = rootfolder;
-            for(int i = subdirlist.count() - 2; i >= 0; i--)
+            for(int i=1; i < itemlist.count(); i++)
             {
                 libpff_item_t* curdir = NULL;
-                reterr = libpff_folder_get_sub_folder(tmpitem, subdirlist.at(i).toInt(), &curdir, &pfferr);
-                if(i > 0)
+                reterr = libpff_folder_get_sub_folder(tmpitem, itemlist.at(i), &curdir, &pfferr);
+                if(i < itemlist.count() - 1)
                 {
                     tmpitem = curdir;
                     curdir = NULL;
@@ -711,11 +721,13 @@ void WombatMail::PopulatePstEmail()
             libpff_item_t* curmsg = NULL;
             reterr = libpff_folder_get_sub_message(selectedfolder, curmsgid, &curmsg, &pfferr);
             QString msgbodystr = "";
+            /*
             size_t msghdrsize = 0;
             reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS, &msghdrsize, &pfferr);
             uint8_t msghdr[msghdrsize];
             reterr = libpff_message_get_entry_value_utf8_string(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS, msghdr, msghdrsize, &pfferr);
             msgbodystr = QString::fromUtf8(reinterpret_cast<char*>(msghdr));
+            */
             int msgtype = 0x00; // 0x01 plaintext | 0x00 html
             size_t msgbodysize = 0;
             reterr = libpff_message_get_html_body_size(curmsg, &msgbodysize, &pfferr);
@@ -729,12 +741,12 @@ void WombatMail::PopulatePstEmail()
             uint8_t msgbody[msgbodysize];
             if(msgtype == 0x00) // html
             {
-                msgbodystr += "<br/><br/>";
+                //msgbodystr += "<br/><br/>";
                 reterr = libpff_message_get_html_body(curmsg, msgbody, msgbodysize, &pfferr);
             }
             else if(msgtype == 0x01) // plain text
             {
-                msgbodystr += "\n\n";
+                //msgbodystr += "\n\n";
                 reterr = libpff_message_get_plain_text_body(curmsg, msgbody, msgbodysize, &pfferr);
             }
             msgbodystr += QString::fromUtf8(reinterpret_cast<char*>(msgbody));
@@ -742,25 +754,29 @@ void WombatMail::PopulatePstEmail()
             // POPULATE ATTACHMENT PORTIONS
             int attachcnt = 0;
             reterr = libpff_message_get_number_of_attachments(curmsg, &attachcnt, &pfferr);
+	    libpff_error_fprint(pfferr, stderr);
             for(int i=0; i < attachcnt; i++)
             {
                 libpff_item_t* curattach = NULL;
                 reterr = libpff_message_get_attachment(curmsg, i, &curattach, &pfferr);
                 size_t attachnamesize = 0;
-                reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, &attachnamesize, &pfferr);
-                qDebug() << "attach name size:" << attachnamesize;
-                // LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG
-                // LIBPFF_ENTRY_TYPE_ATTACHMENT_SIZE
+                reterr = libpff_message_get_entry_value_utf8_string_size(curattach, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, &attachnamesize, &pfferr);
+                uint8_t attachname[attachnamesize];
+                reterr = libpff_message_get_entry_value_utf8_string(curattach, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, attachname, attachnamesize, &pfferr);
+                qDebug() << "Attachment Name:" << QString::fromUtf8(reinterpret_cast<char*>(attachname));
+                size64_t attachsize = 0;
+                reterr = libpff_attachment_get_data_size(curattach, &attachsize, &pfferr);
+                QString attachstr = QString::fromUtf8(reinterpret_cast<char*>(attachname)) + " (" + QString::number(attachsize) + ")";
+                //tmpitem->setText(attachstr);
+                ui->listwidget->addItem(new QListWidgetItem(attachstr));
                 /*
-                 * MAY NOT NEED ANY OF THIS SINCE THE LISTWIDGET ITEM INDEX, SHOULD LET ME GET THE ATTACHMENT CONTENT
-                QString tmpstr = ""; // contain something to get attachment content [data] when i click on it.
-                QListWidgetItem tmpitem;
-                tmpitem->setText("attachment filename (size)");
-                tmpitem->setToolTip(tmpstr.split("|").at(1));
-                ui->listwidget->addItem(new QListWidgetItem(tmpitem));
+                uint8_t attachbuf[attachsize];
+                ssize_t bufread = 0;
+                bufread = libpff_attachment_data_read_buffer(curattach, attachbuf, attachsize, &pfferr);
                 */
             }
 
+            reterr = libpff_item_free(&curmsg, &pfferr);
             reterr = libpff_item_free(&selectedfolder, &pfferr);
             reterr = libpff_item_free(&rootfolder, &pfferr);
             reterr = libpff_file_close(pffile, &pfferr);
