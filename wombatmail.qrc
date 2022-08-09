@@ -20,6 +20,7 @@
     <file alias="filter">Resources/filterlist.png</file>
   </qresource>
   <qresource prefix="/bar">
+    <file alias="mail">Resources/possiblegraphics/internet-mail.png</file>
     <file alias="home">Resources/home.png</file>
     <file alias="publish">Resources/paperairplane2.png</file>
     <file alias="burrow">Resources/burrow.png</file>
