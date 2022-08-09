@@ -19,6 +19,7 @@ WombatMail::WombatMail(QWidget* parent) : QMainWindow(parent), ui(new Ui::Wombat
     connect(ui->actionPreviewReport, SIGNAL(triggered()), this, SLOT(PreviewReport()), Qt::DirectConnection);
     connect(ui->actionPublish, SIGNAL(triggered()), this, SLOT(PublishReport()), Qt::DirectConnection);
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(ShowAbout()), Qt::DirectConnection);
+    connect(ui->actionheader, SIGNAL(triggered(bool)), ui->headerbrowser, SLOT(setVisible(bool)), Qt::DirectConnection);
     // initialize temp directory for html code...
     QDir tmpdir;
     tmpdir.mkpath(QDir::tempPath() + "/wm");
@@ -35,6 +36,7 @@ WombatMail::WombatMail(QWidget* parent) : QMainWindow(parent), ui(new Ui::Wombat
     mboxes.clear();
 
     ui->tablewidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->headerbrowser->setVisible(false);
     connect(ui->tablewidget, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(TagMenu(const QPoint &)), Qt::DirectConnection);
     mboxheader = QRegExp(QStringLiteral("^From .*[0-9][0-9]:[0-9][0-9]")); // kmbox regexp expression
     ui->textbrowser->setOpenExternalLinks(false);

@@ -37,14 +37,16 @@ public:
     QAction *actionAbout;
     QAction *actionPreviewReport;
     QAction *actionPublish;
+    QAction *actionheader;
     QWidget *centralwidget;
-    QHBoxLayout *horizontalLayout;
-    QSplitter *splitter_2;
-    QTreeWidget *treewidget;
-    QSplitter *splitter;
-    QTableWidget *tablewidget;
-    QWidget *verticalLayoutWidget;
     QVBoxLayout *verticalLayout;
+    QHBoxLayout *horizontalLayout;
+    QTreeWidget *treewidget;
+    QSplitter *splitter_3;
+    QTableWidget *tablewidget;
+    QSplitter *splitter_2;
+    QSplitter *splitter;
+    QTextBrowser *headerbrowser;
     QTextBrowser *textbrowser;
     QListWidget *listwidget;
     QMenuBar *menubar;
@@ -84,67 +86,82 @@ public:
         QIcon icon5;
         icon5.addFile(QString::fromUtf8(":/bar/publish"), QSize(), QIcon::Normal, QIcon::Off);
         actionPublish->setIcon(icon5);
+        actionheader = new QAction(WombatMail);
+        actionheader->setObjectName(QString::fromUtf8("actionheader"));
+        actionheader->setCheckable(true);
+        QIcon icon6;
+        icon6.addFile(QString::fromUtf8(":/bar/mail"), QSize(), QIcon::Normal, QIcon::Off);
+        actionheader->setIcon(icon6);
         centralwidget = new QWidget(WombatMail);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        horizontalLayout = new QHBoxLayout(centralwidget);
-        horizontalLayout->setSpacing(6);
+        verticalLayout = new QVBoxLayout(centralwidget);
+        verticalLayout->setSpacing(0);
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setContentsMargins(0, 0, 0, 0);
+        horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        horizontalLayout->setContentsMargins(0, 0, 0, 0);
-        splitter_2 = new QSplitter(centralwidget);
-        splitter_2->setObjectName(QString::fromUtf8("splitter_2"));
-        splitter_2->setOrientation(Qt::Horizontal);
-        treewidget = new QTreeWidget(splitter_2);
+        treewidget = new QTreeWidget(centralwidget);
         QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
         __qtreewidgetitem->setText(0, QString::fromUtf8("1"));
         treewidget->setHeaderItem(__qtreewidgetitem);
         treewidget->setObjectName(QString::fromUtf8("treewidget"));
         treewidget->setSelectionBehavior(QAbstractItemView::SelectItems);
-        splitter_2->addWidget(treewidget);
         treewidget->header()->setVisible(false);
-        splitter = new QSplitter(splitter_2);
-        splitter->setObjectName(QString::fromUtf8("splitter"));
+
+        horizontalLayout->addWidget(treewidget);
+
+        splitter_3 = new QSplitter(centralwidget);
+        splitter_3->setObjectName(QString::fromUtf8("splitter_3"));
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-        sizePolicy.setHorizontalStretch(1);
+        sizePolicy.setHorizontalStretch(2);
         sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(splitter->sizePolicy().hasHeightForWidth());
-        splitter->setSizePolicy(sizePolicy);
-        splitter->setOrientation(Qt::Vertical);
-        tablewidget = new QTableWidget(splitter);
+        sizePolicy.setHeightForWidth(splitter_3->sizePolicy().hasHeightForWidth());
+        splitter_3->setSizePolicy(sizePolicy);
+        splitter_3->setOrientation(Qt::Vertical);
+        tablewidget = new QTableWidget(splitter_3);
         if (tablewidget->columnCount() < 5)
             tablewidget->setColumnCount(5);
         tablewidget->setObjectName(QString::fromUtf8("tablewidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(1);
+        sizePolicy1.setVerticalStretch(3);
         sizePolicy1.setHeightForWidth(tablewidget->sizePolicy().hasHeightForWidth());
         tablewidget->setSizePolicy(sizePolicy1);
+        tablewidget->setMinimumSize(QSize(0, 150));
         tablewidget->setAlternatingRowColors(true);
         tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         tablewidget->setColumnCount(5);
-        splitter->addWidget(tablewidget);
+        splitter_3->addWidget(tablewidget);
         tablewidget->horizontalHeader()->setCascadingSectionResizes(true);
         tablewidget->horizontalHeader()->setStretchLastSection(true);
         tablewidget->verticalHeader()->setVisible(false);
-        verticalLayoutWidget = new QWidget(splitter);
-        verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayout = new QVBoxLayout(verticalLayoutWidget);
-        verticalLayout->setSpacing(2);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        verticalLayout->setContentsMargins(0, 0, 0, 0);
-        textbrowser = new QTextBrowser(verticalLayoutWidget);
-        textbrowser->setObjectName(QString::fromUtf8("textbrowser"));
-        sizePolicy1.setHeightForWidth(textbrowser->sizePolicy().hasHeightForWidth());
-        textbrowser->setSizePolicy(sizePolicy1);
-
-        verticalLayout->addWidget(textbrowser);
-
-        listwidget = new QListWidget(verticalLayoutWidget);
-        listwidget->setObjectName(QString::fromUtf8("listwidget"));
-        QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        splitter_2 = new QSplitter(splitter_3);
+        splitter_2->setObjectName(QString::fromUtf8("splitter_2"));
+        splitter_2->setOrientation(Qt::Vertical);
+        splitter = new QSplitter(splitter_2);
+        splitter->setObjectName(QString::fromUtf8("splitter"));
+        QSizePolicy sizePolicy2(QSizePolicy::Preferred, QSizePolicy::Expanding);
         sizePolicy2.setHorizontalStretch(0);
         sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(listwidget->sizePolicy().hasHeightForWidth());
-        listwidget->setSizePolicy(sizePolicy2);
+        sizePolicy2.setHeightForWidth(splitter->sizePolicy().hasHeightForWidth());
+        splitter->setSizePolicy(sizePolicy2);
+        splitter->setOrientation(Qt::Vertical);
+        headerbrowser = new QTextBrowser(splitter);
+        headerbrowser->setObjectName(QString::fromUtf8("headerbrowser"));
+        splitter->addWidget(headerbrowser);
+        textbrowser = new QTextBrowser(splitter);
+        textbrowser->setObjectName(QString::fromUtf8("textbrowser"));
+        QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(textbrowser->sizePolicy().hasHeightForWidth());
+        textbrowser->setSizePolicy(sizePolicy3);
+        splitter->addWidget(textbrowser);
+        splitter_2->addWidget(splitter);
+        listwidget = new QListWidget(splitter_2);
+        listwidget->setObjectName(QString::fromUtf8("listwidget"));
+        sizePolicy3.setHeightForWidth(listwidget->sizePolicy().hasHeightForWidth());
+        listwidget->setSizePolicy(sizePolicy3);
         listwidget->setMaximumSize(QSize(16777215, 50));
         QPalette palette;
         QBrush brush(QColor(236, 236, 236, 255));
@@ -158,13 +175,13 @@ public:
         listwidget->setFlow(QListView::LeftToRight);
         listwidget->setProperty("isWrapping", QVariant(true));
         listwidget->setViewMode(QListView::ListMode);
+        splitter_2->addWidget(listwidget);
+        splitter_3->addWidget(splitter_2);
 
-        verticalLayout->addWidget(listwidget);
+        horizontalLayout->addWidget(splitter_3);
 
-        splitter->addWidget(verticalLayoutWidget);
-        splitter_2->addWidget(splitter);
 
-        horizontalLayout->addWidget(splitter_2);
+        verticalLayout->addLayout(horizontalLayout);
 
         WombatMail->setCentralWidget(centralwidget);
         menubar = new QMenuBar(WombatMail);
@@ -182,9 +199,13 @@ public:
         WombatMail->addToolBar(Qt::TopToolBarArea, toolBar);
 
         toolBar->addAction(actionOpenMailBox);
+        toolBar->addSeparator();
         toolBar->addAction(actionManageTags);
+        toolBar->addAction(actionheader);
+        toolBar->addSeparator();
         toolBar->addAction(actionPreviewReport);
         toolBar->addAction(actionPublish);
+        toolBar->addSeparator();
         toolBar->addAction(actionAbout);
 
         retranslateUi(WombatMail);
@@ -230,6 +251,10 @@ public:
 #if QT_CONFIG(shortcut)
         actionPublish->setShortcut(QCoreApplication::translate("WombatMail", "Ctrl+G", nullptr));
 #endif // QT_CONFIG(shortcut)
+        actionheader->setText(QCoreApplication::translate("WombatMail", "header", nullptr));
+#if QT_CONFIG(tooltip)
+        actionheader->setToolTip(QCoreApplication::translate("WombatMail", "Show/Hide Headers", nullptr));
+#endif // QT_CONFIG(tooltip)
         toolBar->setWindowTitle(QCoreApplication::translate("WombatMail", "toolBar", nullptr));
     } // retranslateUi
 
