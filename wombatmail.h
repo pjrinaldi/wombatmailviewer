@@ -63,6 +63,7 @@ private slots:
     {
         statuslabel->setText(tmptext);
     };
+    void OpenAttach(QListWidgetItem* curitem);
 protected:
     void closeEvent(QCloseEvent* event);
 

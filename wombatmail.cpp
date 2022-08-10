@@ -14,6 +14,7 @@ WombatMail::WombatMail(QWidget* parent) : QMainWindow(parent), ui(new Ui::Wombat
     ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "Date Time", "Subject"});
     connect(ui->treewidget, SIGNAL(itemSelectionChanged()), this, SLOT(MailBoxSelected()), Qt::DirectConnection);
     connect(ui->tablewidget, SIGNAL(itemSelectionChanged()), this, SLOT(MailItemSelected()), Qt::DirectConnection);
+    connect(ui->listwidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(OpenAttach(QListWidgetItem*)), Qt::DirectConnection);
     connect(ui->actionOpenMailBox, SIGNAL(triggered()), this, SLOT(OpenMailBox()), Qt::DirectConnection);
     connect(ui->actionManageTags, SIGNAL(triggered()), this, SLOT(ManageTags()), Qt::DirectConnection);
     connect(ui->actionPreviewReport, SIGNAL(triggered()), this, SLOT(PreviewReport()), Qt::DirectConnection);
@@ -53,7 +54,7 @@ WombatMail::~WombatMail()
 
 uint8_t WombatMail::MailBoxType(QString mailboxpath)
 {
-    int reterr = 0;
+    //int reterr = 0;
     uint8_t mailboxtype = 0x00;
     libpff_error_t* pfferr = NULL;
     if(libpff_check_file_signature(mailboxpath.toStdString().c_str(), &pfferr)) // is pst/ost
@@ -765,10 +766,10 @@ void WombatMail::PopulatePstEmail()
                 reterr = libpff_message_get_entry_value_utf8_string_size(curattach, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, &attachnamesize, &pfferr);
                 uint8_t attachname[attachnamesize];
                 reterr = libpff_message_get_entry_value_utf8_string(curattach, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, attachname, attachnamesize, &pfferr);
-                qDebug() << "Attachment Name:" << QString::fromUtf8(reinterpret_cast<char*>(attachname));
+                //qDebug() << "Attachment Name:" << QString::fromUtf8(reinterpret_cast<char*>(attachname));
                 size64_t attachsize = 0;
                 reterr = libpff_attachment_get_data_size(curattach, &attachsize, &pfferr);
-                QString attachstr = QString::fromUtf8(reinterpret_cast<char*>(attachname)) + " (" + QString::number(attachsize) + ")";
+                QString attachstr = QString::fromUtf8(reinterpret_cast<char*>(attachname)) + " (" + QString::number(attachsize) + " bytes)";
                 //tmpitem->setText(attachstr);
                 ui->listwidget->addItem(new QListWidgetItem(attachstr));
                 /*
@@ -786,6 +787,12 @@ void WombatMail::PopulatePstEmail()
         }
         libpff_error_free(&pfferr);
     }
+}
+
+void WombatMail::OpenAttach(QListWidgetItem* curitem)
+{
+    qDebug() << "curitem: " << curitem->text();
+    qDebug() << "open attachment in viewer if mime matches, otherwise open external...";
 }
 
 void WombatMail::PopulateMboxEmail()
@@ -1090,6 +1097,8 @@ int WombatMail::GetRootIndex(QTreeWidgetItem* curitem)
 	GetRootIndex(curitem->parent());
     else
 	return ui->treewidget->indexOfTopLevelItem(curitem);
+
+    //return -1;
 }
 
 /*

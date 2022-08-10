@@ -166,6 +166,8 @@ public:
         splitter->setOrientation(Qt::Vertical);
         headerbox = new QGroupBox(splitter);
         headerbox->setObjectName(QString::fromUtf8("headerbox"));
+        headerbox->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
+        headerbox->setFlat(false);
         vert2 = new QVBoxLayout(headerbox);
         vert2->setSpacing(0);
         vert2->setObjectName(QString::fromUtf8("vert2"));
@@ -214,6 +216,8 @@ public:
         brush1.setStyle(Qt::SolidPattern);
         palette.setBrush(QPalette::Disabled, QPalette::Base, brush1);
         listwidget->setPalette(palette);
+        listwidget->setFrameShape(QFrame::NoFrame);
+        listwidget->setFrameShadow(QFrame::Plain);
         listwidget->setFlow(QListView::LeftToRight);
         listwidget->setProperty("isWrapping", QVariant(true));
         listwidget->setViewMode(QListView::ListMode);
