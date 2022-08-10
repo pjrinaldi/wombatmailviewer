@@ -13,6 +13,7 @@
 #include <QtGui/QIcon>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QListWidget>
@@ -43,11 +44,19 @@ public:
     QHBoxLayout *horizontalLayout;
     QTreeWidget *treewidget;
     QSplitter *splitter_3;
+    QGroupBox *tablebox;
+    QVBoxLayout *vert1;
     QTableWidget *tablewidget;
     QSplitter *splitter_2;
     QSplitter *splitter;
+    QGroupBox *headerbox;
+    QVBoxLayout *vert2;
     QTextBrowser *headerbrowser;
+    QGroupBox *bodybox;
+    QVBoxLayout *vert3;
     QTextBrowser *textbrowser;
+    QGroupBox *attachbox;
+    QVBoxLayout *vert4;
     QListWidget *listwidget;
     QMenuBar *menubar;
     QStatusBar *statusbar;
@@ -118,7 +127,13 @@ public:
         sizePolicy.setHeightForWidth(splitter_3->sizePolicy().hasHeightForWidth());
         splitter_3->setSizePolicy(sizePolicy);
         splitter_3->setOrientation(Qt::Vertical);
-        tablewidget = new QTableWidget(splitter_3);
+        tablebox = new QGroupBox(splitter_3);
+        tablebox->setObjectName(QString::fromUtf8("tablebox"));
+        vert1 = new QVBoxLayout(tablebox);
+        vert1->setSpacing(0);
+        vert1->setObjectName(QString::fromUtf8("vert1"));
+        vert1->setContentsMargins(0, 0, 0, 0);
+        tablewidget = new QTableWidget(tablebox);
         if (tablewidget->columnCount() < 5)
             tablewidget->setColumnCount(5);
         tablewidget->setObjectName(QString::fromUtf8("tablewidget"));
@@ -131,10 +146,13 @@ public:
         tablewidget->setAlternatingRowColors(true);
         tablewidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         tablewidget->setColumnCount(5);
-        splitter_3->addWidget(tablewidget);
         tablewidget->horizontalHeader()->setCascadingSectionResizes(true);
         tablewidget->horizontalHeader()->setStretchLastSection(true);
         tablewidget->verticalHeader()->setVisible(false);
+
+        vert1->addWidget(tablewidget);
+
+        splitter_3->addWidget(tablebox);
         splitter_2 = new QSplitter(splitter_3);
         splitter_2->setObjectName(QString::fromUtf8("splitter_2"));
         splitter_2->setOrientation(Qt::Vertical);
@@ -146,19 +164,43 @@ public:
         sizePolicy2.setHeightForWidth(splitter->sizePolicy().hasHeightForWidth());
         splitter->setSizePolicy(sizePolicy2);
         splitter->setOrientation(Qt::Vertical);
-        headerbrowser = new QTextBrowser(splitter);
+        headerbox = new QGroupBox(splitter);
+        headerbox->setObjectName(QString::fromUtf8("headerbox"));
+        vert2 = new QVBoxLayout(headerbox);
+        vert2->setSpacing(0);
+        vert2->setObjectName(QString::fromUtf8("vert2"));
+        vert2->setContentsMargins(0, 0, 0, 0);
+        headerbrowser = new QTextBrowser(headerbox);
         headerbrowser->setObjectName(QString::fromUtf8("headerbrowser"));
-        splitter->addWidget(headerbrowser);
-        textbrowser = new QTextBrowser(splitter);
+
+        vert2->addWidget(headerbrowser);
+
+        splitter->addWidget(headerbox);
+        bodybox = new QGroupBox(splitter);
+        bodybox->setObjectName(QString::fromUtf8("bodybox"));
+        vert3 = new QVBoxLayout(bodybox);
+        vert3->setSpacing(0);
+        vert3->setObjectName(QString::fromUtf8("vert3"));
+        vert3->setContentsMargins(0, 0, 0, 0);
+        textbrowser = new QTextBrowser(bodybox);
         textbrowser->setObjectName(QString::fromUtf8("textbrowser"));
         QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy3.setHorizontalStretch(0);
         sizePolicy3.setVerticalStretch(0);
         sizePolicy3.setHeightForWidth(textbrowser->sizePolicy().hasHeightForWidth());
         textbrowser->setSizePolicy(sizePolicy3);
-        splitter->addWidget(textbrowser);
+
+        vert3->addWidget(textbrowser);
+
+        splitter->addWidget(bodybox);
         splitter_2->addWidget(splitter);
-        listwidget = new QListWidget(splitter_2);
+        attachbox = new QGroupBox(splitter_2);
+        attachbox->setObjectName(QString::fromUtf8("attachbox"));
+        vert4 = new QVBoxLayout(attachbox);
+        vert4->setSpacing(0);
+        vert4->setObjectName(QString::fromUtf8("vert4"));
+        vert4->setContentsMargins(0, 0, 0, 0);
+        listwidget = new QListWidget(attachbox);
         listwidget->setObjectName(QString::fromUtf8("listwidget"));
         sizePolicy3.setHeightForWidth(listwidget->sizePolicy().hasHeightForWidth());
         listwidget->setSizePolicy(sizePolicy3);
@@ -175,7 +217,10 @@ public:
         listwidget->setFlow(QListView::LeftToRight);
         listwidget->setProperty("isWrapping", QVariant(true));
         listwidget->setViewMode(QListView::ListMode);
-        splitter_2->addWidget(listwidget);
+
+        vert4->addWidget(listwidget);
+
+        splitter_2->addWidget(attachbox);
         splitter_3->addWidget(splitter_2);
 
         horizontalLayout->addWidget(splitter_3);
@@ -255,6 +300,10 @@ public:
 #if QT_CONFIG(tooltip)
         actionheader->setToolTip(QCoreApplication::translate("WombatMail", "Show/Hide Headers", nullptr));
 #endif // QT_CONFIG(tooltip)
+        tablebox->setTitle(QCoreApplication::translate("WombatMail", "Message List", nullptr));
+        headerbox->setTitle(QCoreApplication::translate("WombatMail", "Message Headers ", nullptr));
+        bodybox->setTitle(QCoreApplication::translate("WombatMail", "Message Body ", nullptr));
+        attachbox->setTitle(QCoreApplication::translate("WombatMail", "Attachments", nullptr));
         toolBar->setWindowTitle(QCoreApplication::translate("WombatMail", "toolBar", nullptr));
     } // retranslateUi
 
