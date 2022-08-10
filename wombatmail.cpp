@@ -791,8 +791,16 @@ void WombatMail::PopulatePstEmail()
 
 void WombatMail::OpenAttach(QListWidgetItem* curitem)
 {
+    // get the attachments data, write to a tmp file and then open in a viewer or with default external application
     qDebug() << "curitem: " << curitem->text();
     qDebug() << "open attachment in viewer if mime matches, otherwise open external...";
+    /*
+    if(mime.contains("HTML"))
+    {
+    }
+    else
+        QDesktopServices::openUrl(QUrl(path to tmp file));
+    */
 }
 
 void WombatMail::PopulateMboxEmail()
@@ -1097,8 +1105,6 @@ int WombatMail::GetRootIndex(QTreeWidgetItem* curitem)
 	GetRootIndex(curitem->parent());
     else
 	return ui->treewidget->indexOfTopLevelItem(curitem);
-
-    //return -1;
 }
 
 /*
