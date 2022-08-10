@@ -57,8 +57,13 @@ uint8_t WombatMail::MailBoxType(QString mailboxpath)
     //int reterr = 0;
     uint8_t mailboxtype = 0x00;
     libpff_error_t* pfferr = NULL;
+    libolecf_error_t* olecerr = NULL;
     if(libpff_check_file_signature(mailboxpath.toStdString().c_str(), &pfferr)) // is pst/ost
 	mailboxtype = 0x01; // PST/OST
+    else if(libolecf_check_file_signature(mailboxpath.toStdString().c_str(), &olecerr)) // is msg
+    {
+        mailboxtype = 0x03; // MSG
+    }
     else // might be mbox
     {
 	QFile mboxfile(mailboxpath);
@@ -79,6 +84,7 @@ uint8_t WombatMail::MailBoxType(QString mailboxpath)
 	    mboxfile.close();
 	}
     }
+    libolecf_error_free(&olecerr);
     libpff_error_free(&pfferr);
 
     return mailboxtype;
@@ -353,6 +359,15 @@ void WombatMail::OpenMailBox()
 		//populate table which needs to be reproducible
 	    }
 	}
+        else if(mailboxtype == 0x03) // EML
+        {
+            mboxes.append(mboxfilepath);
+            rootitem = new QTreeWidgetItem(ui->treewidget);
+            rootitem->setText(0, mboxfilepath.split("/").last().toUpper() + " (" + mboxfilepath + ")");
+            ui->treewidget->addTopLevelItem(rootitem);
+            ui->treewidget->setCurrentItem(rootitem);
+            //qDebug() << "it's a msg file:" << "mboxfilepath:" << mboxfilepath;
+        }
 	else // OTHER FILE
 	{
 	    // not a supported type.
@@ -556,14 +571,29 @@ void WombatMail::MailBoxSelected(void)
 	PopulateMbox(mboxfilepath);
 	//populate table which needs to be reproducible
     }
+    else if(mailboxtype == 0x03) // MSG
+    {
+        PopulateMsg(mboxfilepath);
+    }
+}
+
+void WombatMail::PopulateMsg(QString mfpath)
+{
+    ui->tablewidget->clear();
+    ui->textbrowser->clear();
+    ui->headerbrowser->clear();
+    ui->listwidget->clear();
+    ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "DateTime", "Subject"});
+    qDebug() << "populate message here...";
 }
 
 void WombatMail::PopulatePstFolder(QString mfpath, QString subfolders)
 {
     ui->tablewidget->clear();
     ui->textbrowser->clear();
-    ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "DateTime", "Subject"});
+    ui->headerbrowser->clear();
     ui->listwidget->clear();
+    ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "DateTime", "Subject"});
     
     QStringList subdirlist = subfolders.split(",", Qt::SkipEmptyParts);
     //QString msgid = "";

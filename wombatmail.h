@@ -16,6 +16,7 @@
 #include "htmlviewer.h"
 #include "aboutbox.h"
 #include "libpff.h"
+#include "libolecf.h"
 #include "cssstrings.h"
 
 //#include <mimetic/mimetic.h>
@@ -84,6 +85,7 @@ private:
     void PopulatePstEmail(void);
     void PopulatePstFolder(QString mailboxpath, QString subfolders);
     void PopulateSubFolders(QString mailboxpath, libpff_item_t* subfolder, QTreeWidgetItem* subitem);
+    void PopulateMsg(QString mailboxpath);
     //QString ConvertUnixTimeToString(uint32_t input);
     QString ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
     int GetRootIndex(QTreeWidgetItem* curitem);
