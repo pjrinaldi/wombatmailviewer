@@ -42,6 +42,8 @@ class WombatMail : public FXMainWindow
         FXButton* openbutton;
 	FXIcon* managetagsicon;
 	FXButton* managetagsbutton;
+        FXIcon* headericon;
+        FXButton* headerbutton;
 	FXIcon* previewicon;
 	FXButton* previewbutton;
 	FXIcon* publishicon;
@@ -78,6 +80,7 @@ class WombatMail : public FXMainWindow
             ID_SETTAG = 109,
             ID_REMTAG = 110,
             ID_MOVE_UP = 111,
+            ID_HEADER = 112,
             ID_LAST
         };
         WombatMail(FXApp* a);
@@ -93,6 +96,7 @@ class WombatMail : public FXMainWindow
         long PreviewReport(FXObject*, FXSelector, void*);
         long PublishReport(FXObject*, FXSelector, void*);
         long TableUp(FXObject*, FXSelector, void*);
+        long ShowHeader(FXObject*, FXSelector, void* checkstate);
 	//void PopulateChildKeys(libregf_key_t* curkey, FXTreeItem* curitem, libregf_error_t* regerr);
 	void GetRootString(FXTreeItem* curitem, FXString* rootstring);
 	FXString ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
@@ -112,6 +116,7 @@ FXDEFMAP(WombatMail) WombatMailMap[]={
     FXMAPFUNC(SEL_CLICKED, WombatMail::ID_TREESELECT, WombatMail::KeySelected),
     FXMAPFUNC(SEL_COMMAND, WombatMail::ID_OPEN, WombatMail::OpenHive),
     FXMAPFUNC(SEL_COMMAND, WombatMail::ID_MANAGETAGS, WombatMail::OpenTagManager),
+    FXMAPFUNC(SEL_COMMAND, WombatMail::ID_HEADER, WombatMail::ShowHeader),
     FXMAPFUNC(SEL_COMMAND, WombatMail::ID_ABOUT, WombatMail::OpenAboutBox),
     FXMAPFUNC(SEL_SELECTED, WombatMail::ID_TABLESELECT, WombatMail::ValueSelected),
     FXMAPFUNC(SEL_RIGHTBUTTONRELEASE, WombatMail::ID_TABLESELECT, WombatMail::TagMenu),
