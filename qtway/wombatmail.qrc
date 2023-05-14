@@ -1,0 +1,43 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="about">Resources/aboutwombat.png</file>
+    <file alias="processremove">Resources/process-remove.svg</file>
+    <file alias="processstop">Resources/process-stop.svg</file>
+    <file alias="editfind">Resources/edit-find.svg</file>
+    <file alias="documentexport">Resources/document-export.svg</file>
+    <file alias="processcomplete">Resources/process-completed.svg</file>
+    <file alias="information">Resources/dialog-information.svg</file>
+    <file alias="help">Resources/help-contents.svg</file>
+    <file alias="search">Resources/system-search.png</file>
+    <file alias="messages">Resources/utilities-terminal.svg</file>
+    <file alias="wombat">Resources/wombat_32.ico</file>
+  </qresource>
+  <qresource prefix="/basic">
+    <file alias="folder">Resources/folder.png</file>
+    <file alias="file">Resources/text-x-generic.png</file>
+    <file alias="package">Resources/emblem-package-2.png</file>
+    <file alias="folderexplorer">Resources/foldersexplorer.png</file>
+    <file alias="filter">Resources/filterlist.png</file>
+  </qresource>
+  <qresource prefix="/bar">
+    <file alias="mail">Resources/possiblegraphics/internet-mail.png</file>
+    <file alias="home">Resources/home.png</file>
+    <file alias="publish">Resources/paperairplane2.png</file>
+    <file alias="burrow">Resources/burrow.png</file>
+    <file alias="next">Resources/go-next.png</file>
+    <file alias="previous">Resources/go-previous.png</file>
+    <file alias="preview">Resources/reportpreview1.png</file>
+    <file alias="removetag">Resources/bookmark-rem.svg</file>
+    <file alias="listadd">Resources/list-add.svg</file>
+    <file alias="listremove">Resources/list-remove.svg</file>
+    <file alias="openfolder">Resources/folder-open.svg</file>
+    <file alias="extension">Resources/extension.svg</file>
+    <file alias="documentnew">Resources/document-new.svg</file>
+    <file alias="calculator">Resources/accessories-calculator.svg</file>
+    <file alias="settings">Resources/applications-system.png</file>
+    <file alias="checkbox">Resources/checkbox.png</file>
+    <file alias="managetags">Resources/managetags.png</file>
+    <file alias="tag">Resources/bookmark.png</file>
+    <file alias="newtag">Resources/bookmark-new.png</file>
+  </qresource>
+</RCC>

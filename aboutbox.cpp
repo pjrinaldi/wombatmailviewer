@@ -1,42 +1,29 @@
 #include "aboutbox.h"
 
-// Copyright 2013-2022 Pasquale J. Rinaldi, Jr.
-// Distrubted under the terms of the GNU General Public License version 2
+// Copyright 2013-2023 Pasquale J. Rinaldi, Jr.
+// Distributed under the terms of the GNU General Public License version 2
 
-AboutBox::AboutBox(QWidget* parent) : QDialog(parent), ui(new Ui::AboutBox)
+FXIMPLEMENT(AboutBox,FXDialogBox,NULL, 0)
+
+AboutBox::AboutBox(FXWindow* parent, const FXString& title):FXDialogBox(parent, title, DECOR_TITLE|DECOR_BORDER|DECOR_CLOSE, 0, 0, 400, 600, 0,0,0,0, 0, 0)
 {
-    ui->setupUi(this);
-    QString abouttext = "<h3>About Wombat Mail Viewer v0.1</h3>";
-    abouttext += "<h5>License: GPLv2</h5>";
-    abouttext += "<h4>Copyright 2022-2022 Pasquale J. Rinaldi, Jr.</h4>";
-    abouttext += "<h5>Email: pjrinaldi@gmail.com</h5>";
-    abouttext += "<p>This program incorporates Qt5.15.0, provided by the LGPL, some of the elementary (GPLv3), and tango (public domain) icons.";
-    abouttext += " PST/OST parsing provided by the libpff library from Joachim Metz provided under the LGPLv3.";
-    abouttext += "<p>The wombat icon as well as the About dialog graphic was designed by Lindsey Pargman and a lot of the design implementation ideas were brainstormed with Mark Smith.</p>";
-    abouttext += "<p>If I have forgotten to mention any library or anyone, let me know and I will update this content accordingly.</p>";
-    ui->textlabel->setText(abouttext);
-    this->hide();
+    mainframe = new FXVerticalFrame(this, LAYOUT_TOP|LAYOUT_FILL_X|LAYOUT_FILL_Y, 0, 0, 0, 0, 0, 0, 0, 0);
+    mainimage = new FXPNGImage(this->getApp(), aboutwombat);
+    imgframe = new FXImageFrame(mainframe, mainimage, FRAME_NONE);
+    FXString abouttext = "\n\nAbout Wombat Registry v0.7\n\n";
+    abouttext += "License: GPLv2\n";
+    abouttext += "Copyright: 2022-2023 Pasquale J. Rinaldi, Jr.\n";
+    abouttext += "Email: pjrinaldi@gmail.com\n\n";
+    abouttext += "This program incorporates Fox Toolkit v1.7.6.81 (LGPLv2),\n";
+    abouttext += "some of the elementary icons (GPLv3),\n";
+    abouttext += "and tango icons (public domain).\n";
+    abouttext += "Registry parsing by libregf library (LGPLv3) from Joachim Metz\n\n";
+    abouttext += "Wombat icon and about image designed by Lindsay Pargman.\n";
+    abouttext += "Design Implementation ideas brainstormed with Mark Smith.\n\n";
+    abouttext += "If I have forgotten to mention any library or anyone,\n";
+    abouttext += " let me know and I will update this content accordingly.";
+    mainlabel = new FXLabel(mainframe, abouttext, NULL, JUSTIFY_LEFT);
+    this->setBackColor(FX::colorFromName("white"));
+    mainframe->setBackColor(FX::colorFromName("white"));
+    mainlabel->setBackColor(FX::colorFromName("white"));
 }
-
-AboutBox::~AboutBox()
-{
-}
-
-void AboutBox::HideClicked()
-{
-    this->hide();
-}
-
-void AboutBox::ShowAbout()
-{
-    this->show();
-}
-
-void AboutBox::mousePressEvent(QMouseEvent* e)
-{
-    if(e->type() == QEvent::MouseButtonPress)
-    {
-        this->hide();
-    }
-}
-
