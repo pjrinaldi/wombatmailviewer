@@ -22,10 +22,12 @@ WombatMail::WombatMail(FXApp* a):FXMainWindow(a, "Wombat Mail Forensics", new FX
     plaintext->setEditable(false);
     tablelist->setHeight(this->getHeight() / 3);
     tablelist->setEditable(false);
-    tablelist->setTableSize(4, 3);
-    tablelist->setColumnText(0, "Tag");
-    tablelist->setColumnText(1, "Value Name");
-    tablelist->setColumnText(2, "Value Type");
+    tablelist->setTableSize(10, 3);
+    tablelist->setColumnText(0, "ID");
+    tablelist->setColumnText(1, "Tag");
+    tablelist->setColumnText(2, "From");
+    tablelist->setColumnText(3, "Date Time");
+    tablelist->setColumnText(4, "Subject");
     tablelist->setColumnHeaderHeight(tablelist->getColumnHeaderHeight() + 5);
     tablelist->setRowHeaderWidth(0);
     openicon = new FXPNGIcon(this->getApp(), folderopen);
