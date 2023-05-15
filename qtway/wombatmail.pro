@@ -13,7 +13,7 @@ SOURCES = main.cpp wombatmail.cpp tagmanager.cpp htmlviewer.cpp aboutbox.cpp css
 RESOURCES += wombatmail.qrc
 release: DESTDIR = release
 debug:   DESTDIR = debug
-linux:LIBS = -lz libpff.a libolecf.a -lvmime
+linux:LIBS = -lz libpff.a libolecf.a -lvmime -lgsasl -licuuc
 #linux:LIBS = -lz libpff.a -licuuc -lgsasl -lgnutls libvmime.a
 #linux:LIBS = -lz -lmimetic libpff.a -licuuc -lgsasl -lgnutls libvmime.a
 
