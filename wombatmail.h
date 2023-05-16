@@ -14,9 +14,14 @@
 #include <filesystem>
 #include <byteswap.h>
 #include <time.h>
+#include <regex>
+
 #include "/usr/local/include/fox-1.7/fx.h"
-#include "libpff.h"
 #include "icons.h"
+
+#include "libpff.h"
+#include "libolecf.h"
+
 #include "managetags.h"
 #include "aboutbox.h"
 #include "viewer.h"
@@ -52,10 +57,13 @@ class WombatMail : public FXMainWindow
 	FXButton* aboutbutton;
         FXStatusBar* statusbar;
         FXFont* plainfont;
-        std::string prevhivepath;
-        std::string hivefilepath;
-        std::string cmdhivepath = "";
-        std::vector<std::filesystem::path> hives;
+        std::string oldmailboxpath;
+        std::string mailboxpath;
+        //std::string prevhivepath;
+        //std::string hivefilepath;
+        std::string cmdmailboxpath = "";
+        //std::vector<std::filesystem::path> hives;
+        std::vector<std::filesystem::path> mailboxes;
         std::vector<std::string> tags;
         FXArray<FXString> taggedlist;
         std::ifstream* filebufptr;
@@ -84,7 +92,8 @@ class WombatMail : public FXMainWindow
             ID_LAST
         };
         WombatMail(FXApp* a);
-        long OpenHive(FXObject*, FXSelector, void*);
+        //long OpenHive(FXObject*, FXSelector, void*);
+        long OpenMailBox(FXObject*, FXSelector, void*);
         long OpenTagManager(FXObject*, FXSelector, void*);
 	long OpenAboutBox(FXObject*, FXSelector, void*);
         long KeySelected(FXObject*, FXSelector, void*);
@@ -97,6 +106,8 @@ class WombatMail : public FXMainWindow
         long PublishReport(FXObject*, FXSelector, void*);
         long TableUp(FXObject*, FXSelector, void*);
         long ShowHeader(FXObject*, FXSelector, void* checkstate);
+        
+        uint8_t MailBoxType(std::string mailboxpath);
 	//void PopulateChildKeys(libregf_key_t* curkey, FXTreeItem* curitem, libregf_error_t* regerr);
 	void GetRootString(FXTreeItem* curitem, FXString* rootstring);
 	FXString ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
@@ -114,7 +125,8 @@ class WombatMail : public FXMainWindow
 
 FXDEFMAP(WombatMail) WombatMailMap[]={
     FXMAPFUNC(SEL_CLICKED, WombatMail::ID_TREESELECT, WombatMail::KeySelected),
-    FXMAPFUNC(SEL_COMMAND, WombatMail::ID_OPEN, WombatMail::OpenHive),
+    //FXMAPFUNC(SEL_COMMAND, WombatMail::ID_OPEN, WombatMail::OpenHive),
+    FXMAPFUNC(SEL_COMMAND, WombatMail::ID_OPEN, WombatMail::OpenMailBox),
     FXMAPFUNC(SEL_COMMAND, WombatMail::ID_MANAGETAGS, WombatMail::OpenTagManager),
     FXMAPFUNC(SEL_COMMAND, WombatMail::ID_HEADER, WombatMail::ShowHeader),
     FXMAPFUNC(SEL_COMMAND, WombatMail::ID_ABOUT, WombatMail::OpenAboutBox),

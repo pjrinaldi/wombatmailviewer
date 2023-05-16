@@ -22,7 +22,7 @@ WombatMail::WombatMail(FXApp* a):FXMainWindow(a, "Wombat Mail Forensics", new FX
     plaintext->setEditable(false);
     tablelist->setHeight(this->getHeight() / 3);
     tablelist->setEditable(false);
-    tablelist->setTableSize(10, 3);
+    tablelist->setTableSize(10, 5);
     tablelist->setColumnText(0, "ID");
     tablelist->setColumnText(1, "Tag");
     tablelist->setColumnText(2, "From");
@@ -52,7 +52,8 @@ WombatMail::WombatMail(FXApp* a):FXMainWindow(a, "Wombat Mail Forensics", new FX
     aboutbutton = new FXButton(toolbar, "", abouticon, this, ID_ABOUT, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     aboutbutton->setTipText("About Wombat Mail Forensics");
     statusbar->getStatusLine()->setNormalText("Open a Hive File to Begin");
-    hives.clear();
+    mailboxes.clear();
+    //hives.clear();
     tags.clear();
     taggedlist.clear();
 }
@@ -63,8 +64,9 @@ void WombatMail::create()
     show(PLACEMENT_SCREEN);
     if(this->getApp()->getArgc() == 2)
     {
-        cmdhivepath = std::string(this->getApp()->getArgv()[1]);
-        int ret = OpenHive(NULL, 0, NULL);
+        cmdmailboxpath = std::string(this->getApp()->getArgv()[1]);
+        int ret = OpenMailBox(NULL, 0, NULL);
+        //int ret = OpenHive(NULL, 0, NULL);
     }
 }
 
@@ -851,24 +853,70 @@ long WombatMail::TableUp(FXObject*, FXSelector, void* ptr)
     return 1;
 }
 
-long WombatMail::OpenHive(FXObject*, FXSelector, void*)
+long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
 {
     /*
+	// check mailbox type
+	mailboxtype = MailBoxType(mboxfilepath);
+	if(mailboxtype == 0x01 || mailboxtype == 0x02)
+	{
+	    mboxes.append(mboxfilepath);
+	    mboxfile.setFileName(mboxfilepath);
+	    if(mboxfile.exists())
+	    {
+		rootitem = new QTreeWidgetItem(ui->treewidget);
+		rootitem->setText(0, mboxfilepath.split("/").last().toUpper() + " (" + mboxfilepath + ")");
+		ui->treewidget->addTopLevelItem(rootitem);
+		ui->treewidget->setCurrentItem(rootitem);
+	    }
+	    if(mailboxtype == 0x01) // PST/OST
+	    {
+                PopulatePst(mboxfilepath);
+		//populate tree and table
+	    }
+	    else if(mailboxtype == 0x02) // MBOX
+	    {
+                //PopulateMbox(mboxfilepath);
+		//populate table which needs to be reproducible
+	    }
+	}
+        else if(mailboxtype == 0x03) // EML
+        {
+            mboxes.append(mboxfilepath);
+            rootitem = new QTreeWidgetItem(ui->treewidget);
+            rootitem->setText(0, mboxfilepath.split("/").last().toUpper() + " (" + mboxfilepath + ")");
+            ui->treewidget->addTopLevelItem(rootitem);
+            ui->treewidget->setCurrentItem(rootitem);
+            //qDebug() << "it's a msg file:" << "mboxfilepath:" << mboxfilepath;
+        }
+	else // OTHER FILE
+	{
+	    // not a supported type.
+	}
+    }
+     */
     FXString filename = "";
-    if(cmdhivepath.empty())
+    if(cmdmailboxpath.empty())
     {
-        if(prevhivepath.empty())
-            prevhivepath = getenv("HOME") + std::string("/");
-        filename = FXFileDialog::getOpenFilename(this, "Open Hive", prevhivepath.c_str());
+        if(oldmailboxpath.empty())
+            oldmailboxpath = getenv("HOME") + std::string("/");
+        filename = FXFileDialog::getOpenFilename(this, "Open MailBox", oldmailboxpath.c_str());
     }
     else
-        filename = FXString(cmdhivepath.c_str());
-
+        filename = FXString(cmdmailboxpath.c_str());
     if(!filename.empty())
     {
-        hivefilepath = filename.text();
-        prevhivepath = hivefilepath;
-        hives.push_back(std::filesystem::canonical(hivefilepath));
+        mailboxpath = filename.text();
+        oldmailboxpath = mailboxpath;
+        mailboxes.push_back(std::filesystem::canonical(mailboxpath));
+	// check mailbox type
+        uint8_t mailboxtype = 0x00;
+	mailboxtype = MailBoxType(mailboxpath);
+        std::cout << "mail box type: " << (uint)mailboxtype << std::endl;
+        //std::ifstream filebuffer(mailboxpath.c_str(), std::ios::in|std::ios::binary);
+        //filebufptr = &filebuffer;
+    }
+    /*
         std::ifstream filebuffer(hivefilepath.c_str(), std::ios::in|std::ios::binary);
         filebufptr = &filebuffer;
         filebufptr->seekg(0);
@@ -913,6 +961,39 @@ long WombatMail::OpenHive(FXObject*, FXSelector, void*)
     */
 
     return 1;
+}
+
+uint8_t WombatMail::MailBoxType(std::string mailboxpath)
+{
+    uint8_t mailboxtype = 0x00;
+    libpff_error_t* pfferr = NULL;
+    libolecf_error_t* olecerr = NULL;
+    if(libpff_check_file_signature(mailboxpath.c_str(), &pfferr)) // is pst/ost
+	mailboxtype = 0x01; // PST/OST
+    else if(libolecf_check_file_signature(mailboxpath.c_str(), &olecerr)) // is msg
+    {
+        mailboxtype = 0x03; // MSG
+    }
+    else // might be mbox
+    {
+        std::regex mboxheader("^From .*[0-9][0-9]:[0-9][0-9]"); // kmbox regular expression
+        std::ifstream mailboxfile(mailboxpath, std::ios::in|std::ios::binary);
+        std::string line;
+        while(std::getline(mailboxfile, line))
+        {
+            std::smatch mboxmatch;
+            bool ismatch = std::regex_search(line, mboxmatch, mboxheader);
+            if(ismatch == true)
+            {
+                mailboxtype = 0x02; // is mbox
+                break;
+            }
+        }
+    }
+    libolecf_error_free(&olecerr);
+    libpff_error_free(&pfferr);
+
+    return mailboxtype;
 }
 
 /*
