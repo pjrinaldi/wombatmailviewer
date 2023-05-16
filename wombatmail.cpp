@@ -51,7 +51,7 @@ WombatMail::WombatMail(FXApp* a):FXMainWindow(a, "Wombat Mail Forensics", new FX
     abouticon = new FXPNGIcon(this->getApp(), helpcontents);
     aboutbutton = new FXButton(toolbar, "", abouticon, this, ID_ABOUT, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     aboutbutton->setTipText("About Wombat Mail Forensics");
-    statusbar->getStatusLine()->setNormalText("Open a Hive File to Begin");
+    statusbar->getStatusLine()->setNormalText("Open a Mail Item to Begin");
     mailboxes.clear();
     //hives.clear();
     tags.clear();
@@ -930,6 +930,7 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
             else if(mailboxtype == 0x03) // MSG
             {
             }
+            StatusUpdate("Ready");
         }
         else // OTHER FILE, NOT SUPPORTED
         {
@@ -1003,15 +1004,8 @@ void WombatMail::PopulatePst(std::string mailboxpath)
 	    uint8_t subname[subnamesize];
 	    reterr = libpff_folder_get_utf8_name(cursubfolder, subname, subnamesize, &pfferr);
 	    libpff_error_fprint(pfferr, stderr);
-	    //FXTreeItem* subitem = new FXTreeItem(itemstring);
-	    //treelist->appendItem(curitem, subitem);
             FXTreeItem* subitem = new FXTreeItem(FXString(reinterpret_cast<char*>(subname)));
             treelist->appendItem(rootitem, subitem);
-            /*
-	    QTreeWidgetItem* subdir = new QTreeWidgetItem(rootitem);
-	    subdir->setText(0, QString::fromUtf8(reinterpret_cast<char*>(subname)));
-	    rootitem->addChild(subdir);
-            */
 	    int subdircnt = 0;
 	    reterr = libpff_folder_get_number_of_sub_folders(cursubfolder, &subdircnt, &pfferr);
 	    if(subdircnt > 0)
@@ -1045,15 +1039,12 @@ void WombatMail::PopulateSubFolders(std::string mailboxpath, libpff_item_t* subf
 	reterr = libpff_folder_get_utf8_name_size(childfolder, &childnamesize, &pfferr);
 	uint8_t childname[childnamesize];
 	reterr = libpff_folder_get_utf8_name(childfolder, childname, childnamesize, &pfferr);
-        /*
-	QTreeWidgetItem* childitem = new QTreeWidgetItem(subitem);
-	childitem->setText(0, QString::fromUtf8(reinterpret_cast<char*>(childname)));
-	subitem->addChild(childitem);
+        FXTreeItem* childitem = new FXTreeItem(FXString(reinterpret_cast<char*>(childname)));
+        treelist->appendItem(subitem, childitem);
 	int childsubcnt = 0;
 	reterr =libpff_folder_get_number_of_sub_folders(childfolder, &childsubcnt, &pfferr);
 	if(childsubcnt > 0)
 	    PopulateSubFolders(mailboxpath, childfolder, childitem);
-        */
 	reterr = libpff_item_free(&childfolder, &pfferr);
     }
 
