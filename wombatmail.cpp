@@ -857,7 +857,6 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
 {
     /*
 	// check mailbox type
-	mailboxtype = MailBoxType(mboxfilepath);
 	if(mailboxtype == 0x01 || mailboxtype == 0x02)
 	{
 	    mboxes.append(mboxfilepath);
@@ -880,7 +879,7 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
 		//populate table which needs to be reproducible
 	    }
 	}
-        else if(mailboxtype == 0x03) // EML
+        else if(mailboxtype == 0x03) // MSG
         {
             mboxes.append(mboxfilepath);
             rootitem = new QTreeWidgetItem(ui->treewidget);
@@ -908,57 +907,35 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
     {
         mailboxpath = filename.text();
         oldmailboxpath = mailboxpath;
-        mailboxes.push_back(std::filesystem::canonical(mailboxpath));
 	// check mailbox type
         uint8_t mailboxtype = 0x00;
 	mailboxtype = MailBoxType(mailboxpath);
-        std::cout << "mail box type: " << (uint)mailboxtype << std::endl;
-        //std::ifstream filebuffer(mailboxpath.c_str(), std::ios::in|std::ios::binary);
-        //filebufptr = &filebuffer;
-    }
-    /*
-        std::ifstream filebuffer(hivefilepath.c_str(), std::ios::in|std::ios::binary);
-        filebufptr = &filebuffer;
-        filebufptr->seekg(0);
-        char* registryheader = new char[4];
-        filebufptr->read(registryheader, 4);
-        std::string regheadstr(registryheader);
-        delete[] registryheader;
-        if(regheadstr.find("regf") != std::string::npos) // win nt reg file
-        {
-            filebuffer.close();
-            libregf_file_t* regfile = NULL;
-            libregf_error_t* regerr = NULL;
-            libregf_file_initialize(&regfile, &regerr);
-            libregf_file_open(regfile, hivefilepath.c_str(), LIBREGF_OPEN_READ, &regerr);
-            libregf_error_fprint(regerr, stderr);
-            libregf_key_t* rootkey = NULL;
-            libregf_file_get_root_key(regfile, &rootkey, &regerr);
-            libregf_error_fprint(regerr, stderr);
-            int rootsubkeycnt = 0;
-            libregf_key_get_number_of_sub_keys(rootkey, &rootsubkeycnt, &regerr);
-            libregf_error_fprint(regerr, stderr);
-            std::size_t rfound = hivefilepath.rfind("/");
-            std::string hivefilename = hivefilepath.substr(rfound+1);
-            FXString rootitemstring(std::string(hivefilename + " (" + hivefilepath + ")").c_str());
+        //std::cout << "mail box type: " << (uint)mailboxtype << std::endl;
+	if(mailboxtype == 0x01 || mailboxtype == 0x02 || mailboxtype == 0x03)
+	{
+            mailboxes.push_back(std::filesystem::canonical(mailboxpath));
+            std::size_t rfound = mailboxpath.rfind("/");
+            std::string mailboxname = mailboxpath.substr(rfound+1);
+            FXString rootitemstring(std::string(mailboxname + " (" + mailboxpath.substr(0, rfound+1) + ")").c_str());
             rootitem = new FXTreeItem(rootitemstring);
             treelist->appendItem(0, rootitem);
-	    this->getApp()->beginWaitCursor();
-	    PopulateChildKeys(rootkey, rootitem, regerr);
-	    this->getApp()->endWaitCursor();
-	    treelist->expandTree(rootitem);
-	    libregf_key_free(&rootkey, &regerr);
-	    libregf_file_close(regfile, &regerr);
-	    libregf_file_free(&regfile, &regerr);
-	    libregf_error_free(&regerr);
+            if(mailboxtype == 0x01) // PST/OST
+            {
+                PopulatePst(mailboxpath);
+            }
+            else if(mailboxtype == 0x02) // MBOX
+            {
+                PopulateMbox(mailboxpath);
+            }
+            else if(mailboxtype == 0x03) // MSG
+            {
+            }
         }
-        else
+        else // OTHER FILE, NOT SUPPORTED
         {
-            StatusUpdate("File not opened. Not a valid registry file.");
-            //std::cout << "check failed..." << std::endl;
+            StatusUpdate("File not opened. Not a valid mail item.");
         }
     }
-    */
 
     return 1;
 }
@@ -994,6 +971,14 @@ uint8_t WombatMail::MailBoxType(std::string mailboxpath)
     libpff_error_free(&pfferr);
 
     return mailboxtype;
+}
+
+void WombatMail::PopulateMbox(std::string mailboxpath)
+{
+}
+
+void WombatMail::PopulatePst(std::string mailboxpath)
+{
 }
 
 /*

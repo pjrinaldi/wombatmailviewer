@@ -108,6 +108,8 @@ class WombatMail : public FXMainWindow
         long ShowHeader(FXObject*, FXSelector, void* checkstate);
         
         uint8_t MailBoxType(std::string mailboxpath);
+        void PopulateMbox(std::string mailboxpath);
+        void PopulatePst(std::string mailboxpath);
 	//void PopulateChildKeys(libregf_key_t* curkey, FXTreeItem* curitem, libregf_error_t* regerr);
 	void GetRootString(FXTreeItem* curitem, FXString* rootstring);
 	FXString ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
