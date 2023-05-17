@@ -96,7 +96,8 @@ class WombatMail : public FXMainWindow
         long OpenMailBox(FXObject*, FXSelector, void*);
         long OpenTagManager(FXObject*, FXSelector, void*);
 	long OpenAboutBox(FXObject*, FXSelector, void*);
-        long KeySelected(FXObject*, FXSelector, void*);
+        //long KeySelected(FXObject*, FXSelector, void*);
+        long MailBoxSelected(FXObject*, FXSelector, void*);
 	long ValueSelected(FXObject*, FXSelector, void*);
         long TagMenu(FXObject*, FXSelector, void*);
         long SetTag(FXObject* sender, FXSelector, void*);
@@ -127,7 +128,8 @@ class WombatMail : public FXMainWindow
 };
 
 FXDEFMAP(WombatMail) WombatMailMap[]={
-    FXMAPFUNC(SEL_CLICKED, WombatMail::ID_TREESELECT, WombatMail::KeySelected),
+    FXMAPFUNC(SEL_CLICKED, WombatMail::ID_TREESELECT, WombatMail::MailBoxSelected),
+    //FXMAPFUNC(SEL_CLICKED, WombatMail::ID_TREESELECT, WombatMail::KeySelected),
     //FXMAPFUNC(SEL_COMMAND, WombatMail::ID_OPEN, WombatMail::OpenHive),
     FXMAPFUNC(SEL_COMMAND, WombatMail::ID_OPEN, WombatMail::OpenMailBox),
     FXMAPFUNC(SEL_COMMAND, WombatMail::ID_MANAGETAGS, WombatMail::OpenTagManager),

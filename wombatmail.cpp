@@ -134,8 +134,54 @@ long WombatMail::RemoveTag(FXObject*, FXSelector, void*)
     return 1;
 }
 
-long WombatMail::KeySelected(FXObject* sender, FXSelector, void*)
+//long WombatMail::KeySelected(FXObject* sender, FXSelector, void*)
+long WombatMail::MailBoxSelected(FXObject* sender, FXSelector, void*)
 {
+    FXTreeItem* curitem = treelist->getCurrentItem();
+    FXString rootstring = "";
+    FXString mailboxpath = "";
+    GetRootString(curitem, &rootstring);
+    //std::cout << "root string: " << rootstring.text() << std::endl;
+    int found1 = rootstring.find(" (");
+    int found2 = rootstring.find(")");
+    mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
+    uint8_t mailboxtype = MailBoxType(mailboxpath.text());
+    if(mailboxtype == 0x01) // PST/OST
+    {
+    }
+    else if(mailboxtype == 0x02) // MBOX
+    {
+    }
+    else if(mailboxtype == 0x03) // MSG
+    {
+    }
+    else
+    {
+    }
+    /*
+    if(mailboxtype == 0x01) // PST/OST
+    {
+        QString itempath = "";
+        while(curitem != NULL)
+        {
+            if(curitem->parent() != NULL)
+                itempath += QString::number(curitem->parent()->indexOfChild(curitem)) + ",";
+            else // might not need toplevel item index...
+                itempath += QString::number(ui->treewidget->indexOfTopLevelItem(curitem)) + ",";
+            curitem = curitem->parent();
+        }
+        PopulatePstFolder(mboxfilepath, itempath);
+    }
+    else if(mailboxtype == 0x02) // MBOX
+    {
+	PopulateMbox(mboxfilepath);
+	//populate table which needs to be reproducible
+    }
+    else if(mailboxtype == 0x03) // MSG
+    {
+        PopulateMsg(mboxfilepath);
+    }
+     */ 
     /*
     size_t namemax = 0;
     FXTreeItem* curitem = treelist->getCurrentItem();
@@ -1005,6 +1051,7 @@ void WombatMail::PopulatePst(std::string mailboxpath)
 	    reterr = libpff_folder_get_utf8_name(cursubfolder, subname, subnamesize, &pfferr);
 	    libpff_error_fprint(pfferr, stderr);
             FXTreeItem* subitem = new FXTreeItem(FXString(reinterpret_cast<char*>(subname)));
+            //subitem->setData(
             treelist->appendItem(rootitem, subitem);
 	    int subdircnt = 0;
 	    reterr = libpff_folder_get_number_of_sub_folders(cursubfolder, &subdircnt, &pfferr);
