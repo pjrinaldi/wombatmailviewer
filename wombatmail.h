@@ -112,6 +112,7 @@ class WombatMail : public FXMainWindow
         void PopulateMbox(std::string mailboxpath);
         void PopulatePst(std::string mailboxpath);
         void PopulateSubFolders(std::string mailboxpath, libpff_item_t* subfolder, FXTreeItem* subitem);
+        void PopulatePstFolder(FXString mailboxpath, FXString curitemtext);
 	//void PopulateChildKeys(libregf_key_t* curkey, FXTreeItem* curitem, libregf_error_t* regerr);
 	void GetRootString(FXTreeItem* curitem, FXString* rootstring);
 	FXString ConvertWindowsTimeToUnixTimeUTC(uint64_t input);

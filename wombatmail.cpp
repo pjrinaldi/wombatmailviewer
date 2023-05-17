@@ -134,6 +134,103 @@ long WombatMail::RemoveTag(FXObject*, FXSelector, void*)
     return 1;
 }
 
+void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
+{
+    //libpff_folder_get_sub_folder_by_utf8_name(*folder, uint8_t*subfoldername, size_t subfoldernamesize, **subfolderitem, **error)
+
+    /*
+    //QString msgid = "";
+    int reterr = 0;
+    libpff_error_t* pfferr = NULL;
+    if(libpff_check_file_signature(mfpath.toStdString().c_str(), &pfferr)) // is pst/ost
+    {
+        // this is a pst/ost file, start processing it.
+        libpff_file_t* pffile = NULL;
+        reterr = libpff_file_initialize(&pffile, &pfferr);
+        reterr = libpff_file_open(pffile, mfpath.toStdString().c_str(), LIBPFF_OPEN_READ, &pfferr);
+	libpff_error_fprint(pfferr, stderr);
+        libpff_item_t* rootfolder = NULL;
+        reterr = libpff_file_get_root_folder(pffile, &rootfolder, &pfferr);
+        libpff_item_t* selectedfolder = NULL;
+        libpff_item_t* tmpitem = NULL;
+        tmpitem = rootfolder;
+        for(int i = subdirlist.count() - 2; i >= 0; i--)
+	{
+            //msgid += subdirlist.at(i) + "-";
+            libpff_item_t* curitem = NULL;
+            reterr = libpff_folder_get_sub_folder(tmpitem, subdirlist.at(i).toInt(), &curitem, &pfferr);
+            if(i > 0)
+            {
+                tmpitem = curitem;
+                curitem = NULL;
+            }
+            else
+            {
+                selectedfolder = curitem;
+                tmpitem = NULL;
+            }
+	}
+        size_t selnamesize = 0;
+        reterr = libpff_folder_get_utf8_name_size(selectedfolder, &selnamesize, &pfferr);
+        uint8_t selname[selnamesize];
+        reterr = libpff_folder_get_utf8_name(selectedfolder, selname, selnamesize, &pfferr);
+        // POPULATE THE TABLEWIDGET WITH MAIL ITEMS FOR THE FOLDER HERE...
+        int msgcnt = 0;
+        reterr = libpff_folder_get_number_of_sub_messages(selectedfolder, &msgcnt, &pfferr);
+
+        if(msgcnt > 0)
+        {
+            ui->tablewidget->setRowCount(msgcnt);
+            ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "DateTime", "Subject"});
+            for(int i=0; i < msgcnt; i++)
+            {
+                //msgid += QString::number(i);
+                libpff_item_t* curmsg = NULL;
+                reterr = libpff_folder_get_sub_message(selectedfolder, i, &curmsg, &pfferr);
+                size_t msgsubjectsize = 0;
+                reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT, &msgsubjectsize, &pfferr);
+                uint8_t msgsubject[msgsubjectsize];
+                reterr = libpff_message_get_entry_value_utf8_string(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT, msgsubject, msgsubjectsize, &pfferr);
+                size_t msgsendersize = 0;
+                reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS, &msgsendersize, &pfferr);
+                uint8_t msgsender[msgsendersize];
+                reterr = libpff_message_get_entry_value_utf8_string(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS, msgsender, msgsendersize, &pfferr);
+
+                uint64_t msgtime = 0;
+                reterr = libpff_message_get_delivery_time(curmsg, &msgtime, &pfferr);
+                if(reterr < 1)
+                {
+                    reterr = libpff_message_get_client_submit_time(curmsg, &msgtime, &pfferr);
+                    if(reterr < 1)
+                    {
+                        reterr = libpff_message_get_creation_time(curmsg, &msgtime, &pfferr);
+                        if(reterr < 1)
+                        {
+                            reterr = libpff_message_get_modification_time(curmsg, &msgtime, &pfferr);
+                        }
+                    }
+                }
+                ui->tablewidget->setItem(i, 0, new QTableWidgetItem(QString::number(i)));
+                //ui->tablewidget->setItem(i, 0, new QTableWidgetItem(msgid));
+                ui->tablewidget->setItem(i, 2, new QTableWidgetItem(QString::fromUtf8(reinterpret_cast<char*>(msgsender))));
+                ui->tablewidget->setItem(i, 3, new QTableWidgetItem(ConvertWindowsTimeToUnixTimeUTC(msgtime)));
+                ui->tablewidget->setItem(i, 4, new QTableWidgetItem(QString::fromUtf8(reinterpret_cast<char*>(msgsubject))));
+            }
+
+            ui->tablewidget->resizeColumnToContents(0);
+            ui->tablewidget->setCurrentCell(0, 0);
+        }
+
+        reterr = libpff_item_free(&selectedfolder, &pfferr);
+	reterr = libpff_item_free(&rootfolder, &pfferr);
+        reterr = libpff_file_close(pffile, &pfferr);
+        reterr = libpff_file_free(&pffile, &pfferr);
+    }
+    libpff_error_free(&pfferr);
+
+     */ 
+}
+
 //long WombatMail::KeySelected(FXObject* sender, FXSelector, void*)
 long WombatMail::MailBoxSelected(FXObject* sender, FXSelector, void*)
 {
@@ -148,6 +245,7 @@ long WombatMail::MailBoxSelected(FXObject* sender, FXSelector, void*)
     uint8_t mailboxtype = MailBoxType(mailboxpath.text());
     if(mailboxtype == 0x01) // PST/OST
     {
+        PopulatePstFolder(mailboxpath, curitem->getText());
     }
     else if(mailboxtype == 0x02) // MBOX
     {
