@@ -136,24 +136,100 @@ long WombatMail::RemoveTag(FXObject*, FXSelector, void*)
 
 void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
 {
-    //libpff_folder_get_sub_folder_by_utf8_name(*folder, uint8_t*subfoldername, size_t subfoldernamesize, **subfolderitem, **error)
-
-    /*
-    //QString msgid = "";
+    std::cout << "mailboxpath: " << mailboxpath.text() << " curitemtext: " << curitemtext.text() << std::endl;
     int reterr = 0;
     libpff_error_t* pfferr = NULL;
-    if(libpff_check_file_signature(mfpath.toStdString().c_str(), &pfferr)) // is pst/ost
+    if(libpff_check_file_signature(mailboxpath.text(), &pfferr)) // is pst/ost
     {
-        // this is a pst/ost file, start processing it.
         libpff_file_t* pffile = NULL;
         reterr = libpff_file_initialize(&pffile, &pfferr);
-        reterr = libpff_file_open(pffile, mfpath.toStdString().c_str(), LIBPFF_OPEN_READ, &pfferr);
+        reterr = libpff_file_open(pffile, mailboxpath.text(), LIBPFF_OPEN_READ, &pfferr);
 	libpff_error_fprint(pfferr, stderr);
         libpff_item_t* rootfolder = NULL;
         reterr = libpff_file_get_root_folder(pffile, &rootfolder, &pfferr);
+	libpff_error_fprint(pfferr, stderr);
         libpff_item_t* selectedfolder = NULL;
-        libpff_item_t* tmpitem = NULL;
-        tmpitem = rootfolder;
+        //libpff_item_t* tmpitem = NULL;
+        std::string curitemstring  = curitemtext.text();
+        std::cout << "curitemstring: " << curitemstring << std::endl;
+        std::cout << "curitemstring char: " << curitemstring.c_str() << std::endl;
+        std::cout << "curitemstring uint8_t: " << (uint8_t*)(curitemstring.c_str()) << std::endl;
+        std::cout << "curitemstring (char)uint8_t: " << (char*)((uint8_t*)(curitemstring.c_str())) << std::endl;
+        int subfoldercnt = 0;
+        reterr = libpff_folder_get_number_of_sub_folders(rootfolder, &subfoldercnt, &pfferr);
+	libpff_error_fprint(pfferr, stderr);
+        std::cout << "subfoldercnt: " << subfoldercnt << std::endl;
+        for(int i=0; i < subfoldercnt; i++)
+        {
+            reterr = libpff_folder_get_sub_folder(rootfolder, i, &selectedfolder, &pfferr);
+	    libpff_error_fprint(pfferr, stderr);
+            size_t namesize = 0;
+            reterr = libpff_folder_get_utf8_name_size(selectedfolder, &namesize, &pfferr);
+	    libpff_error_fprint(pfferr, stderr);
+            uint8_t* fname = new uint8_t[namesize];
+            reterr = libpff_folder_get_utf8_name(selectedfolder, fname, namesize, &pfferr);
+	    libpff_error_fprint(pfferr, stderr);
+            std::cout << "fname: " << fname << std::endl;
+            selectedfolder = NULL;
+        }
+        //reterr = libpff_folder_get_sub_folder_by_utf8_name(rootfolder, (uint8_t*)(curitemstring.c_str()), curitemstring.size(), &selectedfolder, &pfferr);
+	//libpff_error_fprint(pfferr, stderr);
+        //tmpitem = rootfolder;
+        int msgcnt = 0;
+        reterr = libpff_folder_get_number_of_sub_messages(selectedfolder, &msgcnt, &pfferr);
+        std::cout << "msgcnt: " << msgcnt << std::endl;
+        if(msgcnt > 0)
+        {
+            tablelist->setTableSize(msgcnt, 5);
+            tablelist->setColumnText(0, "ID");
+            tablelist->setColumnText(1, "Tag");
+            tablelist->setColumnText(2, "From");
+            tablelist->setColumnText(3, "Date Time");
+            tablelist->setColumnText(4, "Subject");
+            for(int i=0; i < msgcnt; i++)
+            {
+                libpff_item_t* curmsg = NULL;
+                reterr = libpff_folder_get_sub_message(selectedfolder, i, &curmsg, &pfferr);
+                size_t msgsubjectsize = 0;
+                reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT, &msgsubjectsize, &pfferr);
+                uint8_t msgsubject[msgsubjectsize];
+                reterr = libpff_message_get_entry_value_utf8_string(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT, msgsubject, msgsubjectsize, &pfferr);
+                size_t msgsendersize = 0;
+                reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS, &msgsendersize, &pfferr);
+                uint8_t msgsender[msgsendersize];
+                reterr = libpff_message_get_entry_value_utf8_string(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS, msgsender, msgsendersize, &pfferr);
+
+                uint64_t msgtime = 0;
+                reterr = libpff_message_get_delivery_time(curmsg, &msgtime, &pfferr);
+                if(reterr < 1)
+                {
+                    reterr = libpff_message_get_client_submit_time(curmsg, &msgtime, &pfferr);
+                    if(reterr < 1)
+                    {
+                        reterr = libpff_message_get_creation_time(curmsg, &msgtime, &pfferr);
+                        if(reterr < 1)
+                        {
+                            reterr = libpff_message_get_modification_time(curmsg, &msgtime, &pfferr);
+                        }
+                    }
+                }
+                tablelist->setItemText(i, 0, FXString::value(i+1));
+                //tablelist->setItemText(i, 1, "tag str");
+                tablelist->setItemText(i, 2, FXString(reinterpret_cast<char*>(msgsender)));
+                tablelist->setItemText(i, 3, ConvertWindowsTimeToUnixTimeUTC(msgtime));
+                tablelist->setItemText(i, 4, FXString(reinterpret_cast<char*>(msgsubject)));
+            }
+        }
+        reterr = libpff_item_free(&selectedfolder, &pfferr);
+	reterr = libpff_item_free(&rootfolder, &pfferr);
+        reterr = libpff_file_close(pffile, &pfferr);
+        reterr = libpff_file_free(&pffile, &pfferr);
+    }
+    libpff_error_free(&pfferr);
+
+    /*
+    //QString msgid = "";
+        // this is a pst/ost file, start processing it.
         for(int i = subdirlist.count() - 2; i >= 0; i--)
 	{
             //msgid += subdirlist.at(i) + "-";
@@ -175,13 +251,6 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
         uint8_t selname[selnamesize];
         reterr = libpff_folder_get_utf8_name(selectedfolder, selname, selnamesize, &pfferr);
         // POPULATE THE TABLEWIDGET WITH MAIL ITEMS FOR THE FOLDER HERE...
-        int msgcnt = 0;
-        reterr = libpff_folder_get_number_of_sub_messages(selectedfolder, &msgcnt, &pfferr);
-
-        if(msgcnt > 0)
-        {
-            ui->tablewidget->setRowCount(msgcnt);
-            ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "DateTime", "Subject"});
             for(int i=0; i < msgcnt; i++)
             {
                 //msgid += QString::number(i);
