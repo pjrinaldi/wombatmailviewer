@@ -68,6 +68,7 @@ class WombatMail : public FXMainWindow
         FXArray<FXString> taggedlist;
         std::ifstream* filebufptr;
         Viewer* viewer;
+        std::map<std::string, std::string> foldermap;
 
     protected:
         WombatMail() {}

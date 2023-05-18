@@ -1208,6 +1208,7 @@ void WombatMail::PopulatePst(std::string mailboxpath)
 	reterr = libpff_folder_get_number_of_sub_folders(rootfolder, &subfoldercnt, &pfferr);
 	for(int i=0; i < subfoldercnt; i++)
 	{
+            //std::string itempath = std::to_string(i) + ",";
 	    libpff_item_t* cursubfolder = NULL;
 	    reterr = libpff_folder_get_sub_folder(rootfolder, i, &cursubfolder, &pfferr);
 	    libpff_error_fprint(pfferr, stderr);
@@ -1218,6 +1219,7 @@ void WombatMail::PopulatePst(std::string mailboxpath)
 	    reterr = libpff_folder_get_utf8_name(cursubfolder, subname, subnamesize, &pfferr);
 	    libpff_error_fprint(pfferr, stderr);
             FXTreeItem* subitem = new FXTreeItem(FXString(reinterpret_cast<char*>(subname)));
+            //foldermap.insert(std::to_string(i), std::string(reinterpret_cast<char>(subname)));
             //subitem->setData(
             treelist->appendItem(rootitem, subitem);
 	    int subdircnt = 0;
