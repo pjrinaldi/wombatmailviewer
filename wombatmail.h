@@ -58,11 +58,7 @@ class WombatMail : public FXMainWindow
         FXStatusBar* statusbar;
         FXFont* plainfont;
         std::string oldmailboxpath;
-        //std::string mailboxpath;
-        //std::string prevhivepath;
-        //std::string hivefilepath;
         std::string cmdmailboxpath = "";
-        //std::vector<std::filesystem::path> hives;
         std::vector<std::filesystem::path> mailboxes;
         std::vector<std::string> tags;
         FXArray<FXString> taggedlist;
@@ -93,13 +89,10 @@ class WombatMail : public FXMainWindow
             ID_LAST
         };
         WombatMail(FXApp* a);
-        //long OpenHive(FXObject*, FXSelector, void*);
         long OpenMailBox(FXObject*, FXSelector, void*);
         long OpenTagManager(FXObject*, FXSelector, void*);
 	long OpenAboutBox(FXObject*, FXSelector, void*);
-        //long KeySelected(FXObject*, FXSelector, void*);
         long MailBoxSelected(FXObject*, FXSelector, void*);
-	//long ValueSelected(FXObject*, FXSelector, void*);
 	long MessageSelected(FXObject*, FXSelector, void*);
         long TagMenu(FXObject*, FXSelector, void*);
         long SetTag(FXObject* sender, FXSelector, void*);
@@ -113,16 +106,14 @@ class WombatMail : public FXMainWindow
         uint8_t MailBoxType(std::string mailboxpath);
         void PopulateMbox(std::string mailboxpath);
         void PopulatePst(std::string mailboxpath);
+        void PopulateMsg(std::string mailboxpath);
         void PopulateSubFolders(std::string mailboxpath, libpff_item_t* subfolder, FXTreeItem* subitem, std::string subindex);
         void PopulatePstFolder(FXString mailboxpath, FXString curitemtext);
-	void PopulatePstEmail(FXString mailboxpath, uint8_t mailboxtype, FXString curitemtext);
+	void PopulatePstEmail(FXString mailboxpath, FXString curitemtext);
 	void PopulateMboxEmail(void);
-	//void PopulateChildKeys(libregf_key_t* curkey, FXTreeItem* curitem, libregf_error_t* regerr);
 	void GetRootString(FXTreeItem* curitem, FXString* rootstring);
 	FXString ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
         FXString ConvertUnixTimeToString(uint32_t input);
-        FXString DecryptRot13(FXString encstr);
-        FXchar Rot13Char(FXchar curchar);
         void AlignColumn(FXTable* curtable, int row, FXuint justify);
 	void StatusUpdate(FXString tmptext)
 	{
@@ -134,8 +125,6 @@ class WombatMail : public FXMainWindow
 
 FXDEFMAP(WombatMail) WombatMailMap[]={
     FXMAPFUNC(SEL_CLICKED, WombatMail::ID_TREESELECT, WombatMail::MailBoxSelected),
-    //FXMAPFUNC(SEL_CLICKED, WombatMail::ID_TREESELECT, WombatMail::KeySelected),
-    //FXMAPFUNC(SEL_COMMAND, WombatMail::ID_OPEN, WombatMail::OpenHive),
     FXMAPFUNC(SEL_COMMAND, WombatMail::ID_OPEN, WombatMail::OpenMailBox),
     FXMAPFUNC(SEL_COMMAND, WombatMail::ID_MANAGETAGS, WombatMail::OpenTagManager),
     FXMAPFUNC(SEL_COMMAND, WombatMail::ID_HEADER, WombatMail::ShowHeader),
