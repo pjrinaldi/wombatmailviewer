@@ -276,11 +276,11 @@ long WombatMail::MailBoxSelected(FXObject* sender, FXSelector, void*)
     }
     else if(mailboxtype == 0x02) // MBOX
     {
-	PopulateMBox(mailboxpath);
+	PopulateMbox(mailboxpath.text());
     }
     else if(mailboxtype == 0x03) // MSG
     {
-	PopulateMsg(mailboxpath);
+	PopulateMsg(mailboxpath.text());
     }
     else
     {
