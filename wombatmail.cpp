@@ -136,6 +136,13 @@ long WombatMail::RemoveTag(FXObject*, FXSelector, void*)
 
 void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
 {
+    tablelist->clearItems();
+    tablelist->setTableSize(10, 5);
+    tablelist->setColumnText(0, "ID");
+    tablelist->setColumnText(1, "Tag");
+    tablelist->setColumnText(2, "From");
+    tablelist->setColumnText(3, "Date Time");
+    tablelist->setColumnText(4, "Subject");
     //std::cout << "mailboxpath: " << mailboxpath.text() << " curitemtext: " << curitemtext.text() << std::endl;
     int reterr = 0;
     libpff_error_t* pfferr = NULL;
@@ -185,6 +192,7 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
         reterr = libpff_folder_get_number_of_sub_messages(selectedfolder, &msgcnt, &pfferr);
         if(msgcnt > 0)
         {
+	    tablelist->clearItems();
             tablelist->setTableSize(msgcnt, 5);
             tablelist->setColumnText(0, "ID");
             tablelist->setColumnText(1, "Tag");
@@ -224,6 +232,9 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
                 tablelist->setItemText(i, 3, ConvertWindowsTimeToUnixTimeUTC(msgtime));
                 tablelist->setItemText(i, 4, FXString(reinterpret_cast<char*>(msgsubject)));
             }
+	    tablelist->fitColumnsToContents(2);
+	    tablelist->fitColumnsToContents(3);
+	    tablelist->fitColumnsToContents(4);
         }
         reterr = libpff_item_free(&selectedfolder, &pfferr);
 	reterr = libpff_item_free(&rootfolder, &pfferr);
@@ -238,9 +249,6 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
 	if(!tagstr.empty() && tagstr.length() > 5)
 	    tablelist->fitColumnsToContents(1);
 	*/
-	tablelist->fitColumnsToContents(2);
-	tablelist->fitColumnsToContents(3);
-	tablelist->fitColumnsToContents(4);
 	/*
 	if(namemax > 12)
 	    tablelist->fitColumnsToContents(1);
@@ -326,6 +334,7 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
 //long WombatMail::KeySelected(FXObject* sender, FXSelector, void*)
 long WombatMail::MailBoxSelected(FXObject* sender, FXSelector, void*)
 {
+    plaintext->setText("");
     FXTreeItem* curitem = treelist->getCurrentItem();
     FXString rootstring = "";
     FXString mailboxpath = "";
@@ -595,6 +604,7 @@ FXString WombatMail::ConvertWindowsTimeToUnixTimeUTC(uint64_t input)
 //long WombatMail::ValueSelected(FXObject*, FXSelector, void*)
 long WombatMail::MessageSelected(FXObject*, FXSelector, void*)
 {
+    plaintext->setText("");
     if(tablelist->getCurrentRow() > -1)
     {
 	tablelist->selectRow(tablelist->getCurrentRow());
@@ -608,7 +618,7 @@ long WombatMail::MessageSelected(FXObject*, FXSelector, void*)
 	mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
 	uint8_t mailboxtype = MailBoxType(mailboxpath.text());
 	if(mailboxtype == 0x01) // PST/OST
-	    PopulatePstEmail(mailboxpath, mailboxtype);
+	    PopulatePstEmail(mailboxpath, mailboxtype, curitem->getText());
 	else if(mailboxtype == 0x02) // MBOX
 	    PopulateMboxEmail();
     }
@@ -948,127 +958,103 @@ long WombatMail::MessageSelected(FXObject*, FXSelector, void*)
     return 1;
 }
 
-void WombatMail::PopulatePstEmail(FXString mailboxpath, uint8_t mailboxtype)
+void WombatMail::PopulatePstEmail(FXString mailboxpath, uint8_t mailboxtype, FXString curitemtext)
 {
-    /*
-    QString mfpath = "";
-    QTreeWidgetItem* curitem = ui->treewidget->selectedItems().first();
-    mboxfilepath = mboxes.at(GetRootIndex(curitem));
-    mailboxtype = MailBoxType(mboxfilepath);
-
-    QList<int> itemlist;
-    itemlist.clear();
-    while(curitem != NULL)
+    int msgid = tablelist->getItemText(tablelist->getCurrentRow(), 0).toInt();
+    //std::cout << "msgid: " << msgid << std::endl;
+    int reterr = 0;
+    libpff_error_t* pfferr = NULL;
+    if(libpff_check_file_signature(mailboxpath.text(), &pfferr)) // is pst/ost
     {
-        if(curitem->parent() != NULL)
-            itemlist.prepend(curitem->parent()->indexOfChild(curitem));
-        else
-            itemlist.prepend(ui->treewidget->indexOfTopLevelItem(curitem));
-        curitem = curitem->parent();
+        libpff_file_t* pffile = NULL;
+        reterr = libpff_file_initialize(&pffile, &pfferr);
+        reterr = libpff_file_open(pffile, mailboxpath.text(), LIBPFF_OPEN_READ, &pfferr);
+	libpff_error_fprint(pfferr, stderr);
+        libpff_item_t* rootfolder = NULL;
+        reterr = libpff_file_get_root_folder(pffile, &rootfolder, &pfferr);
+	libpff_error_fprint(pfferr, stderr);
+        libpff_item_t* selectedfolder = NULL;
+        libpff_item_t* tmpitem = NULL;
+	tmpitem = rootfolder;
+        std::string curitemstring = std::string(curitemtext.text());
+	std::string curitemindex = "";
+	std::map<std::string, std::string>::const_iterator keyval = foldermap.find(curitemstring);
+	if(keyval == foldermap.end())
+	{
+	    std::cout << curitemstring << " not in the map, but should be.." << std::endl;
+	}
+	else
+	    curitemindex = keyval->second;
+	std::vector<std::string> indexlist;
+	indexlist.clear();
+	std::istringstream indexliststream(curitemindex);
+	std::string curindex;
+	while(getline(indexliststream, curindex, ','))
+	    indexlist.push_back(curindex);
+	for(int i = 0; i < indexlist.size(); i++)
+	{
+	    libpff_item_t* curitem = NULL;
+	    reterr = libpff_folder_get_sub_folder(tmpitem, std::stoi(indexlist.at(i)), &curitem, &pfferr);
+	    if(i < indexlist.size() - 1)
+	    {
+		tmpitem = curitem;
+		curitem = NULL;
+	    }
+	    else
+	    {
+		selectedfolder = curitem;
+		tmpitem = NULL;
+	    }
+	}
+        libpff_item_t* curmsg = NULL;
+        reterr = libpff_folder_get_sub_message(selectedfolder, msgid, &curmsg, &pfferr);
+	// get msg contents
+	FXString msgbodystr = "";
+	size_t msghdrsize = 0;
+	reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS, &msghdrsize, &pfferr);
+	uint8_t msghdr[msghdrsize];
+	reterr = libpff_message_get_entry_value_utf8_string(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS, msghdr, msghdrsize, &pfferr);
+	msgbodystr = FXString(reinterpret_cast<char*>(msghdr));
+	size_t msgbodysize = 0;
+	reterr = libpff_message_get_plain_text_body_size(curmsg, &msgbodysize, &pfferr);
+	uint8_t msgbody[msgbodysize];
+	//msgbodystr += "\n\n";
+	reterr = libpff_message_get_plain_text_body(curmsg, msgbody, msgbodysize, &pfferr);
+	msgbodystr += FXString(reinterpret_cast<char*>(msgbody));
+	plaintext->setText(msgbodystr);
+	/*
+	ui->textbrowser->setText(msgbodystr);
+	// POPULATE ATTACHMENT PORTIONS
+	int attachcnt = 0;
+	reterr = libpff_message_get_number_of_attachments(curmsg, &attachcnt, &pfferr);
+	libpff_error_fprint(pfferr, stderr);
+	for(int i=0; i < attachcnt; i++)
+	{
+	    libpff_item_t* curattach = NULL;
+	    reterr = libpff_message_get_attachment(curmsg, i, &curattach, &pfferr);
+	    size_t attachnamesize = 0;
+	    reterr = libpff_message_get_entry_value_utf8_string_size(curattach, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, &attachnamesize, &pfferr);
+	    uint8_t attachname[attachnamesize];
+	    reterr = libpff_message_get_entry_value_utf8_string(curattach, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, attachname, attachnamesize, &pfferr);
+	    //qDebug() << "Attachment Name:" << QString::fromUtf8(reinterpret_cast<char*>(attachname));
+	    size64_t attachsize = 0;
+	    reterr = libpff_attachment_get_data_size(curattach, &attachsize, &pfferr);
+	    QString attachstr = QString::fromUtf8(reinterpret_cast<char*>(attachname)) + " (" + QString::number(attachsize) + " bytes)";
+	    //tmpitem->setText(attachstr);
+	    ui->listwidget->addItem(new QListWidgetItem(attachstr));
+	    /*
+	    uint8_t attachbuf[attachsize];
+	    ssize_t bufread = 0;
+	    bufread = libpff_attachment_data_read_buffer(curattach, attachbuf, attachsize, &pfferr);
+	}
+	*/
+	reterr = libpff_item_free(&curmsg, &pfferr);
+	reterr = libpff_item_free(&selectedfolder, &pfferr);
+	reterr = libpff_item_free(&rootfolder, &pfferr);
+	reterr = libpff_file_close(pffile, &pfferr);
+	reterr = libpff_file_free(&pffile, &pfferr);
     }
-    QList<QTableWidgetItem*> curitems = ui->tablewidget->selectedItems();
-    if(curitems.count() > 0)
-    {
-        QString msgid = curitems.at(0)->text();
-        int curmsgid = msgid.split("-").last().toInt();
-        int reterr = 0;
-        libpff_error_t* pfferr = NULL;
-        if(libpff_check_file_signature(mboxfilepath.toStdString().c_str(), &pfferr)) //if it's pst/ost
-        {
-            libpff_file_t* pffile = NULL;
-            reterr = libpff_file_initialize(&pffile, &pfferr);
-            reterr = libpff_file_open(pffile, mboxfilepath.toStdString().c_str(), LIBPFF_OPEN_READ, &pfferr);
-            libpff_error_fprint(pfferr, stderr);
-            libpff_item_t* rootfolder = NULL;
-            reterr = libpff_file_get_root_folder(pffile, &rootfolder, &pfferr);
-            libpff_item_t* selectedfolder = NULL;
-            libpff_item_t* tmpitem = NULL;
-            tmpitem = rootfolder;
-            for(int i=1; i < itemlist.count(); i++)
-            {
-                libpff_item_t* curdir = NULL;
-                reterr = libpff_folder_get_sub_folder(tmpitem, itemlist.at(i), &curdir, &pfferr);
-                if(i < itemlist.count() - 1)
-                {
-                    tmpitem = curdir;
-                    curdir = NULL;
-                }
-                else
-                {
-                    selectedfolder = curdir;
-                    tmpitem = NULL;
-                }
-            }
-            libpff_item_t* curmsg = NULL;
-            reterr = libpff_folder_get_sub_message(selectedfolder, curmsgid, &curmsg, &pfferr);
-            QString msgbodystr = "";
-            /*
-            size_t msghdrsize = 0;
-            reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS, &msghdrsize, &pfferr);
-            uint8_t msghdr[msghdrsize];
-            reterr = libpff_message_get_entry_value_utf8_string(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS, msghdr, msghdrsize, &pfferr);
-            msgbodystr = QString::fromUtf8(reinterpret_cast<char*>(msghdr));
-            */
-    /*
-            int msgtype = 0x00; // 0x01 plaintext | 0x00 html
-            size_t msgbodysize = 0;
-            reterr = libpff_message_get_html_body_size(curmsg, &msgbodysize, &pfferr);
-            libpff_error_fprint(pfferr, stderr);
-            if(reterr < 1)
-            {
-                msgtype = 0x01;
-                reterr = libpff_message_get_plain_text_body_size(curmsg, &msgbodysize, &pfferr);
-            }
-
-            uint8_t msgbody[msgbodysize];
-            if(msgtype == 0x00) // html
-            {
-                //msgbodystr += "<br/><br/>";
-                reterr = libpff_message_get_html_body(curmsg, msgbody, msgbodysize, &pfferr);
-            }
-            else if(msgtype == 0x01) // plain text
-            {
-                //msgbodystr += "\n\n";
-                reterr = libpff_message_get_plain_text_body(curmsg, msgbody, msgbodysize, &pfferr);
-            }
-            msgbodystr += QString::fromUtf8(reinterpret_cast<char*>(msgbody));
-            ui->textbrowser->setText(msgbodystr);
-            // POPULATE ATTACHMENT PORTIONS
-            int attachcnt = 0;
-            reterr = libpff_message_get_number_of_attachments(curmsg, &attachcnt, &pfferr);
-	    libpff_error_fprint(pfferr, stderr);
-            for(int i=0; i < attachcnt; i++)
-            {
-                libpff_item_t* curattach = NULL;
-                reterr = libpff_message_get_attachment(curmsg, i, &curattach, &pfferr);
-                size_t attachnamesize = 0;
-                reterr = libpff_message_get_entry_value_utf8_string_size(curattach, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, &attachnamesize, &pfferr);
-                uint8_t attachname[attachnamesize];
-                reterr = libpff_message_get_entry_value_utf8_string(curattach, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, attachname, attachnamesize, &pfferr);
-                //qDebug() << "Attachment Name:" << QString::fromUtf8(reinterpret_cast<char*>(attachname));
-                size64_t attachsize = 0;
-                reterr = libpff_attachment_get_data_size(curattach, &attachsize, &pfferr);
-                QString attachstr = QString::fromUtf8(reinterpret_cast<char*>(attachname)) + " (" + QString::number(attachsize) + " bytes)";
-                //tmpitem->setText(attachstr);
-                ui->listwidget->addItem(new QListWidgetItem(attachstr));
-                /*
-                uint8_t attachbuf[attachsize];
-                ssize_t bufread = 0;
-                bufread = libpff_attachment_data_read_buffer(curattach, attachbuf, attachsize, &pfferr);
-                */
-    /*
-            }
-
-            reterr = libpff_item_free(&curmsg, &pfferr);
-            reterr = libpff_item_free(&selectedfolder, &pfferr);
-            reterr = libpff_item_free(&rootfolder, &pfferr);
-            reterr = libpff_file_close(pffile, &pfferr);
-            reterr = libpff_file_free(&pffile, &pfferr);
-        }
-        libpff_error_free(&pfferr);
-    }
-
-     */ 
+    libpff_error_free(&pfferr);
 }
 
 void WombatMail::PopulateMboxEmail(void)

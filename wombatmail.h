@@ -115,7 +115,7 @@ class WombatMail : public FXMainWindow
         void PopulatePst(std::string mailboxpath);
         void PopulateSubFolders(std::string mailboxpath, libpff_item_t* subfolder, FXTreeItem* subitem, std::string subindex);
         void PopulatePstFolder(FXString mailboxpath, FXString curitemtext);
-	void PopulatePstEmail(FXString mailboxpath, uint8_t mailboxtype);
+	void PopulatePstEmail(FXString mailboxpath, uint8_t mailboxtype, FXString curitemtext);
 	void PopulateMboxEmail(void);
 	//void PopulateChildKeys(libregf_key_t* curkey, FXTreeItem* curitem, libregf_error_t* regerr);
 	void GetRootString(FXTreeItem* curitem, FXString* rootstring);
