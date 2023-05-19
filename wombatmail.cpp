@@ -136,7 +136,7 @@ long WombatMail::RemoveTag(FXObject*, FXSelector, void*)
 
 void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
 {
-    std::cout << "mailboxpath: " << mailboxpath.text() << " curitemtext: " << curitemtext.text() << std::endl;
+    //std::cout << "mailboxpath: " << mailboxpath.text() << " curitemtext: " << curitemtext.text() << std::endl;
     int reterr = 0;
     libpff_error_t* pfferr = NULL;
     if(libpff_check_file_signature(mailboxpath.text(), &pfferr)) // is pst/ost
@@ -149,35 +149,40 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
         reterr = libpff_file_get_root_folder(pffile, &rootfolder, &pfferr);
 	libpff_error_fprint(pfferr, stderr);
         libpff_item_t* selectedfolder = NULL;
-        //libpff_item_t* tmpitem = NULL;
-        std::string curitemstring  = curitemtext.text();
-        std::cout << "curitemstring: " << curitemstring << std::endl;
-        std::cout << "curitemstring char: " << curitemstring.c_str() << std::endl;
-        std::cout << "curitemstring uint8_t: " << (uint8_t*)(curitemstring.c_str()) << std::endl;
-        std::cout << "curitemstring (char)uint8_t: " << (char*)((uint8_t*)(curitemstring.c_str())) << std::endl;
-        int subfoldercnt = 0;
-        reterr = libpff_folder_get_number_of_sub_folders(rootfolder, &subfoldercnt, &pfferr);
-	libpff_error_fprint(pfferr, stderr);
-        std::cout << "subfoldercnt: " << subfoldercnt << std::endl;
-        for(int i=0; i < subfoldercnt; i++)
-        {
-            reterr = libpff_folder_get_sub_folder(rootfolder, i, &selectedfolder, &pfferr);
-	    libpff_error_fprint(pfferr, stderr);
-            size_t namesize = 0;
-            reterr = libpff_folder_get_utf8_name_size(selectedfolder, &namesize, &pfferr);
-	    libpff_error_fprint(pfferr, stderr);
-            uint8_t* fname = new uint8_t[namesize];
-            reterr = libpff_folder_get_utf8_name(selectedfolder, fname, namesize, &pfferr);
-	    libpff_error_fprint(pfferr, stderr);
-            std::cout << "fname: " << fname << std::endl;
-            selectedfolder = NULL;
-        }
-        //reterr = libpff_folder_get_sub_folder_by_utf8_name(rootfolder, (uint8_t*)(curitemstring.c_str()), curitemstring.size(), &selectedfolder, &pfferr);
-	//libpff_error_fprint(pfferr, stderr);
-        //tmpitem = rootfolder;
+        libpff_item_t* tmpitem = NULL;
+	tmpitem = rootfolder;
+        std::string curitemstring = std::string(curitemtext.text());
+	std::string curitemindex = "";
+	std::map<std::string, std::string>::const_iterator keyval = foldermap.find(curitemstring);
+	if(keyval == foldermap.end())
+	{
+	    std::cout << curitemstring << " not in the map, but should be.." << std::endl;
+	}
+	else
+	    curitemindex = keyval->second;
+	std::vector<std::string> indexlist;
+	indexlist.clear();
+	std::istringstream indexliststream(curitemindex);
+	std::string curindex;
+	while(getline(indexliststream, curindex, ','))
+	    indexlist.push_back(curindex);
+	for(int i = 0; i < indexlist.size(); i++)
+	{
+	    libpff_item_t* curitem = NULL;
+	    reterr = libpff_folder_get_sub_folder(tmpitem, std::stoi(indexlist.at(i)), &curitem, &pfferr);
+	    if(i < indexlist.size() - 1)
+	    {
+		tmpitem = curitem;
+		curitem = NULL;
+	    }
+	    else
+	    {
+		selectedfolder = curitem;
+		tmpitem = NULL;
+	    }
+	}
         int msgcnt = 0;
         reterr = libpff_folder_get_number_of_sub_messages(selectedfolder, &msgcnt, &pfferr);
-        std::cout << "msgcnt: " << msgcnt << std::endl;
         if(msgcnt > 0)
         {
             tablelist->setTableSize(msgcnt, 5);
@@ -224,6 +229,24 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
 	reterr = libpff_item_free(&rootfolder, &pfferr);
         reterr = libpff_file_close(pffile, &pfferr);
         reterr = libpff_file_free(&pffile, &pfferr);
+	AlignColumn(tablelist, 0, FXTableItem::LEFT);
+	AlignColumn(tablelist, 1, FXTableItem::LEFT);
+	AlignColumn(tablelist, 2, FXTableItem::LEFT);
+	AlignColumn(tablelist, 3, FXTableItem::LEFT);
+	AlignColumn(tablelist, 4, FXTableItem::LEFT);
+	/*
+	if(!tagstr.empty() && tagstr.length() > 5)
+	    tablelist->fitColumnsToContents(1);
+	*/
+	tablelist->fitColumnsToContents(2);
+	tablelist->fitColumnsToContents(3);
+	tablelist->fitColumnsToContents(4);
+	/*
+	if(namemax > 12)
+	    tablelist->fitColumnsToContents(1);
+	tablelist->setCurrentItem(0, 0);
+	tablelist->selectRow(0, true);
+	*/
     }
     libpff_error_free(&pfferr);
 
@@ -569,13 +592,31 @@ FXString WombatMail::ConvertWindowsTimeToUnixTimeUTC(uint64_t input)
     return timestr;
 }
 
-
-long WombatMail::ValueSelected(FXObject*, FXSelector, void*)
+//long WombatMail::ValueSelected(FXObject*, FXSelector, void*)
+long WombatMail::MessageSelected(FXObject*, FXSelector, void*)
 {
-    /*
     if(tablelist->getCurrentRow() > -1)
     {
 	tablelist->selectRow(tablelist->getCurrentRow());
+	FXTreeItem* curitem = treelist->getCurrentItem();
+	FXString rootstring = "";
+	FXString mailboxpath = "";
+	GetRootString(curitem, &rootstring);
+	//std::cout << "root string: " << rootstring.text() << std::endl;
+	int found1 = rootstring.find(" (");
+	int found2 = rootstring.find(")");
+	mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
+	uint8_t mailboxtype = MailBoxType(mailboxpath.text());
+	if(mailboxtype == 0x01) // PST/OST
+	    PopulatePstEmail(mailboxpath, mailboxtype);
+	else if(mailboxtype == 0x02) // MBOX
+	    PopulateMboxEmail();
+    }
+
+    /*
+     */
+
+    /*
 	int valueindex = tablelist->getCurrentRow();
         if(!tablelist->getItemText(tablelist->getCurrentRow(), 1).empty())
         {
@@ -907,6 +948,133 @@ long WombatMail::ValueSelected(FXObject*, FXSelector, void*)
     return 1;
 }
 
+void WombatMail::PopulatePstEmail(FXString mailboxpath, uint8_t mailboxtype)
+{
+    /*
+    QString mfpath = "";
+    QTreeWidgetItem* curitem = ui->treewidget->selectedItems().first();
+    mboxfilepath = mboxes.at(GetRootIndex(curitem));
+    mailboxtype = MailBoxType(mboxfilepath);
+
+    QList<int> itemlist;
+    itemlist.clear();
+    while(curitem != NULL)
+    {
+        if(curitem->parent() != NULL)
+            itemlist.prepend(curitem->parent()->indexOfChild(curitem));
+        else
+            itemlist.prepend(ui->treewidget->indexOfTopLevelItem(curitem));
+        curitem = curitem->parent();
+    }
+    QList<QTableWidgetItem*> curitems = ui->tablewidget->selectedItems();
+    if(curitems.count() > 0)
+    {
+        QString msgid = curitems.at(0)->text();
+        int curmsgid = msgid.split("-").last().toInt();
+        int reterr = 0;
+        libpff_error_t* pfferr = NULL;
+        if(libpff_check_file_signature(mboxfilepath.toStdString().c_str(), &pfferr)) //if it's pst/ost
+        {
+            libpff_file_t* pffile = NULL;
+            reterr = libpff_file_initialize(&pffile, &pfferr);
+            reterr = libpff_file_open(pffile, mboxfilepath.toStdString().c_str(), LIBPFF_OPEN_READ, &pfferr);
+            libpff_error_fprint(pfferr, stderr);
+            libpff_item_t* rootfolder = NULL;
+            reterr = libpff_file_get_root_folder(pffile, &rootfolder, &pfferr);
+            libpff_item_t* selectedfolder = NULL;
+            libpff_item_t* tmpitem = NULL;
+            tmpitem = rootfolder;
+            for(int i=1; i < itemlist.count(); i++)
+            {
+                libpff_item_t* curdir = NULL;
+                reterr = libpff_folder_get_sub_folder(tmpitem, itemlist.at(i), &curdir, &pfferr);
+                if(i < itemlist.count() - 1)
+                {
+                    tmpitem = curdir;
+                    curdir = NULL;
+                }
+                else
+                {
+                    selectedfolder = curdir;
+                    tmpitem = NULL;
+                }
+            }
+            libpff_item_t* curmsg = NULL;
+            reterr = libpff_folder_get_sub_message(selectedfolder, curmsgid, &curmsg, &pfferr);
+            QString msgbodystr = "";
+            /*
+            size_t msghdrsize = 0;
+            reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS, &msghdrsize, &pfferr);
+            uint8_t msghdr[msghdrsize];
+            reterr = libpff_message_get_entry_value_utf8_string(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS, msghdr, msghdrsize, &pfferr);
+            msgbodystr = QString::fromUtf8(reinterpret_cast<char*>(msghdr));
+            */
+    /*
+            int msgtype = 0x00; // 0x01 plaintext | 0x00 html
+            size_t msgbodysize = 0;
+            reterr = libpff_message_get_html_body_size(curmsg, &msgbodysize, &pfferr);
+            libpff_error_fprint(pfferr, stderr);
+            if(reterr < 1)
+            {
+                msgtype = 0x01;
+                reterr = libpff_message_get_plain_text_body_size(curmsg, &msgbodysize, &pfferr);
+            }
+
+            uint8_t msgbody[msgbodysize];
+            if(msgtype == 0x00) // html
+            {
+                //msgbodystr += "<br/><br/>";
+                reterr = libpff_message_get_html_body(curmsg, msgbody, msgbodysize, &pfferr);
+            }
+            else if(msgtype == 0x01) // plain text
+            {
+                //msgbodystr += "\n\n";
+                reterr = libpff_message_get_plain_text_body(curmsg, msgbody, msgbodysize, &pfferr);
+            }
+            msgbodystr += QString::fromUtf8(reinterpret_cast<char*>(msgbody));
+            ui->textbrowser->setText(msgbodystr);
+            // POPULATE ATTACHMENT PORTIONS
+            int attachcnt = 0;
+            reterr = libpff_message_get_number_of_attachments(curmsg, &attachcnt, &pfferr);
+	    libpff_error_fprint(pfferr, stderr);
+            for(int i=0; i < attachcnt; i++)
+            {
+                libpff_item_t* curattach = NULL;
+                reterr = libpff_message_get_attachment(curmsg, i, &curattach, &pfferr);
+                size_t attachnamesize = 0;
+                reterr = libpff_message_get_entry_value_utf8_string_size(curattach, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, &attachnamesize, &pfferr);
+                uint8_t attachname[attachnamesize];
+                reterr = libpff_message_get_entry_value_utf8_string(curattach, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, attachname, attachnamesize, &pfferr);
+                //qDebug() << "Attachment Name:" << QString::fromUtf8(reinterpret_cast<char*>(attachname));
+                size64_t attachsize = 0;
+                reterr = libpff_attachment_get_data_size(curattach, &attachsize, &pfferr);
+                QString attachstr = QString::fromUtf8(reinterpret_cast<char*>(attachname)) + " (" + QString::number(attachsize) + " bytes)";
+                //tmpitem->setText(attachstr);
+                ui->listwidget->addItem(new QListWidgetItem(attachstr));
+                /*
+                uint8_t attachbuf[attachsize];
+                ssize_t bufread = 0;
+                bufread = libpff_attachment_data_read_buffer(curattach, attachbuf, attachsize, &pfferr);
+                */
+    /*
+            }
+
+            reterr = libpff_item_free(&curmsg, &pfferr);
+            reterr = libpff_item_free(&selectedfolder, &pfferr);
+            reterr = libpff_item_free(&rootfolder, &pfferr);
+            reterr = libpff_file_close(pffile, &pfferr);
+            reterr = libpff_file_free(&pffile, &pfferr);
+        }
+        libpff_error_free(&pfferr);
+    }
+
+     */ 
+}
+
+void WombatMail::PopulateMboxEmail(void)
+{
+}
+
 FXString WombatMail::DecryptRot13(FXString encstr)
 {
     FXString decstr = "";
@@ -1118,7 +1286,8 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
         filename = FXString(cmdmailboxpath.c_str());
     if(!filename.empty())
     {
-        mailboxpath = filename.text();
+	std::string mailboxpath = filename.text();
+        //mailboxpath = filename.text();
         oldmailboxpath = mailboxpath;
 	// check mailbox type
         uint8_t mailboxtype = 0x00;
@@ -1219,14 +1388,18 @@ void WombatMail::PopulatePst(std::string mailboxpath)
 	    reterr = libpff_folder_get_utf8_name(cursubfolder, subname, subnamesize, &pfferr);
 	    libpff_error_fprint(pfferr, stderr);
             FXTreeItem* subitem = new FXTreeItem(FXString(reinterpret_cast<char*>(subname)));
-            //foldermap.insert(std::to_string(i), std::string(reinterpret_cast<char>(subname)));
-            //subitem->setData(
+	    std::string subnamestr = "";
+	    for(int j=0; j < subnamesize - 1; j++)
+		subnamestr += (char)subname[j];
+	    //std::cout << "sub name index: " << i << " sub name string: " << subnamestr << std::endl;
+	    foldermap.insert(std::make_pair(subnamestr, std::to_string(i)));
+	    //foldermap[std::to_string(i)] = subnamestr;
             treelist->appendItem(rootitem, subitem);
 	    int subdircnt = 0;
 	    reterr = libpff_folder_get_number_of_sub_folders(cursubfolder, &subdircnt, &pfferr);
 	    if(subdircnt > 0)
 	    {
-		PopulateSubFolders(mailboxpath, cursubfolder, subitem);
+		PopulateSubFolders(mailboxpath, cursubfolder, subitem, std::to_string(i));
 	    }
 	    reterr = libpff_item_free(&cursubfolder, &pfferr);
 	}
@@ -1237,8 +1410,9 @@ void WombatMail::PopulatePst(std::string mailboxpath)
     libpff_error_free(&pfferr);
 }
 
-void WombatMail::PopulateSubFolders(std::string mailboxpath, libpff_item_t* subfolder, FXTreeItem* subitem)
+void WombatMail::PopulateSubFolders(std::string mailboxpath, libpff_item_t* subfolder, FXTreeItem* subitem, std::string itemindex)
 {
+    //std::cout << "parent item index: " << itemindex << std::endl;
     int reterr = 0;
     libpff_error_t* pfferr = NULL;
     libpff_file_t* pffile = NULL;
@@ -1255,15 +1429,22 @@ void WombatMail::PopulateSubFolders(std::string mailboxpath, libpff_item_t* subf
 	reterr = libpff_folder_get_utf8_name_size(childfolder, &childnamesize, &pfferr);
 	uint8_t childname[childnamesize];
 	reterr = libpff_folder_get_utf8_name(childfolder, childname, childnamesize, &pfferr);
+	std::string childindex = itemindex + "," + std::to_string(i);
+	std::string childnamestr = "";
+	for(int j=0; j < childnamesize - 1; j++)
+	    childnamestr += (char)childname[j];
+	foldermap.insert(std::make_pair(childnamestr, childindex));
+	//foldermap[childnamestr] = childindex;
+	//foldermap[childindex] = childnamestr;
+	//std::cout << "childindex: " << childindex << " childnamestr: " << childnamestr << std::endl;
         FXTreeItem* childitem = new FXTreeItem(FXString(reinterpret_cast<char*>(childname)));
         treelist->appendItem(subitem, childitem);
 	int childsubcnt = 0;
 	reterr =libpff_folder_get_number_of_sub_folders(childfolder, &childsubcnt, &pfferr);
 	if(childsubcnt > 0)
-	    PopulateSubFolders(mailboxpath, childfolder, childitem);
+	    PopulateSubFolders(mailboxpath, childfolder, childitem, childindex);
 	reterr = libpff_item_free(&childfolder, &pfferr);
     }
-
 }
 
 /*
