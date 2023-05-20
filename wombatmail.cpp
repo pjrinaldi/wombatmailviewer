@@ -33,27 +33,27 @@ WombatMail::WombatMail(FXApp* a):FXMainWindow(a, "Wombat Mail Forensics", new FX
     openicon = new FXPNGIcon(this->getApp(), folderopen);
     openbutton = new FXButton(toolbar, "", openicon, this, ID_OPEN, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     openbutton->setTipText("Open Mail File");
-    new FXSeparator(toolbar);
+    //new FXSeparator(toolbar);
     managetagsicon = new FXPNGIcon(this->getApp(), managetags);
     managetagsbutton = new FXButton(toolbar, "", managetagsicon, this, ID_MANAGETAGS, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     managetagsbutton->setTipText("Manage Tags");
     headericon = new FXPNGIcon(this->getApp(), mail);
     headerbutton = new FXButton(toolbar, "", headericon, this, ID_HEADER, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     headerbutton->setTipText("Show Header");
-    new FXSeparator(toolbar);
+    headerbutton->hide();
+    //new FXSeparator(toolbar);
     previewicon = new FXPNGIcon(this->getApp(), reportpreview1);
     previewbutton = new FXButton(toolbar, "", previewicon, this, ID_PREVIEW, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     previewbutton->setTipText("Preview Report");
     publishicon = new FXPNGIcon(this->getApp(), paperairplane2);
     publishbutton = new FXButton(toolbar, "", publishicon, this, ID_PUBLISH, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     publishbutton->setTipText("Publish Report");
-    new FXSeparator(toolbar);
+    //new FXSeparator(toolbar);
     abouticon = new FXPNGIcon(this->getApp(), helpcontents);
     aboutbutton = new FXButton(toolbar, "", abouticon, this, ID_ABOUT, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     aboutbutton->setTipText("About Wombat Mail Forensics");
     statusbar->getStatusLine()->setNormalText("Open a Mail Item to Begin");
     mailboxes.clear();
-    //hives.clear();
     tags.clear();
     taggedlist.clear();
 }
@@ -78,7 +78,7 @@ long WombatMail::ShowHeader(FXObject*, FXSelector, void* checkstate)
 long WombatMail::TagMenu(FXObject*, FXSelector, void* ptr)
 {
     FXEvent* event = (FXEvent*)ptr;
-    if(tablelist->getCurrentRow() > -1 && !tablelist->getItemText(tablelist->getCurrentRow(), 1).empty())
+    if(tablelist->getCurrentRow() > -1 && !tablelist->getItemText(tablelist->getCurrentRow(), 0).empty())
     {
         if(!event->moved)
         {
@@ -107,11 +107,13 @@ long WombatMail::CreateNewTag(FXObject*, FXSelector, void*)
     if(isset)
     {
         tags.push_back(tagstr.text());
-        tablelist->setItemText(tablelist->getCurrentRow(), 0, tagstr);
+        tablelist->setItemText(tablelist->getCurrentRow(), 1, tagstr);
 	if(tagstr.length() > 5)
 	    tablelist->fitColumnsToContents(0);
     }
-    FXString idkeyvalue = statusbar->getStatusLine()->getText() + "\\" + tablelist->getItemText(tablelist->getCurrentRow(), 1);
+    // this should be the full file path the message is from\nMail folder\tDateTime\tFrom\tSubject\n\n;
+    FXString idkeyvalue = "what to put here";
+    //FXString idkeyvalue = statusbar->getStatusLine()->getText() + "\\" + tablelist->getItemText(tablelist->getCurrentRow(), 1);
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
@@ -123,8 +125,9 @@ long WombatMail::CreateNewTag(FXObject*, FXSelector, void*)
 
 long WombatMail::RemoveTag(FXObject*, FXSelector, void*)
 {
-    tablelist->setItemText(tablelist->getCurrentRow(), 0, "");
-    FXString idkeyvalue = statusbar->getStatusLine()->getText() + "\\" + tablelist->getItemText(tablelist->getCurrentRow(), 1);
+    tablelist->setItemText(tablelist->getCurrentRow(), 1, "");
+    FXString idkeyvalue = "what to put here";
+    //FXString idkeyvalue = statusbar->getStatusLine()->getText() + "\\" + tablelist->getItemText(tablelist->getCurrentRow(), 1);
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
@@ -460,7 +463,8 @@ long WombatMail::OpenTagManager(FXObject*, FXSelector, void*)
     tagmanager.execute(PLACEMENT_OWNER);
     for(int i=0; i < tablelist->getNumRows(); i++)
     {
-        FXString curidkeyval = statusbar->getStatusLine()->getText() + "\\" + tablelist->getItemText(i, 1);
+        FXString curidkeyval = "not sure what to put here";
+        //FXString curidkeyval = statusbar->getStatusLine()->getText() + "\\" + tablelist->getItemText(i, 1);
         FXString curtag = tablelist->getItemText(i, 0);
         for(int j=0; j < taggedlist.no(); j++)
         {
@@ -471,7 +475,7 @@ long WombatMail::OpenTagManager(FXObject*, FXSelector, void*)
             if(FXString::compare(curidkeyval, itemhdr) == 0)
             {
                 if(FXString::compare(curtag, itemtag) != 0)
-                    tablelist->setItemText(i, 0, itemtag);
+                    tablelist->setItemText(i, 1, itemtag);
             }
         }
     }

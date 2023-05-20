@@ -94,7 +94,7 @@ class WombatMail : public FXMainWindow
 	long OpenAboutBox(FXObject*, FXSelector, void*);
         long MailBoxSelected(FXObject*, FXSelector, void*);
 	long MessageSelected(FXObject*, FXSelector, void*);
-        long TagMenu(FXObject*, FXSelector, void*);
+        long TagMenu(FXObject*, FXSelector, void* ptr);
         long SetTag(FXObject* sender, FXSelector, void*);
         long CreateNewTag(FXObject*, FXSelector, void*);
         long RemoveTag(FXObject*, FXSelector, void*);

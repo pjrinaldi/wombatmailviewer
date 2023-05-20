@@ -22,7 +22,7 @@ void Viewer::GetText(FXString* buf)
 void Viewer::GenerateReport(FXArray<FXString> taggedlist, std::vector<std::string> tags)
 {
     // PLACE TITLE
-    textview->appendText("Wombat Registry Report\n----------------------\n\n");
+    textview->appendText("Wombat Mail Items Report\n----------------------\n\n");
     // PLACE CONTENTS HEADER
     textview->appendText("Contents\n--------\n\n");
     // GENERATE TAGS AND THEIR COUNT
