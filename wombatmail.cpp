@@ -112,8 +112,17 @@ long WombatMail::CreateNewTag(FXObject*, FXSelector, void*)
 	    tablelist->fitColumnsToContents(0);
     }
     // this should be the full file path the message is from\nMail folder\tDateTime\tFrom\tSubject\n\n;
-    FXString idkeyvalue = "what to put here";
     //FXString idkeyvalue = statusbar->getStatusLine()->getText() + "\\" + tablelist->getItemText(tablelist->getCurrentRow(), 1);
+    FXTreeItem* curitem = treelist->getCurrentItem();
+    FXString rootstring = "";
+    FXString mailboxpath = "";
+    GetRootString(curitem, &rootstring);
+    //std::cout << "root string: " << rootstring.text() << std::endl;
+    int found1 = rootstring.find(" (");
+    int found2 = rootstring.find(")");
+    mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
+    FXString idkeyvalue = mailboxpath + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4) + "\n\n" + plaintext->getText();
+    std::cout << "idkeyvalue: " << idkeyvalue.text() << std::endl;
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
