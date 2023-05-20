@@ -59,7 +59,7 @@ class WombatMail : public FXMainWindow
         FXFont* plainfont;
         std::string oldmailboxpath;
         std::string cmdmailboxpath = "";
-        std::vector<std::filesystem::path> mailboxes;
+        //std::vector<std::filesystem::path> mailboxes;
         std::vector<std::string> tags;
         FXArray<FXString> taggedlist;
         std::ifstream* filebufptr;

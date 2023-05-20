@@ -53,7 +53,7 @@ WombatMail::WombatMail(FXApp* a):FXMainWindow(a, "Wombat Mail Forensics", new FX
     aboutbutton = new FXButton(toolbar, "", abouticon, this, ID_ABOUT, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     aboutbutton->setTipText("About Wombat Mail Forensics");
     statusbar->getStatusLine()->setNormalText("Open a Mail Item to Begin");
-    mailboxes.clear();
+    //mailboxes.clear();
     tags.clear();
     taggedlist.clear();
 }
@@ -64,9 +64,8 @@ void WombatMail::create()
     show(PLACEMENT_SCREEN);
     if(this->getApp()->getArgc() == 2)
     {
-        cmdmailboxpath = std::string(this->getApp()->getArgv()[1]);
+        cmdmailboxpath = std::filesystem::canonical(std::filesystem::path(std::string(this->getApp()->getArgv()[1]))).string();
         int ret = OpenMailBox(NULL, 0, NULL);
-        //int ret = OpenHive(NULL, 0, NULL);
     }
 }
 
@@ -111,17 +110,14 @@ long WombatMail::CreateNewTag(FXObject*, FXSelector, void*)
 	if(tagstr.length() > 5)
 	    tablelist->fitColumnsToContents(0);
     }
-    // this should be the full file path the message is from\nMail folder\tDateTime\tFrom\tSubject\n\n;
-    //FXString idkeyvalue = statusbar->getStatusLine()->getText() + "\\" + tablelist->getItemText(tablelist->getCurrentRow(), 1);
     FXTreeItem* curitem = treelist->getCurrentItem();
     FXString rootstring = "";
     FXString mailboxpath = "";
     GetRootString(curitem, &rootstring);
-    //std::cout << "root string: " << rootstring.text() << std::endl;
     int found1 = rootstring.find(" (");
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
-    FXString idkeyvalue = mailboxpath + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4) + "\n\n" + plaintext->getText();
+    FXString idkeyvalue = mailboxpath + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
     std::cout << "idkeyvalue: " << idkeyvalue.text() << std::endl;
     for(int i=0; i < taggedlist.no(); i++)
     {
@@ -606,7 +602,7 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
         //std::cout << "mail box type: " << (uint)mailboxtype << std::endl;
 	if(mailboxtype == 0x01 || mailboxtype == 0x02 || mailboxtype == 0x03)
 	{
-            mailboxes.push_back(std::filesystem::canonical(mailboxpath));
+            //mailboxes.push_back(std::filesystem::canonical(mailboxpath));
             std::size_t rfound = mailboxpath.rfind("/");
             std::string mailboxname = mailboxpath.substr(rfound+1);
             FXString rootitemstring(std::string(mailboxname + " (" + mailboxpath.substr(0, rfound+1) + ")").c_str());
