@@ -234,6 +234,28 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
                     }
                 }
                 tablelist->setItemText(i, 0, FXString::value(i+1));
+                /*
+                FXString tagstr = "";
+                if(valuecount == 0) // no values, so create empty key
+                {
+                    tablelist->setTableSize(1, 3);
+                    tablelist->setColumnText(0, "Tag");
+                    tablelist->setColumnText(1, "Value Name");
+                    tablelist->setColumnText(2, "Value Type");
+                    FXString curtagvalue = keypath + "\\" + "(empty)";
+                    tablelist->setItemText(0, 1, "(empty)");
+                    tablelist->setItemText(0, 2, "0x00");
+                    for(int j=0; j < taggedlist.no(); j++)
+                    {
+                        if(taggedlist.at(j).contains(curtagvalue))
+                        {
+                            std::size_t found = taggedlist.at(j).find("|");
+                            tagstr = taggedlist.at(j).left(found);
+                        }
+                    }
+                    tablelist->setItemText(0, 0, tagstr);
+                }
+                 */ 
                 //tablelist->setItemText(i, 1, "tag str");
                 tablelist->setItemText(i, 2, FXString(reinterpret_cast<char*>(msgsender)));
                 tablelist->setItemText(i, 3, ConvertWindowsTimeToUnixTimeUTC(msgtime));
