@@ -62,7 +62,6 @@ void Viewer::GenerateReport(FXArray<FXString> taggedlist, std::vector<std::strin
                 textview->appendText("From:\t\t" + itemhdr.mid(hfind1+1, hfind2 - hfind1 - 1) + "\n");
                 textview->appendText("Date:\t\t" + itemhdr.mid(hfind2+1, hfind3 - hfind2 - 1) + "\n");
                 textview->appendText("Subject:\t" + itemhdr.mid(hfind3+1, itemhdr.length() - hfind3 - 1) + "\n\n");
-                //textview->appendText(itemhdr + "\n");
                 textview->appendText(itemcon + "\n");
                 for(int k=0; k < 80; k++)
                     textview->appendText("-");

@@ -33,7 +33,6 @@ WombatMail::WombatMail(FXApp* a):FXMainWindow(a, "Wombat Mail Forensics", new FX
     openicon = new FXPNGIcon(this->getApp(), folderopen);
     openbutton = new FXButton(toolbar, "", openicon, this, ID_OPEN, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     openbutton->setTipText("Open Mail File");
-    //new FXSeparator(toolbar);
     managetagsicon = new FXPNGIcon(this->getApp(), managetags);
     managetagsbutton = new FXButton(toolbar, "", managetagsicon, this, ID_MANAGETAGS, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     managetagsbutton->setTipText("Manage Tags");
@@ -41,14 +40,12 @@ WombatMail::WombatMail(FXApp* a):FXMainWindow(a, "Wombat Mail Forensics", new FX
     headerbutton = new FXButton(toolbar, "", headericon, this, ID_HEADER, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     headerbutton->setTipText("Show Header");
     headerbutton->hide();
-    //new FXSeparator(toolbar);
     previewicon = new FXPNGIcon(this->getApp(), reportpreview1);
     previewbutton = new FXButton(toolbar, "", previewicon, this, ID_PREVIEW, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     previewbutton->setTipText("Preview Report");
     publishicon = new FXPNGIcon(this->getApp(), paperairplane2);
     publishbutton = new FXButton(toolbar, "", publishicon, this, ID_PUBLISH, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     publishbutton->setTipText("Publish Report");
-    //new FXSeparator(toolbar);
     abouticon = new FXPNGIcon(this->getApp(), helpcontents);
     aboutbutton = new FXButton(toolbar, "", abouticon, this, ID_ABOUT, BUTTON_TOOLBAR|FRAME_RAISED, 0,0,0,0, 4,4,4,4);
     aboutbutton->setTipText("About Wombat Mail Forensics");
@@ -117,7 +114,6 @@ long WombatMail::CreateNewTag(FXObject*, FXSelector, void*)
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
     FXString idkeyvalue = mailboxpath + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
-    //std::cout << "idkeyvalue: " << idkeyvalue.text() << std::endl;
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
@@ -138,7 +134,6 @@ long WombatMail::RemoveTag(FXObject*, FXSelector, void*)
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
     FXString idkeyvalue = mailboxpath + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
-    //std::cout << "idkeyvalue: " << idkeyvalue.text() << std::endl;
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
@@ -156,7 +151,6 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
     tablelist->setColumnText(2, "From");
     tablelist->setColumnText(3, "Date Time");
     tablelist->setColumnText(4, "Subject");
-    //std::cout << "mailboxpath: " << mailboxpath.text() << " curitemtext: " << curitemtext.text() << std::endl;
     int reterr = 0;
     libpff_error_t* pfferr = NULL;
     if(libpff_check_file_signature(mailboxpath.text(), &pfferr)) // is pst/ost
@@ -279,7 +273,6 @@ long WombatMail::MailBoxSelected(FXObject* sender, FXSelector, void*)
     FXString rootstring = "";
     FXString mailboxpath = "";
     GetRootString(curitem, &rootstring);
-    //std::cout << "root string: " << rootstring.text() << std::endl;
     int found1 = rootstring.find(" (");
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
@@ -346,7 +339,6 @@ long WombatMail::MessageSelected(FXObject*, FXSelector, void*)
 	FXString rootstring = "";
 	FXString mailboxpath = "";
 	GetRootString(curitem, &rootstring);
-	//std::cout << "root string: " << rootstring.text() << std::endl;
 	int found1 = rootstring.find(" (");
 	int found2 = rootstring.find(")");
 	mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
@@ -363,7 +355,6 @@ long WombatMail::MessageSelected(FXObject*, FXSelector, void*)
 void WombatMail::PopulatePstEmail(FXString mailboxpath, FXString curitemtext)
 {
     int msgid = tablelist->getItemText(tablelist->getCurrentRow(), 0).toInt() - 1;
-    //std::cout << "msgid: " << msgid << std::endl;
     int reterr = 0;
     libpff_error_t* pfferr = NULL;
     if(libpff_check_file_signature(mailboxpath.text(), &pfferr)) // is pst/ost
@@ -475,7 +466,6 @@ long WombatMail::OpenTagManager(FXObject*, FXSelector, void*)
     for(int i=0; i < tablelist->getNumRows(); i++)
     {
         FXString curidkeyval = "not sure what to put here";
-        //FXString curidkeyval = statusbar->getStatusLine()->getText() + "\\" + tablelist->getItemText(i, 1);
         FXString curtag = tablelist->getItemText(i, 0);
         for(int j=0; j < taggedlist.no(); j++)
         {
@@ -605,7 +595,6 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
 	// check mailbox type
         uint8_t mailboxtype = 0x00;
 	mailboxtype = MailBoxType(mailboxpath);
-        //std::cout << "mail box type: " << (uint)mailboxtype << std::endl;
 	if(mailboxtype == 0x01 || mailboxtype == 0x02 || mailboxtype == 0x03)
 	{
             std::size_t rfound = mailboxpath.rfind("/");
@@ -693,7 +682,6 @@ void WombatMail::PopulatePst(std::string mailboxpath)
 	reterr = libpff_folder_get_number_of_sub_folders(rootfolder, &subfoldercnt, &pfferr);
 	for(int i=0; i < subfoldercnt; i++)
 	{
-            //std::string itempath = std::to_string(i) + ",";
 	    libpff_item_t* cursubfolder = NULL;
 	    reterr = libpff_folder_get_sub_folder(rootfolder, i, &cursubfolder, &pfferr);
 	    libpff_error_fprint(pfferr, stderr);
@@ -707,7 +695,6 @@ void WombatMail::PopulatePst(std::string mailboxpath)
 	    std::string subnamestr = "";
 	    for(int j=0; j < subnamesize - 1; j++)
 		subnamestr += (char)subname[j];
-	    //std::cout << "sub name index: " << i << " sub name string: " << subnamestr << std::endl;
 	    foldermap.insert(std::make_pair(subnamestr, std::to_string(i)));
             treelist->appendItem(rootitem, subitem);
 	    int subdircnt = 0;
@@ -727,7 +714,6 @@ void WombatMail::PopulatePst(std::string mailboxpath)
 
 void WombatMail::PopulateSubFolders(std::string mailboxpath, libpff_item_t* subfolder, FXTreeItem* subitem, std::string itemindex)
 {
-    //std::cout << "parent item index: " << itemindex << std::endl;
     int reterr = 0;
     libpff_error_t* pfferr = NULL;
     libpff_file_t* pffile = NULL;
@@ -748,7 +734,6 @@ void WombatMail::PopulateSubFolders(std::string mailboxpath, libpff_item_t* subf
 	for(int j=0; j < childnamesize - 1; j++)
 	    childnamestr += (char)childname[j];
 	foldermap.insert(std::make_pair(childnamestr, childindex));
-	//std::cout << "childindex: " << childindex << " childnamestr: " << childnamestr << std::endl;
         FXTreeItem* childitem = new FXTreeItem(FXString(reinterpret_cast<char*>(childname)));
         treelist->appendItem(subitem, childitem);
 	int childsubcnt = 0;
@@ -771,7 +756,6 @@ long WombatMail::SetTag(FXObject* sender, FXSelector, void*)
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
     FXString idkeyvalue = mailboxpath + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
-    //std::cout << "idkeyvalue: " << idkeyvalue.text() << std::endl;
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
