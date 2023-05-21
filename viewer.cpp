@@ -22,7 +22,7 @@ void Viewer::GetText(FXString* buf)
 void Viewer::GenerateReport(FXArray<FXString> taggedlist, std::vector<std::string> tags)
 {
     // PLACE TITLE
-    textview->appendText("Wombat Mail Items Report\n----------------------\n\n");
+    textview->appendText("Wombat Mail Report\n-----------------\n\n");
     // PLACE CONTENTS HEADER
     textview->appendText("Contents\n--------\n\n");
     // GENERATE TAGS AND THEIR COUNT
@@ -55,13 +55,15 @@ void Viewer::GenerateReport(FXArray<FXString> taggedlist, std::vector<std::strin
             std::size_t hfind1 = itemhdr.find("\t");
             std::size_t hfind2 = itemhdr.find("\t", hfind1+1);
             std::size_t hfind3 = itemhdr.find("\t", hfind2+1);
+            std::size_t hfind4 = itemhdr.find("\t", hfind3+1);
             FXString itemcon = taggedlist.at(j).mid(rfound+1, taggedlist.at(j).length() - rfound);
             if(itemtag == tags.at(i).c_str())
             {
                 textview->appendText("Mail Item:\t" + itemhdr.mid(0, hfind1) + "\n");
-                textview->appendText("From:\t\t" + itemhdr.mid(hfind1+1, hfind2 - hfind1 - 1) + "\n");
-                textview->appendText("Date:\t\t" + itemhdr.mid(hfind2+1, hfind3 - hfind2 - 1) + "\n");
-                textview->appendText("Subject:\t" + itemhdr.mid(hfind3+1, itemhdr.length() - hfind3 - 1) + "\n\n");
+                textview->appendText("Folder:\t\t" + itemhdr.mid(hfind1+1, hfind2 - hfind1 - 1) + "\n");
+                textview->appendText("From:\t\t" + itemhdr.mid(hfind2+1, hfind3 - hfind2 - 1) + "\n");
+                textview->appendText("Date:\t\t" + itemhdr.mid(hfind3+1, hfind4 - hfind3 - 1) + "\n");
+                textview->appendText("Subject:\t" + itemhdr.mid(hfind4+1, itemhdr.length() - hfind4 - 1) + "\n\n");
                 textview->appendText(itemcon + "\n");
                 for(int k=0; k < 80; k++)
                     textview->appendText("-");

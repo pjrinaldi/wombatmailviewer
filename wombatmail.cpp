@@ -245,6 +245,7 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
                         tagstr = taggedlist.at(j).left(found);
                     }
                 }
+                std::cout << "msgsubject: " << msgsubject << " |" << msgsubject[0] << "|" << std::endl;
                 tablelist->setItemText(i, 1, tagstr);
                 if(!tagstr.empty() && tagstr.length() > 5)
                     tablelist->fitColumnsToContents(1);
@@ -421,7 +422,7 @@ void WombatMail::PopulatePstEmail(FXString mailboxpath, FXString curitemtext)
 	msgbodystr += "\n\n";
 	reterr = libpff_message_get_plain_text_body(curmsg, msgbody, msgbodysize, &pfferr);
 	msgbodystr += FXString(reinterpret_cast<char*>(msgbody));
-	plaintext->setText(msgbodystr.substitute('\r', ' '));
+	plaintext->setText(msgbodystr.substitute('\r', ' ').substitute("^A", " "));
 	/*
 	// POPULATE ATTACHMENT PORTIONS
 	int attachcnt = 0;
@@ -550,11 +551,19 @@ long WombatMail::PublishReport(FXObject*, FXSelector, void*)
                     std::size_t rfound = taggedlist.at(j).rfind("|");
                     FXString itemtag = taggedlist.at(j).mid(0, found);
                     FXString itemhdr = taggedlist.at(j).mid(found+1, rfound - found - 1);
+                    std::size_t hfind1 = itemhdr.find("\t");
+                    std::size_t hfind2 = itemhdr.find("\t", hfind1+1);
+                    std::size_t hfind3 = itemhdr.find("\t", hfind2+1);
+                    std::size_t hfind4 = itemhdr.find("\t", hfind3+1);
                     FXString itemcon = taggedlist.at(j).mid(rfound+1, taggedlist.at(j).length() - rfound);
                     if(itemtag == tags.at(i).c_str())
                     {
                         buf += "<div style='border-bottom: 1px solid black;'>\n";
-                        buf += "<div>Key:&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr + "</div>\n";
+                        buf += "<div>Mail Item:&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(0, hfind1) + "</div>\n";
+                        buf += "<div>Folder:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind1+1, hfind2 - hfind1 - 1) + "</div>\n";
+                        buf += "<div>From:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind2+1, hfind3 - hfind2 - 1) + "</div>\n";
+                        buf += "<div>Date:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind3+1, hfind4 - hfind3 - 1) + "</div>\n";
+                        buf += "<div>Subject:&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind4+1, taggedlist.at(j).length() - hfind4 - 1) + "</div>\n<br/>\n";
                         buf += "<div><pre>" + itemcon + "</pre></div>\n";
                         buf += "</div>\n";
                     }
