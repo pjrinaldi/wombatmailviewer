@@ -104,7 +104,7 @@ long WombatMail::CreateNewTag(FXObject*, FXSelector, void*)
         tags.push_back(tagstr.text());
         tablelist->setItemText(tablelist->getCurrentRow(), 1, tagstr);
 	if(tagstr.length() > 5)
-	    tablelist->fitColumnsToContents(0);
+	    tablelist->fitColumnsToContents(1);
     }
     FXTreeItem* curitem = treelist->getCurrentItem();
     FXString rootstring = "";
@@ -113,7 +113,8 @@ long WombatMail::CreateNewTag(FXObject*, FXSelector, void*)
     int found1 = rootstring.find(" (");
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
-    FXString idkeyvalue = mailboxpath + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
+    FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
+    //FXString idkeyvalue = mailboxpath + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
@@ -133,7 +134,8 @@ long WombatMail::RemoveTag(FXObject*, FXSelector, void*)
     int found1 = rootstring.find(" (");
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
-    FXString idkeyvalue = mailboxpath + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
+    FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
+    //FXString idkeyvalue = mailboxpath + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
@@ -234,29 +236,18 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
                     }
                 }
                 tablelist->setItemText(i, 0, FXString::value(i+1));
-                /*
                 FXString tagstr = "";
-                if(valuecount == 0) // no values, so create empty key
+                for(int j = 0; j < taggedlist.no(); j++)
                 {
-                    tablelist->setTableSize(1, 3);
-                    tablelist->setColumnText(0, "Tag");
-                    tablelist->setColumnText(1, "Value Name");
-                    tablelist->setColumnText(2, "Value Type");
-                    FXString curtagvalue = keypath + "\\" + "(empty)";
-                    tablelist->setItemText(0, 1, "(empty)");
-                    tablelist->setItemText(0, 2, "0x00");
-                    for(int j=0; j < taggedlist.no(); j++)
+                    if(taggedlist.at(j).contains(mailboxpath) && taggedlist.at(j).contains(treelist->getCurrentItem()->getText()))
                     {
-                        if(taggedlist.at(j).contains(curtagvalue))
-                        {
-                            std::size_t found = taggedlist.at(j).find("|");
-                            tagstr = taggedlist.at(j).left(found);
-                        }
+                        std::size_t found = taggedlist.at(j).find("|");
+                        tagstr = taggedlist.at(j).left(found);
                     }
-                    tablelist->setItemText(0, 0, tagstr);
                 }
-                 */ 
-                //tablelist->setItemText(i, 1, "tag str");
+                tablelist->setItemText(i, 1, tagstr);
+                if(!tagstr.empty() && tagstr.length() > 5)
+                    tablelist->fitColumnsToContents(1);
                 tablelist->setItemText(i, 2, FXString(reinterpret_cast<char*>(msgsender)));
                 tablelist->setItemText(i, 3, ConvertWindowsTimeToUnixTimeUTC(msgtime));
                 tablelist->setItemText(i, 4, FXString(reinterpret_cast<char*>(msgsubject)));
@@ -275,12 +266,6 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
 	AlignColumn(tablelist, 3, FXTableItem::LEFT);
 	AlignColumn(tablelist, 4, FXTableItem::LEFT);
 	/*
-	if(!tagstr.empty() && tagstr.length() > 5)
-	    tablelist->fitColumnsToContents(1);
-	*/
-	/*
-	if(namemax > 12)
-	    tablelist->fitColumnsToContents(1);
 	tablelist->setCurrentItem(0, 0);
 	tablelist->selectRow(0, true);
 	*/
@@ -487,7 +472,13 @@ long WombatMail::OpenTagManager(FXObject*, FXSelector, void*)
     tagmanager.execute(PLACEMENT_OWNER);
     for(int i=0; i < tablelist->getNumRows(); i++)
     {
-        FXString curidkeyval = "not sure what to put here";
+        FXTreeItem* curitem = treelist->getCurrentItem();
+        FXString rootstring = "";
+        FXString mailboxpath = "";
+        GetRootString(curitem, &rootstring);
+        int found1 = rootstring.find(" (");
+        int found2 = rootstring.find(")");
+        mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
         FXString curtag = tablelist->getItemText(i, 0);
         for(int j=0; j < taggedlist.no(); j++)
         {
@@ -495,7 +486,7 @@ long WombatMail::OpenTagManager(FXObject*, FXSelector, void*)
             std::size_t rfound = taggedlist.at(j).rfind("|");
             FXString itemtag = taggedlist.at(j).mid(0, found);
             FXString itemhdr = taggedlist.at(j).mid(found+1, rfound - found - 1);
-            if(FXString::compare(curidkeyval, itemhdr) == 0)
+            if(itemhdr.contains(mailboxpath) && itemhdr.contains(curitem->getText()))
             {
                 if(FXString::compare(curtag, itemtag) != 0)
                     tablelist->setItemText(i, 1, itemtag);
@@ -777,7 +768,7 @@ long WombatMail::SetTag(FXObject* sender, FXSelector, void*)
     int found1 = rootstring.find(" (");
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
-    FXString idkeyvalue = mailboxpath + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
+    FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
