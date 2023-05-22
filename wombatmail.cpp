@@ -216,6 +216,12 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
                 reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT, &msgsubjectsize, &pfferr);
                 uint8_t msgsubject[msgsubjectsize];
                 reterr = libpff_message_get_entry_value_utf8_string(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT, msgsubject, msgsubjectsize, &pfferr);
+                // REMOVES ^A AND REPLACES WITH SPACE
+                for(int j=0; j < msgsubjectsize; j++)
+                {
+                    if((unsigned int)msgsubject[j] == 0x01)
+                        msgsubject[j] = ' ';
+                }
                 size_t msgsendersize = 0;
                 reterr = libpff_message_get_entry_value_utf8_string_size(curmsg, LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS, &msgsendersize, &pfferr);
                 uint8_t msgsender[msgsendersize];
@@ -246,6 +252,7 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
                     }
                 }
                 tablelist->setItemText(i, 1, tagstr);
+                //std::cout << "|" << (unsigned int)msgsubject[0] << "|" << std::endl;
                 if(!tagstr.empty() && tagstr.length() > 5)
                     tablelist->fitColumnsToContents(1);
                 tablelist->setItemText(i, 2, FXString(reinterpret_cast<char*>(msgsender)));
