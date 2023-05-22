@@ -245,7 +245,6 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
                         tagstr = taggedlist.at(j).left(found);
                     }
                 }
-                std::cout << "msgsubject: " << msgsubject << " |" << msgsubject[0] << "|" << std::endl;
                 tablelist->setItemText(i, 1, tagstr);
                 if(!tagstr.empty() && tagstr.length() > 5)
                     tablelist->fitColumnsToContents(1);
@@ -422,7 +421,7 @@ void WombatMail::PopulatePstEmail(FXString mailboxpath, FXString curitemtext)
 	msgbodystr += "\n\n";
 	reterr = libpff_message_get_plain_text_body(curmsg, msgbody, msgbodysize, &pfferr);
 	msgbodystr += FXString(reinterpret_cast<char*>(msgbody));
-	plaintext->setText(msgbodystr.substitute('\r', ' ').substitute("^A", " "));
+	plaintext->setText(msgbodystr.substitute('\r', ' '));
 	/*
 	// POPULATE ATTACHMENT PORTIONS
 	int attachcnt = 0;
