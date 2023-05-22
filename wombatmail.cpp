@@ -636,7 +636,7 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
             }
             else if(mailboxtype == 0x02) // MBOX
             {
-                PopulateMbox(mailboxpath);
+                //PopulateMbox(mailboxpath);
             }
             else if(mailboxtype == 0x03) // MSG
             {
@@ -691,6 +691,161 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
 
 void WombatMail::PopulateMbox(std::string mailboxpath)
 {
+    std::string layout = "";
+    std::vector<uint64_t> poslist;
+    std::vector<uint64_t> linelength;
+    poslist.clear();
+    linelength.clear();
+    std::regex mboxheader("^From .*[0-9][0-9]:[0-9][0-9]"); // kmbox regular expression
+    std::ifstream mailboxfile(mailboxpath, std::ios::in|std::ios::binary);
+    std::string line;
+    while(std::getline(mailboxfile, line))
+    {
+        std::smatch mboxmatch;
+        bool ismatch = std::regex_search(line, mboxmatch, mboxheader);
+        if(ismatch == true)
+        {
+            std::cout << "mboxmatch pos: " << mailboxfile.tellg() << std::endl;
+            poslist.push_back(mailboxfile.tellg());
+            linelength.push_back(line.size());
+        }
+    }
+    mailboxfile.seekg(0, mailboxfile.end);
+    poslist.push_back(mailboxfile.tellg());
+    mailboxfile.close();
+    /*
+    ui->tablewidget->clear();
+    ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "Date Time", "Subject"});
+    ui->textbrowser->clear();
+    ui->listwidget->clear();
+
+    //ui->plaintext->setPlainText("");
+    ui->tablewidget->setRowCount(poslist.count() - 1);
+    QStringList headers;
+    QStringList bodies;
+    QStringList msgs;
+    headers.clear();
+    bodies.clear();
+    msgs.clear();
+    for(int i=0; i < poslist.count() - 1; i++)
+    {
+        int splitpos = 0;
+        if(!mboxfile.isOpen())
+            mboxfile.open(QIODevice::ReadOnly | QIODevice::Text);
+        int pos = poslist.at(i);
+        //qDebug() << "pos:" << pos << "endpos:" << poslist.at(i+1) - poslist.at(i) - linelength.at(i);
+        mboxfile.seek(poslist.at(i));
+        while(pos <= poslist.at(i+1) - linelength.at(i))
+        {
+            QString line = mboxfile.readLine();
+            if(line == "\n")
+            {
+                splitpos = mboxfile.pos() - poslist.at(i);
+                //qDebug() << "splitpos1:" << splitpos;
+                break;
+            }
+            pos = mboxfile.pos();
+        }
+        mboxfile.seek(poslist.at(i));
+        headers.append(mboxfile.read(splitpos));
+        bodies.append(mboxfile.read(poslist.at(i+1) - linelength.at(i) - splitpos - poslist.at(i)));
+        mboxfile.seek(poslist.at(i));
+        msgs.append(mboxfile.read(poslist.at(i+1) - linelength.at(i) - poslist.at(i)));
+        
+        mboxfile.close();
+    }
+    for(int i=0; i < msgs.count(); i++)
+    {
+	// MY METHOD WORKS, BUT I NOW NEED TO FIGURE OUT HOW TO HANDLE MIME PARTS
+	/*
+	QStringList mailheaders = { "From: ", "Date: ", "Bcc: ", "To: ", "Sender: ", "Message-ID: ", "Subject: ", "cc: ", "Comment: ", "In-Reply-To: ", "X-Special-action: ", "References: ", "Newsgroups: ", "Lines: ", "Message-Id: ", "MIME-Version: ", "Content-Type: ", "Content-Transfer-Encoding: ", "Mime-Version: " };
+        QList<qint64> headeritems;
+        headeritems.clear();
+        int fromstart = msgs.at(i).indexOf("From: ");
+        int subjstart = msgs.at(i).indexOf("Subject: ");
+        int datestart = msgs.at(i).indexOf("Date: ");
+	// get offset for the mail headers
+	for(int j=0; j < mailheaders.count(); j++)
+	    headeritems.append(msgs.at(i).indexOf(mailheaders.at(j), Qt::CaseInsensitive));
+	// get all the offsets for the line returns \n
+	int off = 0;
+	while(off <= msgs.at(i).length())
+	{
+	    off = msgs.at(i).indexOf("\n", off+1);
+	    if(off == -1)
+		break;
+	    headeritems.append(off);
+	}
+        std::sort(headeritems.begin(), headeritems.end());
+        auto last = std::unique(headeritems.begin(), headeritems.end());
+        headeritems.erase(last, headeritems.end());
+        headeritems.removeFirst();
+	headeritems.append(msgs.at(i).length());
+        //qDebug() << "headeritems after unique:" << headeritems;
+
+        QString datestr = "";
+        QString subjstr = "";
+        QString fromstr = msgs.at(i).mid(headeritems.at(headeritems.indexOf(fromstart)) + 6, headeritems.at(headeritems.indexOf(fromstart) + 1) - headeritems.at(headeritems.indexOf(fromstart)) - 6);
+        if(datestart > -1)
+            datestr = msgs.at(i).mid(headeritems.at(headeritems.indexOf(datestart)) + 6, headeritems.at(headeritems.indexOf(datestart) + 1) - headeritems.at(headeritems.indexOf(datestart)) - 6);
+        if(subjstart > -1)
+            subjstr = msgs.at(i).mid(headeritems.at(headeritems.indexOf(subjstart)) + 9, headeritems.at(headeritems.indexOf(subjstart) + 1) - headeritems.at(headeritems.indexOf(subjstart)) - 9);
+        QTableWidgetItem* tmpitem = new QTableWidgetItem(QString::number(i+1));
+        tmpitem->setToolTip(QString(QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i) - linelength.at(i))));
+        ui->tablewidget->setItem(i, 0, tmpitem);
+        ui->tablewidget->setItem(i, 2, new QTableWidgetItem(fromstr.remove("\n")));
+        ui->tablewidget->setItem(i, 3, new QTableWidgetItem(datestr.remove("\n")));
+        ui->tablewidget->setItem(i, 4, new QTableWidgetItem(subjstr.remove("\n")));
+	*/
+	/*
+	// ATTEMPTING TO USE MIMETIC TO HANDLE IT
+	std::istringstream tmpis(msgs.at(i).toStdString());
+	//mimetic::Message tmpmsg(tmpis);
+	//tmpsg(tmpis);
+	//
+	mimetic::MimeEntity tmpme(tmpis);
+	mimetic::Header tmphead = tmpme.header();
+	mimetic::Body tmpbody = tmpme.body();
+	std::ostringstream tmpfrom;
+	std::ostringstream tmpsubj;
+        QTableWidgetItem* tmpitem = new QTableWidgetItem(QString::number(i+1));
+        tmpitem->setToolTip(QString(QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i) - linelength.at(i))));
+	ui->tablewidget->setItem(i, 0, tmpitem);
+	tmpfrom << tmphead.from();
+	ui->tablewidget->setItem(i, 2, new QTableWidgetItem(QString::fromStdString(tmpfrom.str())));
+	tmpsubj << tmphead.subject();
+	ui->tablewidget->setItem(i, 4, new QTableWidgetItem(QString::fromStdString(tmpsubj.str())));
+	//tmpos << tmphead.date();
+	//qDebug() << "i:" << i << "from:" << QString::fromStdString(tmpos.str());
+	*/
+	// ATTEMPTING TO USE VMIME TO HANDLE IT
+	//vmime::charset ch(vmime::charsets::UTF_8);
+    /*
+	vmime::string msgdata;
+	msgdata = msgs.at(i).toStdString();
+	vmime::shared_ptr <vmime::message> vmsg = vmime::make_shared <vmime::message>();
+	vmsg->parse(msgdata);
+	vmime::messageParser vmp(vmsg);
+	vmime::text vsubj = vmp.getSubject();
+	vmime::mailbox vfrom = vmp.getExpeditor();
+	vmime::datetime vdate = vmp.getDate();
+        QTableWidgetItem* tmpitem = new QTableWidgetItem(QString::number(i+1));
+        tmpitem->setToolTip(QString(QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i) - linelength.at(i))));
+	ui->tablewidget->setItem(i, 0, tmpitem);
+	ui->tablewidget->setItem(i, 2, new QTableWidgetItem(QString(QString::fromStdString(vfrom.getName().getConvertedText(ch)) + " <" + QString::fromStdString(vfrom.getEmail().toString()) + ">")));
+	ui->tablewidget->setItem(i, 3, new QTableWidgetItem(QString(QString::number(vdate.getMonth()) + "/" + QString::number(vdate.getDay()) + "/" + QString::number(vdate.getYear()) + " " + QString::number(vdate.getHour()) + ":" + QString::number(vdate.getMinute()) + ":" + QString::number(vdate.getSecond()))));
+	ui->tablewidget->setItem(i, 4, new QTableWidgetItem(QString::fromStdString(vsubj.getConvertedText(ch))));
+	/*
+	qDebug() << "i:" << i;
+	qDebug() << "from:" << QString::fromStdString(vfrom.getName().getConvertedText(ch)) << QString::fromStdString(vfrom.getEmail().toString());
+	//qDebug() << "from:" << QString::fromStdString(vfrom.getConvertedText(ch));
+	qDebug() << "subj:" << QString::fromStdString(vsubj.getConvertedText(ch));
+	qDebug() << "date:" << vdate.getMonth() << vdate.getDay() << vdate.getYear() << vdate.getHour() << vdate.getMinute() << vdate.getSecond();
+	*/
+	// ATTEMPTING TO USE KMime TO HANDLE IT
+    /*	
+    }
+     */ 
 }
 
 void WombatMail::PopulatePst(std::string mailboxpath)
