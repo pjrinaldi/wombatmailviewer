@@ -697,7 +697,7 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
     poslist.clear();
     linelength.clear();
     std::regex mboxheader("^From .*[0-9][0-9]:[0-9][0-9]"); // kmbox regular expression
-    std::ifstream mailboxfile(mailboxpath, std::ios::in|std::ios::binary);
+    std::ifstream mailboxfile(mailboxpath.c_str(), std::ios::in);
     std::string line;
     while(std::getline(mailboxfile, line))
     {
@@ -705,28 +705,74 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
         bool ismatch = std::regex_search(line, mboxmatch, mboxheader);
         if(ismatch == true)
         {
-            std::cout << "mboxmatch pos: " << mailboxfile.tellg() << std::endl;
+            //std::cout << "mboxmatch pos: " << mailboxfile.tellg() << std::endl;
             poslist.push_back(mailboxfile.tellg());
             linelength.push_back(line.size());
+            //std::cout << "line length: " << line.size() << std::endl;
         }
     }
-    mailboxfile.seekg(0, mailboxfile.end);
+    mailboxfile.close();
+    mailboxfile.open(mailboxpath.c_str(), std::ios::in);
+    mailboxfile.seekg(0, std::ifstream::beg);
+    //std::cout << "mbf start: " << mailboxfile.tellg() << std::endl;
+    mailboxfile.seekg(0, std::ifstream::end);
+    //std::cout << "mailbox end: " << mailboxfile.tellg() << std::endl;
     poslist.push_back(mailboxfile.tellg());
     mailboxfile.close();
+    tablelist->clearItems();
+    tablelist->setTableSize(poslist.size() - 1, 5);
+    tablelist->setColumnText(0, "ID");
+    tablelist->setColumnText(1, "Tag");
+    tablelist->setColumnText(2, "From");
+    tablelist->setColumnText(3, "Date Time");
+    tablelist->setColumnText(4, "Subject");
+    std::vector<std::string> headers;
+    std::vector<std::string> bodies;
+    std::vector<std::string> msgs;
+    headers.clear();
+    bodies.clear();
+    msgs.clear();
+    for(int i=0; i < poslist.size() - 1; i++)
+    {
+        int splitpos = 0;
+        mailboxfile.open(mailboxpath.c_str(), std::ios::in|std::ios::binary);
+        uint64_t pos = poslist.at(i);
+        //std::cout << "pos: " << pos << " endpos: " << poslist.at(i+1) - poslist.at(i) - linelength.at(i) << std::endl;
+        mailboxfile.seekg(poslist.at(i));
+        while(pos <= poslist.at(i+1) - linelength.at(i))
+        {
+            std::string line = "";
+            std::getline(mailboxfile, line);
+            if(line == "\n")
+            {
+                splitpos = mailboxfile.tellg() - (int64_t)poslist.at(i);
+                break;
+            }
+            pos = mailboxfile.tellg();
+        }
+        mailboxfile.seekg(poslist.at(i));
+        char* hbuf = new char[splitpos];
+        mailboxfile.read(hbuf, splitpos);
+        headers.push_back(std::string(hbuf));
+        char* bbuf = new char[poslist.at(i+1) - linelength.at(i) - splitpos - poslist.at(i)];
+        mailboxfile.read(bbuf, poslist.at(i+1) - linelength.at(i) - splitpos - poslist.at(i));
+        bodies.push_back(std::string(bbuf));
+        mailboxfile.seekg(poslist.at(i));
+        char* mbuf = new char[poslist.at(i+1) - linelength.at(i) - poslist.at(i)];
+        mailboxfile.read(mbuf, poslist.at(i+1) - linelength.at(i) - poslist.at(i));
+        msgs.push_back(std::string(mbuf));
+        mailboxfile.close();
+    }
+    for(int i=0; i < headers.size(); i++)
+    {
+        std::cout << "headers: " << headers.at(i) << std::endl;
+    }
+
     /*
-    ui->tablewidget->clear();
-    ui->tablewidget->setHorizontalHeaderLabels({"ID", "Tag", "From", "Date Time", "Subject"});
     ui->textbrowser->clear();
     ui->listwidget->clear();
 
     //ui->plaintext->setPlainText("");
-    ui->tablewidget->setRowCount(poslist.count() - 1);
-    QStringList headers;
-    QStringList bodies;
-    QStringList msgs;
-    headers.clear();
-    bodies.clear();
-    msgs.clear();
     for(int i=0; i < poslist.count() - 1; i++)
     {
         int splitpos = 0;
