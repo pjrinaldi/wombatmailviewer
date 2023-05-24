@@ -868,11 +868,11 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
         if(cmerr == 0)
         {
             cmsender = cmime_message_get_sender_string(cmsg);
-            printf("Sender: [%s]\n", cmsender);
+            //printf("Sender: [%s]\n", cmsender);
             cmdate = cmime_message_get_date(cmsg);
-            printf("Date: [%s]\n", cmdate);
+            //printf("Date: [%s]\n", cmdate);
             cmsubj = cmime_message_get_subject(cmsg);
-            printf("Subject: [%s]\n", cmsubj);
+            //printf("Subject: [%s]\n", cmsubj);
             //free(cmsender);
             /*
             printf("Recipients (%d):\n", cmsg->recipients->size);
@@ -890,11 +890,24 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
             //msg_string = cmime_message_to_string(cmsg);
             //printf("%s\n", msg_string);
             //free(msg_string);
+            tablelist->setItemText(i, 0, FXString::value(i));
+            //tablelist->setItemText(i, 1, "tagstr");
+            tablelist->setItemText(i, 2, FXString(cmsender).substitute('\n', ' '));
+            tablelist->setItemText(i, 3, FXString(cmdate));
+            tablelist->setItemText(i, 4, FXString(cmsubj));
         }
         free(cmsender);
         free(cmdate);
         free(cmsubj);
     }
+    AlignColumn(tablelist, 0, FXTableItem::LEFT);
+    AlignColumn(tablelist, 1, FXTableItem::LEFT);
+    AlignColumn(tablelist, 2, FXTableItem::LEFT);
+    AlignColumn(tablelist, 3, FXTableItem::LEFT);
+    AlignColumn(tablelist, 4, FXTableItem::LEFT);
+    tablelist->fitColumnsToContents(2);
+    tablelist->fitColumnsToContents(3);
+    tablelist->fitColumnsToContents(4);
         /* ATTEMPTING TO USE LIBCMIME TO HANDLE THIS
         CMimeMessage_T *message = cmime_message_new();
         // CMimeHeader_T *header = NULL;
