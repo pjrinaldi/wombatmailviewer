@@ -360,7 +360,7 @@ long WombatMail::MessageSelected(FXObject*, FXSelector, void*)
 	if(mailboxtype == 0x01) // PST/OST
 	    PopulatePstEmail(mailboxpath, curitem->getText());
 	else if(mailboxtype == 0x02) // MBOX
-	    PopulateMboxEmail();
+	    PopulateMboxEmail(mailboxpath, curitem->getText());
     }
     
     return 1;
@@ -462,8 +462,65 @@ void WombatMail::PopulatePstEmail(FXString mailboxpath, FXString curitemtext)
     libpff_error_free(&pfferr);
 }
 
-void WombatMail::PopulateMboxEmail(void)
+void WombatMail::PopulateMboxEmail(FXString mailboxpath, FXString curitemtext)
 {
+    int msgid = tablelist->getItemText(tablelist->getCurrentRow(), 0).toInt() - 1;
+    CMimeMessage_T* cmsg = NULL;
+    cmsg = cmime_message_new();
+    char* msgstring = NULL;
+    int cmerr = 0;
+    cmerr = cmime_message_from_string(&cmsg, msgs.at(msgid).c_str(), 0);
+    msgstring = cmime_message_to_string(cmsg);
+    plaintext->setText(FXString(msgstring));
+    free(msgstring);
+    free(cmsg);
+    /*
+    CMimeMessage_T* cmsg = NULL;
+    cmsg = cmime_message_new();
+    CMimeHeader_T* chdr = NULL;
+    CMimeList_T* creclist = NULL;
+    CMimeListElem_T* celem = NULL;
+    CMimeAddress_T* caddr = NULL;
+    char* cmsender = NULL;
+    //char* s2 = NULL;
+    //char* msg_string = NULL;
+    char* cmdate = NULL;
+    char* cmsubj = NULL;
+    int cmerr = 0;
+    cmerr = cmime_message_from_string(&cmsg, msgs.at(i).c_str(), 0);
+    if(cmerr == 0)
+    {
+        cmsender = cmime_message_get_sender_string(cmsg);
+        //printf("Sender: [%s]\n", cmsender);
+        cmdate = cmime_message_get_date(cmsg);
+        //printf("Date: [%s]\n", cmdate);
+        cmsubj = cmime_message_get_subject(cmsg);
+        //printf("Subject: [%s]\n", cmsubj);
+        //free(cmsender);
+        printf("Recipients (%d):\n", cmsg->recipients->size);
+        celem = cmime_list_head(cmsg->recipients);
+        while(celem != NULL)
+        {
+            caddr = (CMimeAddress_T*)cmime_list_data(celem);
+            cmsender = cmime_address_to_string(caddr);
+            s2 = cmime_string_strip(cmsender);
+            printf(" - [%s]\n", s2);
+            free(cmsender);
+            celem = celem->next;
+        }
+        //msg_string = cmime_message_to_string(cmsg);
+        //printf("%s\n", msg_string);
+        //free(msg_string);
+        tablelist->setItemText(i, 0, FXString::value(i+1));
+        //tablelist->setItemText(i, 1, "tagstr");
+        tablelist->setItemText(i, 2, FXString(cmsender).substitute('\n', ' '));
+        tablelist->setItemText(i, 3, FXString(cmdate).substitute('\n', ' '));
+        tablelist->setItemText(i, 4, FXString(cmsubj).substitute('\n', ' '));
+    }
+    free(cmsender);
+    free(cmdate);
+    free(cmsubj);
+     */ 
 }
 
 void WombatMail::AlignColumn(FXTable* curtable, int col, FXuint justify)
@@ -615,10 +672,14 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
         filename = FXFileDialog::getOpenFilename(this, "Open MailBox", oldmailboxpath.c_str());
     }
     else
+    {
         filename = FXString(cmdmailboxpath.c_str());
+        cmdmailboxpath = "";
+    }
     if(!filename.empty())
     {
 	std::string mailboxpath = filename.text();
+        // fix this to be path and not the path and the file...
         oldmailboxpath = mailboxpath;
 	// check mailbox type
         uint8_t mailboxtype = 0x00;
@@ -726,11 +787,11 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
     tablelist->setColumnText(2, "From");
     tablelist->setColumnText(3, "Date Time");
     tablelist->setColumnText(4, "Subject");
-    std::vector<std::string> headers;
-    std::vector<std::string> bodies;
-    std::vector<std::string> msgs;
-    headers.clear();
-    bodies.clear();
+    //std::vector<std::string> headers;
+    //std::vector<std::string> bodies;
+    //std::vector<std::string> msgs;
+    //headers.clear();
+    //bodies.clear();
     msgs.clear();
     for(int i=0; i < poslist.size() - 1; i++)
     {
@@ -753,14 +814,14 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
             }
             pos = mailboxfile.tellg();
         }
-        mailboxfile.seekg(poslist.at(i));
-        char* hbuf = new char[splitpos];
-        mailboxfile.read(hbuf, splitpos);
+        //mailboxfile.seekg(poslist.at(i));
+        //char* hbuf = new char[splitpos];
+        //mailboxfile.read(hbuf, splitpos);
         //std::cout << "hbuf: " << i << " " << hbuf << std::endl;
-        headers.push_back(std::string(hbuf));
-        char* bbuf = new char[poslist.at(i+1) - linelength.at(i) - splitpos - poslist.at(i)];
-        mailboxfile.read(bbuf, poslist.at(i+1) - linelength.at(i) - splitpos - poslist.at(i));
-        bodies.push_back(std::string(bbuf));
+        //headers.push_back(std::string(hbuf));
+        //char* bbuf = new char[poslist.at(i+1) - linelength.at(i) - splitpos - poslist.at(i)];
+        //mailboxfile.read(bbuf, poslist.at(i+1) - linelength.at(i) - splitpos - poslist.at(i));
+        //bodies.push_back(std::string(bbuf));
         mailboxfile.seekg(poslist.at(i));
         char* mbuf = new char[poslist.at(i+1) - linelength.at(i) - poslist.at(i)];
         mailboxfile.read(mbuf, poslist.at(i+1) - linelength.at(i) - poslist.at(i));
@@ -890,11 +951,11 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
             //msg_string = cmime_message_to_string(cmsg);
             //printf("%s\n", msg_string);
             //free(msg_string);
-            tablelist->setItemText(i, 0, FXString::value(i));
+            tablelist->setItemText(i, 0, FXString::value(i+1));
             //tablelist->setItemText(i, 1, "tagstr");
             tablelist->setItemText(i, 2, FXString(cmsender).substitute('\n', ' '));
-            tablelist->setItemText(i, 3, FXString(cmdate));
-            tablelist->setItemText(i, 4, FXString(cmsubj));
+            tablelist->setItemText(i, 3, FXString(cmdate).substitute('\n', ' '));
+            tablelist->setItemText(i, 4, FXString(cmsubj).substitute('\n', ' '));
         }
         free(cmsender);
         free(cmdate);

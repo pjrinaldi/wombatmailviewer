@@ -65,6 +65,7 @@ class WombatMail : public FXMainWindow
         std::ifstream* filebufptr;
         Viewer* viewer;
         std::map<std::string, std::string> foldermap;
+        std::vector<std::string> msgs;
 
     protected:
         WombatMail() {}
@@ -110,7 +111,7 @@ class WombatMail : public FXMainWindow
         void PopulateSubFolders(std::string mailboxpath, libpff_item_t* subfolder, FXTreeItem* subitem, std::string subindex);
         void PopulatePstFolder(FXString mailboxpath, FXString curitemtext);
 	void PopulatePstEmail(FXString mailboxpath, FXString curitemtext);
-	void PopulateMboxEmail(void);
+	void PopulateMboxEmail(FXString mailboxpath, FXString curitemtext);
 	void GetRootString(FXTreeItem* curitem, FXString* rootstring);
 	FXString ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
         FXString ConvertUnixTimeToString(uint32_t input);
