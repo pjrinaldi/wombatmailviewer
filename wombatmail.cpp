@@ -960,6 +960,7 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
         free(cmsender);
         free(cmdate);
         free(cmsubj);
+        free(cmsg);
     }
     AlignColumn(tablelist, 0, FXTableItem::LEFT);
     AlignColumn(tablelist, 1, FXTableItem::LEFT);
