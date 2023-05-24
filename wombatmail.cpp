@@ -743,9 +743,12 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
         {
             std::string line = "";
             std::getline(mailboxfile, line);
-            if(line == "\n")
+            //std::cout << "line: " << line << std::endl;
+            //if(line == "\n")
+            if(line.compare("") == 0)
             {
                 splitpos = mailboxfile.tellg() - (int64_t)poslist.at(i);
+                //std::cout << "splitpos1: " << splitpos << std::endl;
                 break;
             }
             pos = mailboxfile.tellg();
@@ -753,6 +756,7 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
         mailboxfile.seekg(poslist.at(i));
         char* hbuf = new char[splitpos];
         mailboxfile.read(hbuf, splitpos);
+        //std::cout << "hbuf: " << i << " " << hbuf << std::endl;
         headers.push_back(std::string(hbuf));
         char* bbuf = new char[poslist.at(i+1) - linelength.at(i) - splitpos - poslist.at(i)];
         mailboxfile.read(bbuf, poslist.at(i+1) - linelength.at(i) - splitpos - poslist.at(i));
@@ -763,10 +767,12 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
         msgs.push_back(std::string(mbuf));
         mailboxfile.close();
     }
+    /*
     for(int i=0; i < headers.size(); i++)
     {
-        std::cout << "headers: " << headers.at(i) << std::endl;
+        //std::cout << "headers: " << headers.at(i) << std::endl;
     }
+    */
 
     /*
     ui->textbrowser->clear();
@@ -843,27 +849,86 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
         ui->tablewidget->setItem(i, 3, new QTableWidgetItem(datestr.remove("\n")));
         ui->tablewidget->setItem(i, 4, new QTableWidgetItem(subjstr.remove("\n")));
 	*/
+    for(int i=0; i < msgs.size(); i++)
+    {
+        // ATTEMPTING TO USE LIBCMIME TO PARSE HEADERS
+        CMimeMessage_T* cmsg = NULL;
+        cmsg = cmime_message_new();
+        CMimeHeader_T* chdr = NULL;
+        CMimeList_T* creclist = NULL;
+        CMimeListElem_T* celem = NULL;
+        CMimeAddress_T* caddr = NULL;
+        char* cmsender = NULL;
+        //char* s2 = NULL;
+        //char* msg_string = NULL;
+        char* cmdate = NULL;
+        char* cmsubj = NULL;
+        int cmerr = 0;
+        cmerr = cmime_message_from_string(&cmsg, msgs.at(i).c_str(), 0);
+        if(cmerr == 0)
+        {
+            cmsender = cmime_message_get_sender_string(cmsg);
+            printf("Sender: [%s]\n", cmsender);
+            cmdate = cmime_message_get_date(cmsg);
+            printf("Date: [%s]\n", cmdate);
+            cmsubj = cmime_message_get_subject(cmsg);
+            printf("Subject: [%s]\n", cmsubj);
+            //free(cmsender);
+            /*
+            printf("Recipients (%d):\n", cmsg->recipients->size);
+            celem = cmime_list_head(cmsg->recipients);
+            while(celem != NULL)
+            {
+                caddr = (CMimeAddress_T*)cmime_list_data(celem);
+                cmsender = cmime_address_to_string(caddr);
+                s2 = cmime_string_strip(cmsender);
+                printf(" - [%s]\n", s2);
+                free(cmsender);
+                celem = celem->next;
+            }
+            */
+            //msg_string = cmime_message_to_string(cmsg);
+            //printf("%s\n", msg_string);
+            //free(msg_string);
+        }
+        free(cmsender);
+        free(cmdate);
+        free(cmsubj);
+    }
+        /* ATTEMPTING TO USE LIBCMIME TO HANDLE THIS
+        CMimeMessage_T *message = cmime_message_new();
+        // CMimeHeader_T *header = NULL;
+        //CMimeList_T *recipient_list = NULL;
+        CMimeListElem_T *elem = NULL;
+        CMimeAddress_T *ca = NULL;
+        i = cmime_message_from_file(&message,"/home/werner/libcmime/samples/m1006.txt",0);
+        if(i == 0) {
+            printf("Message summary:\n=========================================\n");
+            s = cmime_message_get_sender_string(message);
+            printf("Sender: [%s]\n",s);
+            free(s);
+            printf("Recipients (%d):\n",message->recipients->size);
+            elem = cmime_list_head(message->recipients);
+            while(elem != NULL) {
+                ca = (CMimeAddress_T *)cmime_list_data(elem);
+                s = cmime_address_to_string(ca);
+                s2 = cmime_string_strip(s);
+                printf("- [%s]\n",s2);
+                free(s);
+                elem = elem->next;
+            }
+            printf("Mime Version: [%s]\n",cmime_message_get_mime_version(message));
+            printf("Content ID: [%s]\n",cmime_message_get_content_id(message));
+            printf("Content Type: [%s]\n",cmime_message_get_content_type(message));
+            printf("Number of message headers: [%d]\n",message->headers->size);
+            printf("Number of mime parts: [%d]\n",cmime_message_part_count(message));
+            printf("=========================================\n\n");
+            msg_string = cmime_message_to_string(message);
+            printf("%s\n",msg_string);
+            free(msg_string);
+            cmime_message_free(message);
+         */
 	/*
-	// ATTEMPTING TO USE MIMETIC TO HANDLE IT
-	std::istringstream tmpis(msgs.at(i).toStdString());
-	//mimetic::Message tmpmsg(tmpis);
-	//tmpsg(tmpis);
-	//
-	mimetic::MimeEntity tmpme(tmpis);
-	mimetic::Header tmphead = tmpme.header();
-	mimetic::Body tmpbody = tmpme.body();
-	std::ostringstream tmpfrom;
-	std::ostringstream tmpsubj;
-        QTableWidgetItem* tmpitem = new QTableWidgetItem(QString::number(i+1));
-        tmpitem->setToolTip(QString(QString::number(poslist.at(i)) + "," + QString::number(poslist.at(i+1) - poslist.at(i) - linelength.at(i))));
-	ui->tablewidget->setItem(i, 0, tmpitem);
-	tmpfrom << tmphead.from();
-	ui->tablewidget->setItem(i, 2, new QTableWidgetItem(QString::fromStdString(tmpfrom.str())));
-	tmpsubj << tmphead.subject();
-	ui->tablewidget->setItem(i, 4, new QTableWidgetItem(QString::fromStdString(tmpsubj.str())));
-	//tmpos << tmphead.date();
-	//qDebug() << "i:" << i << "from:" << QString::fromStdString(tmpos.str());
-	*/
 	// ATTEMPTING TO USE VMIME TO HANDLE IT
 	//vmime::charset ch(vmime::charsets::UTF_8);
     /*
@@ -888,7 +953,6 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
 	qDebug() << "subj:" << QString::fromStdString(vsubj.getConvertedText(ch));
 	qDebug() << "date:" << vdate.getMonth() << vdate.getDay() << vdate.getYear() << vdate.getHour() << vdate.getMinute() << vdate.getSecond();
 	*/
-	// ATTEMPTING TO USE KMime TO HANDLE IT
     /*	
     }
      */ 

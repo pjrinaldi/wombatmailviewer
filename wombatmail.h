@@ -21,6 +21,7 @@
 
 #include "libpff.h"
 #include "libolecf.h"
+#include "/usr/local/include/cmime.h"
 
 #include "managetags.h"
 #include "aboutbox.h"
