@@ -22,7 +22,7 @@
 #if !defined( _LIBPFF_TYPES_H )
 #define _LIBPFF_TYPES_H
 
-#include "libpff/features.h"
+#include "features.h"
 
 /* Integer type definitions
  */

@@ -22,7 +22,7 @@
 #if !defined( _LIBOLECF_OLE_H )
 #define _LIBOLECF_OLE_H
 
-#include "libolecf/types.h"
+#include "types.h"
 
 #ifdef __cplusplus
 extern "C" {

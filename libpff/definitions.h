@@ -22,7 +22,7 @@
 #if !defined( _LIBPFF_DEFINITIONS_H )
 #define _LIBPFF_DEFINITIONS_H
 
-#include "libpff/types.h"
+#include "types.h"
 
 #define LIBPFF_VERSION					20211114
 

@@ -22,7 +22,7 @@
 #if !defined( _LIBOLECF_DEFINITIONS_H )
 #define _LIBOLECF_DEFINITIONS_H
 
-#include "libolecf/types.h"
+#include "types.h"
 
 #define LIBOLECF_VERSION						20210512
 

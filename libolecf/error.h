@@ -22,7 +22,7 @@
 #if !defined( _LIBOLECF_ERROR_H )
 #define _LIBOLECF_ERROR_H
 
-#include "libolecf/types.h"
+#include "types.h"
 
 /* External error type definition hides internal structure
  */

@@ -22,7 +22,7 @@
 #if !defined( _LIBOLECF_TYPES_H )
 #define _LIBOLECF_TYPES_H
 
-#include "libolecf/features.h"
+#include "features.h"
 
 /* Integer type definitions
  */

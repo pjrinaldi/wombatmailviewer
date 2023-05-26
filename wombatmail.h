@@ -16,7 +16,7 @@
 #include <time.h>
 #include <regex>
 
-#include "/usr/local/include/fox-1.7/fx.h"
+#include "fox-1.7/fx.h"
 #include "icons.h"
 
 #include "libpff.h"

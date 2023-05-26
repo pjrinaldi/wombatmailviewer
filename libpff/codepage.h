@@ -22,7 +22,7 @@
 #if !defined( _LIBPFF_CODEPAGE_H )
 #define _LIBPFF_CODEPAGE_H
 
-#include "libpff/types.h"
+#include "types.h"
 
 #if defined( __cplusplus )
 extern "C" {

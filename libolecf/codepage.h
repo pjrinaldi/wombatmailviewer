@@ -22,7 +22,7 @@
 #if !defined( _LIBOLECF_CODEPAGE_H )
 #define _LIBOLECF_CODEPAGE_H
 
-#include "libolecf/types.h"
+#include "types.h"
 
 #if defined( __cplusplus )
 extern "C" {

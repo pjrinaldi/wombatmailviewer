@@ -34,16 +34,16 @@
 extern "C" {
 #endif
 
-#include <cmime/cmime_address.h>
-#include <cmime/cmime_config.h>
-#include <cmime/cmime_base64.h>
-#include <cmime/cmime_qp.h>
-#include <cmime/cmime_header.h>
-#include <cmime/cmime_list.h>
-#include <cmime/cmime_message.h>
-#include <cmime/cmime_part.h>
-#include <cmime/cmime_string.h>
-#include <cmime/cmime_util.h>
+#include "cmime/cmime_address.h"
+#include "cmime/cmime_config.h"
+#include "cmime/cmime_base64.h"
+#include "cmime/cmime_qp.h"
+#include "cmime/cmime_header.h"
+#include "cmime/cmime_list.h"
+#include "cmime/cmime_message.h"
+#include "cmime/cmime_part.h"
+#include "cmime/cmime_string.h"
+#include "cmime/cmime_util.h"
 
 #ifdef __cplusplus
 }

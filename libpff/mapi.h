@@ -22,7 +22,7 @@
 #if !defined( _LIBPFF_MAPI_H )
 #define _LIBPFF_MAPI_H
 
-#include "libpff/types.h"
+#include "types.h"
 
 #ifdef __cplusplus
 extern "C" {

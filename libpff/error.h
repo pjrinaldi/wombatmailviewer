@@ -22,7 +22,7 @@
 #if !defined( _LIBPFF_ERROR_H )
 #define _LIBPFF_ERROR_H
 
-#include "libpff/types.h"
+#include "types.h"
 
 /* External error type definition hides internal structure
  */
