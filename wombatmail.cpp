@@ -1,5 +1,6 @@
 #include "wombatmail.h"
 
+
 // Copyright 2013-2023 Pasquale J. Rinaldi, Jr.
 // Distributed under the terms of the GNU General Public License version 2
 
@@ -970,6 +971,7 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
     tablelist->fitColumnsToContents(2);
     tablelist->fitColumnsToContents(3);
     tablelist->fitColumnsToContents(4);
+
         /* ATTEMPTING TO USE LIBCMIME TO HANDLE THIS
         CMimeMessage_T *message = cmime_message_new();
         // CMimeHeader_T *header = NULL;
