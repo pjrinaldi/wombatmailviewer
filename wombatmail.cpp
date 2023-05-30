@@ -466,6 +466,7 @@ void WombatMail::PopulatePstEmail(FXString mailboxpath, FXString curitemtext)
 void WombatMail::PopulateMboxEmail(FXString mailboxpath, FXString curitemtext)
 {
     int msgid = tablelist->getItemText(tablelist->getCurrentRow(), 0).toInt() - 1;
+    /*
     CMimeMessage_T* cmsg = NULL;
     cmsg = cmime_message_new();
     char* msgstring = NULL;
@@ -475,6 +476,8 @@ void WombatMail::PopulateMboxEmail(FXString mailboxpath, FXString curitemtext)
     plaintext->setText(FXString(msgstring));
     free(msgstring);
     free(cmsg);
+    */
+
     /*
     CMimeMessage_T* cmsg = NULL;
     cmsg = cmime_message_new();
