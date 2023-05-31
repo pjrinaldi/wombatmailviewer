@@ -467,6 +467,10 @@ void WombatMail::PopulatePstEmail(FXString mailboxpath, FXString curitemtext)
 void WombatMail::PopulateMboxEmail(FXString mailboxpath, FXString curitemtext)
 {
     int msgid = tablelist->getItemText(tablelist->getCurrentRow(), 0).toInt() - 1;
+    std::string contents = "";
+    GetMessageContent(&(msgs.at(msgid)), &contents);
+    plaintext->setText(FXString(contents.c_str()).substitute('\r', ' '));
+    /*
     std::string textparts = "";
     vmime::string msgdata;
     msgdata = msgs.at(msgid);
@@ -494,6 +498,91 @@ void WombatMail::PopulateMboxEmail(FXString mailboxpath, FXString curitemtext)
         }
     }
     plaintext->setText(FXString(textparts.c_str()).substitute('\r', ' '));
+    */
+}
+
+void WombatMail::GetMessageContent(std::string* msg, std::string* content)
+{
+    vmime::string msgdata = *msg;
+    vmime::shared_ptr <vmime::message> vmsg = vmime::make_shared<vmime::message>();
+    vmsg->parse(msgdata);
+    vmime::messageParser vparser(vmsg);
+    // MIME HEADER
+    vmime::mailbox vfrom = vparser.getExpeditor();
+    content->append("From:\t\t");
+    content->append(vfrom.getName().getConvertedText(ch));
+    content->append(" <");
+    content->append(vfrom.getEmail().toString());
+    content->append(">\n");
+    vmime::addressList vtolist = vparser.getRecipients();
+    for(int i=0; i < vtolist.getAddressCount(); i++)
+    {
+        vmime::shared_ptr<vmime::mailbox> curto = vmime::dynamicCast<vmime::mailbox>(vtolist.getAddressAt(i));
+        content->append("To:\t\t");
+        content->append(curto->getName().getConvertedText(ch));
+        content->append(" <");
+        content->append(curto->getEmail().toString());
+        content->append(">\n");
+    }
+    vmime::addressList vcclist = vparser.getCopyRecipients();
+    for(int i=0; i < vcclist.getAddressCount(); i++)
+    {
+        vmime::shared_ptr<vmime::mailbox> curcc = vmime::dynamicCast<vmime::mailbox>(vcclist.getAddressAt(i));
+        content->append("Cc:\t\t");
+        content->append(curcc->getName().getConvertedText(ch));
+        content->append(" <");
+        content->append(curcc->getEmail().toString());
+        content->append(">\n");
+    }
+    vmime::addressList vbclist = vparser.getBlindCopyRecipients();
+    for(int i=0; i < vbclist.getAddressCount(); i++)
+    {
+        vmime::shared_ptr<vmime::mailbox> curbc = vmime::dynamicCast<vmime::mailbox>(vbclist.getAddressAt(i));
+        content->append("Bcc:\t\t");
+        content->append(curbc->getName().getConvertedText(ch));
+        content->append(" <");
+        content->append(curbc->getEmail().toString());
+        content->append(">\n");
+    }
+    vmime::text vsubj = vparser.getSubject();
+    content->append("Subject:\t");
+    content->append(vsubj.getConvertedText(ch));
+    content->append("\n");
+    vmime::datetime vdate = vparser.getDate();
+    content->append("Date:\t\t");
+    content->append(std::to_string(vdate.getMonth()));
+    content->append("/");
+    content->append(std::to_string(vdate.getDay()));
+    content->append("/");
+    content->append(std::to_string(vdate.getYear()));
+    content->append(" ");
+    content->append(std::to_string(vdate.getHour()));
+    content->append(":");
+    content->append(std::to_string(vdate.getMinute()));
+    content->append(":");
+    content->append(std::to_string(vdate.getSecond()));
+    content->append("\n\n\n");
+    // MIME BODY
+    for(int i=0; i < vparser.getTextPartCount(); i++)
+    {
+        vmime::shared_ptr<const vmime::textPart> tp = vparser.getTextPartAt(i);
+        if(tp->getType().getSubType() == vmime::mediaTypes::TEXT_HTML)
+        {
+            vmime::shared_ptr<const vmime::htmlTextPart> htp = vmime::dynamicCast<const vmime::htmlTextPart>(tp);
+            vmime::string tstr;
+            vmime::utility::outputStreamStringAdapter ostrm(tstr);
+            htp->getPlainText()->extract(ostrm);
+            content->append(tstr);
+        }
+        else
+        {
+            vmime::shared_ptr<const vmime::textPart> ttp = vmime::dynamicCast<const vmime::textPart>(tp);
+            vmime::string tstr;
+            vmime::utility::outputStreamStringAdapter ostrm(tstr);
+            ttp->getText()->extract(ostrm);
+            content->append(tstr);
+        }
+    }
 }
 
 void WombatMail::AlignColumn(FXTable* curtable, int col, FXuint justify)
@@ -790,19 +879,17 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
     }
     for(int i=0; i < msgs.size(); i++)
     {
-        vmime::string msgdata;
-        msgdata = msgs.at(i);
-        vmime::shared_ptr<vmime::message> vmsg = vmime::make_shared<vmime::message>();
-        vmsg->parse(msgdata);
-        vmime::messageParser vparser(vmsg);
-        vmime::text vsubj = vparser.getSubject();
-        vmime::mailbox vfrom = vparser.getExpeditor();
-        vmime::datetime vdate = vparser.getDate();
+        std::string subjectstring = "";
+        GetMimeSubject(&(msgs.at(i)), &subjectstring);
+        std::string fromstring = "";
+        GetMimeFrom(&(msgs.at(i)), &fromstring);
+        std::string datestring = "";
+        GetMimeDate(&(msgs.at(i)), &datestring);
         tablelist->setItemText(i, 0, FXString::value(i+1));
         //tablelist->setItemText(i, 1, "tagstr");
-        tablelist->setItemText(i, 2, FXString(vfrom.getName().getConvertedText(ch).c_str()) + " <" + FXString(vfrom.getEmail().toString().c_str()) + ">");
-        tablelist->setItemText(i, 3, FXString::value(vdate.getMonth()) + "/" + FXString::value(vdate.getDay()) + "/" + FXString::value(vdate.getYear()) + " " + FXString::value(vdate.getHour()) + ":" + FXString::value(vdate.getMinute()) + ":" + FXString::value(vdate.getSecond()));
-        tablelist->setItemText(i, 4, FXString(vsubj.getConvertedText(ch).c_str()));
+        tablelist->setItemText(i, 2, FXString(fromstring.c_str()));
+        tablelist->setItemText(i, 3, FXString(datestring.c_str()));
+        tablelist->setItemText(i, 4, FXString(subjectstring.c_str()));
     }
     AlignColumn(tablelist, 0, FXTableItem::LEFT);
     AlignColumn(tablelist, 1, FXTableItem::LEFT);
@@ -812,6 +899,49 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
     tablelist->fitColumnsToContents(2);
     tablelist->fitColumnsToContents(3);
     tablelist->fitColumnsToContents(4);
+}
+
+void WombatMail::GetMimeFrom(std::string* msg, std::string* from)
+{
+    vmime::string msgdata = *msg;
+    vmime::shared_ptr<vmime::message> vmsg = vmime::make_shared<vmime::message>();
+    vmsg->parse(msgdata);
+    vmime::messageParser vparser(vmsg);
+    vmime::mailbox vfrom = vparser.getExpeditor();
+    from->append(vfrom.getName().getConvertedText(ch));
+    from->append(" <");
+    from->append(vfrom.getEmail().toString());
+    from->append(">");
+}
+
+void WombatMail::GetMimeDate(std::string* msg, std::string* date)
+{
+    vmime::string msgdata = *msg;
+    vmime::shared_ptr<vmime::message> vmsg = vmime::make_shared<vmime::message>();
+    vmsg->parse(msgdata);
+    vmime::messageParser vparser(vmsg);
+    vmime::datetime vdate = vparser.getDate();
+    date->append(std::to_string(vdate.getMonth()));
+    date->append("/");
+    date->append(std::to_string(vdate.getDay()));
+    date->append("/");
+    date->append(std::to_string(vdate.getYear()));
+    date->append(" ");
+    date->append(std::to_string(vdate.getHour()));
+    date->append(":");
+    date->append(std::to_string(vdate.getMinute()));
+    date->append(":");
+    date->append(std::to_string(vdate.getSecond()));
+}
+
+void WombatMail::GetMimeSubject(std::string* msg, std::string* subject)
+{
+    vmime::string msgdata = *msg;
+    vmime::shared_ptr<vmime::message> vmsg = vmime::make_shared<vmime::message>();
+    vmsg->parse(msgdata);
+    vmime::messageParser vparser(vmsg);
+    vmime::text vsubj = vparser.getSubject();
+    subject->append(vsubj.getConvertedText(ch).c_str());
 }
 
 void WombatMail::PopulatePst(std::string mailboxpath)

@@ -122,7 +122,10 @@ class WombatMail : public FXMainWindow
 	    statusbar->getStatusLine()->setNormalText(tmptext);
 	};
         virtual void create();
-
+        void GetMimeSubject(std::string* msg, std::string* subject);
+        void GetMimeFrom(std::string* msg, std::string* from);
+        void GetMimeDate(std::string* msg, std::string* date);
+        void GetMessageContent(std::string* msg, std::string* content);
 };
 
 FXDEFMAP(WombatMail) WombatMailMap[]={
