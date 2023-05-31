@@ -470,35 +470,6 @@ void WombatMail::PopulateMboxEmail(FXString mailboxpath, FXString curitemtext)
     std::string contents = "";
     GetMessageContent(&(msgs.at(msgid)), &contents);
     plaintext->setText(FXString(contents.c_str()).substitute('\r', ' '));
-    /*
-    std::string textparts = "";
-    vmime::string msgdata;
-    msgdata = msgs.at(msgid);
-    vmime::shared_ptr <vmime::message> vmsg = vmime::make_shared <vmime::message>();
-    vmsg->parse(msgdata);
-    vmime::messageParser mp(vmsg);
-    for(int i=0; i < mp.getTextPartCount(); i++)
-    {
-        vmime::shared_ptr <const vmime::textPart> tp = mp.getTextPartAt(i);
-        if(tp->getType().getSubType() == vmime::mediaTypes::TEXT_HTML)
-        {
-            vmime::shared_ptr<const vmime::htmlTextPart> htp = vmime::dynamicCast<const vmime::htmlTextPart>(tp);
-            vmime::string tstr;
-            vmime::utility::outputStreamStringAdapter ostrm(tstr);
-            htp->getPlainText()->extract(ostrm);
-            textparts += tstr;
-        }
-        else
-        {
-            vmime::shared_ptr<const vmime::textPart> ttp = vmime::dynamicCast<const vmime::textPart>(tp);
-            vmime::string tstr;
-            vmime::utility::outputStreamStringAdapter ostrm(tstr);
-            ttp->getText()->extract(ostrm);
-            textparts += tstr;
-        }
-    }
-    plaintext->setText(FXString(textparts.c_str()).substitute('\r', ' '));
-    */
 }
 
 void WombatMail::GetMessageContent(std::string* msg, std::string* content)
