@@ -21,7 +21,7 @@
 
 #include "libpff.h"
 #include "libolecf.h"
-#include "cmime.h"
+//#include "cmime.h"
 #include "vmime/vmime.hpp"
 
 #include "managetags.h"
@@ -67,6 +67,7 @@ class WombatMail : public FXMainWindow
         Viewer* viewer;
         std::map<std::string, std::string> foldermap;
         std::vector<std::string> msgs;
+        vmime::charset ch;
 
     protected:
         WombatMail() {}
