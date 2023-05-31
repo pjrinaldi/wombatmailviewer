@@ -21,7 +21,6 @@
 
 #include "libpff.h"
 #include "libolecf.h"
-//#include "cmime.h"
 #include "vmime/vmime.hpp"
 
 #include "managetags.h"
