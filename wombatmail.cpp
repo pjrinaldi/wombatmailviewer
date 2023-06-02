@@ -19,6 +19,9 @@ WombatMail::WombatMail(FXApp* a):FXMainWindow(a, "Wombat Mail Forensics", new FX
     tablelist = new FXTable(hsplitter, this, ID_TABLESELECT, TABLE_COL_SIZABLE|LAYOUT_FILL_X, LAYOUT_FILL_Y);
     plainfont = new FXFont(a, "monospace");
     plaintext = new FXText(hsplitter);
+    plaintext->setHeight(this->getHeight() / 2);
+    attachmentlist = new FXList(hsplitter, this, ID_LISTSELECT, LIST_SINGLESELECT|LAYOUT_LEFT|LAYOUT_FILL_X);
+    attachmentlist->setHeight(25);
     plaintext->setFont(plainfont);
     plaintext->setEditable(false);
     tablelist->setHeight(this->getHeight() / 3);
@@ -54,6 +57,7 @@ WombatMail::WombatMail(FXApp* a):FXMainWindow(a, "Wombat Mail Forensics", new FX
     tags.clear();
     taggedlist.clear();
     ch = vmime::charset(vmime::charsets::UTF_8);
+    attachmentlist->appendItem("No Attachments");
 }
 
 void WombatMail::create()
@@ -465,6 +469,33 @@ void WombatMail::PopulatePstEmail(FXString mailboxpath, FXString curitemtext)
     libpff_error_free(&pfferr);
 }
 
+void WombatMail::GetMimeAttachments(std::string* msg, std::vector<std::string>* attachlist)
+{
+    vmime::string msgdata = *msg;
+    vmime::shared_ptr<vmime::message> vmsg = vmime::make_shared<vmime::message>();
+    vmsg->parse(msgdata);
+    vmime::messageParser vparser(vmsg);
+    if(vparser.getAttachmentCount() > 0)
+    {
+	attachlist->clear();
+	attachmentlist->clearItems();
+	for(int i=0; i < vparser.getAttachmentCount(); i++)
+	{
+	    const vmime::attachment& att = *vparser.getAttachmentAt(i);
+	    attachlist->push_back(att.getName().getConvertedText(ch));
+	    attachmentlist->appendItem(att.getName().getConvertedText(ch).c_str());
+	    //std::cout << "name: " << att.getName().getConvertedText(ch) << std::endl;
+	    //std::cout << "description: " << att.getDescription().getConvertedText(ch) << std::endl;
+            //vmime::string tstr;
+            //vmime::utility::outputStreamStringAdapter ostrm(tstr);
+	    //att.getData()->extract(ostrm);
+            //htp->getPlainText()->extract(ostrm);
+	    // Media type (content type) is in "att.getType()"
+	    // Description is in "att.getDescription()"
+	}
+    }
+}
+
 void WombatMail::PopulateEml(FXString mailboxpath)
 {
     FILE* mailboxfile = fopen(mailboxpath.text(), "r");
@@ -481,6 +512,8 @@ void WombatMail::PopulateEml(FXString mailboxpath)
     std::string contents = "";
     GetMessageContent(&msg, &contents);
     plaintext->setText(FXString(contents.c_str()).substitute('\r', ' '));
+    std::vector<std::string> attachmentlist;
+    GetMimeAttachments(&msg, &attachmentlist);
 }
 
 void WombatMail::PopulateMboxEmail(FXString mailboxpath, FXString curitemtext)

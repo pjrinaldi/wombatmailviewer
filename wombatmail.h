@@ -45,6 +45,7 @@ class WombatMail : public FXMainWindow
         FXText* plaintext;
         FXTable* tablelist;
         FXTreeItem* rootitem;
+	FXList* attachmentlist;
 	FXIcon* openicon;
         FXButton* openbutton;
 	FXIcon* managetagsicon;
@@ -89,6 +90,7 @@ class WombatMail : public FXMainWindow
             ID_REMTAG = 110,
             ID_MOVE_UP = 111,
             ID_HEADER = 112,
+	    ID_LISTSELECT = 113,
             ID_LAST
         };
         WombatMail(FXApp* a);
@@ -128,6 +130,7 @@ class WombatMail : public FXMainWindow
         void GetMimeFrom(std::string* msg, std::string* from);
         void GetMimeDate(std::string* msg, std::string* date);
         void GetMessageContent(std::string* msg, std::string* content);
+	void GetMimeAttachments(std::string* msg, std::vector<std::string>* attachlist);
 };
 
 FXDEFMAP(WombatMail) WombatMailMap[]={
