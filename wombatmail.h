@@ -15,6 +15,7 @@
 #include <byteswap.h>
 #include <time.h>
 #include <regex>
+#include <sys/stat.h>
 
 #include "fox-1.7/fx.h"
 #include "icons.h"
@@ -113,6 +114,7 @@ class WombatMail : public FXMainWindow
         void PopulatePstFolder(FXString mailboxpath, FXString curitemtext);
 	void PopulatePstEmail(FXString mailboxpath, FXString curitemtext);
 	void PopulateMboxEmail(FXString mailboxpath, FXString curitemtext);
+	void PopulateEml(FXString mailboxpath);
 	void GetRootString(FXTreeItem* curitem, FXString* rootstring);
 	FXString ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
         FXString ConvertUnixTimeToString(uint32_t input);

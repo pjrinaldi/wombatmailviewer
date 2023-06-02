@@ -307,6 +307,7 @@ long WombatMail::MailBoxSelected(FXObject* sender, FXSelector, void*)
     }
     else
     {
+	PopulateEml(mailboxpath.text());
     }
 
     return 1;
@@ -462,6 +463,24 @@ void WombatMail::PopulatePstEmail(FXString mailboxpath, FXString curitemtext)
 	reterr = libpff_file_free(&pffile, &pfferr);
     }
     libpff_error_free(&pfferr);
+}
+
+void WombatMail::PopulateEml(FXString mailboxpath)
+{
+    FILE* mailboxfile = fopen(mailboxpath.text(), "r");
+    struct stat sb{};
+    std::string msg;
+    stat(mailboxpath.text(), &sb);
+    msg.resize(sb.st_size);
+    fread(const_cast<char*>(msg.data()), sb.st_size, 1, mailboxfile);
+    fclose(mailboxfile);
+    vmime::string msgdata = msg;
+    vmime::shared_ptr<vmime::message> vmsg = vmime::make_shared<vmime::message>();
+    vmsg->parse(msgdata);
+    vmime::messageParser vparser(vmsg);
+    std::string contents = "";
+    GetMessageContent(&msg, &contents);
+    plaintext->setText(FXString(contents.c_str()).substitute('\r', ' '));
 }
 
 void WombatMail::PopulateMboxEmail(FXString mailboxpath, FXString curitemtext)
@@ -717,7 +736,7 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
 	// check mailbox type
         uint8_t mailboxtype = 0x00;
 	mailboxtype = MailBoxType(mailboxpath);
-	if(mailboxtype == 0x01 || mailboxtype == 0x02 || mailboxtype == 0x03)
+	if(mailboxtype == 0x01 || mailboxtype == 0x02 || mailboxtype == 0x03 || mailboxtype == 0x04)
 	{
             std::size_t rfound = mailboxpath.rfind("/");
             std::string mailboxname = mailboxpath.substr(rfound+1);
@@ -735,6 +754,10 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
             else if(mailboxtype == 0x03) // MSG
             {
             }
+	    else if(mailboxtype == 0x04) // EML
+	    {
+		//std::cout << "Parse EML HERE" << std::endl;
+	    }
             StatusUpdate("Ready");
         }
         else // OTHER FILE, NOT SUPPORTED
@@ -757,21 +780,41 @@ uint8_t WombatMail::MailBoxType(std::string mailboxpath)
     {
         mailboxtype = 0x03; // MSG
     }
-    else // might be mbox
+    else // might be mbox or eml
     {
-        std::regex mboxheader("^From .*[0-9][0-9]:[0-9][0-9]"); // kmbox regular expression
-        std::ifstream mailboxfile(mailboxpath, std::ios::in|std::ios::binary);
-        std::string line;
-        while(std::getline(mailboxfile, line))
-        {
-            std::smatch mboxmatch;
-            bool ismatch = std::regex_search(line, mboxmatch, mboxheader);
-            if(ismatch == true)
-            {
-                mailboxtype = 0x02; // is mbox
-                break;
-            }
-        }
+	/*
+	*/
+	std::regex mboxheader("^From .*[0-9][0-9]:[0-9][0-9]"); // kmbox regular expression
+	std::ifstream mailboxfile(mailboxpath, std::ios::in|std::ios::binary);
+	std::string line;
+	while(std::getline(mailboxfile, line))
+	{
+	    std::smatch mboxmatch;
+	    bool ismatch = std::regex_search(line, mboxmatch, mboxheader);
+	    if(ismatch == true)
+	    {
+		mailboxtype = 0x02; // is mbox
+		break;
+	    }
+	}
+	if(mailboxtype != 0x02)
+	{
+	    FILE* mailboxfile = fopen(mailboxpath.c_str(), "r");
+	    struct stat sb{};
+	    std::string msg;
+	    stat(mailboxpath.c_str(), &sb);
+	    msg.resize(sb.st_size);
+	    fread(const_cast<char*>(msg.data()), sb.st_size, 1, mailboxfile);
+	    fclose(mailboxfile);
+	    vmime::string msgdata = msg;
+	    vmime::shared_ptr<vmime::message> vmsg = vmime::make_shared<vmime::message>();
+	    vmsg->parse(msgdata);
+	    vmime::messageParser vparser(vmsg);
+	    if(vparser.getTextPartCount() > 0) // EML
+	    {
+		mailboxtype = 0x04; // is eml
+	    }
+	}
     }
     libolecf_error_free(&olecerr);
     libpff_error_free(&pfferr);
