@@ -375,7 +375,16 @@ long WombatMail::MessageSelected(FXObject*, FXSelector, void*)
 
 long WombatMail::AttachmentSelected(FXObject*, FXSelector, void*)
 {
-    std::cout << "attachment selected, do something with it here..." << std::endl;
+    // save file content to tmp
+
+    //std::cout << "attachment selected, do something with it here..." << std::endl;
+    /*
+    std::string xchomppath = apppath.substr(0, found);
+    xchomppath += "/xchomp &";
+    //std::cout << xchomppath << std::endl;
+    std::system(xchomppath.c_str());
+    std::system("xdg-open filename");
+     */ 
 
     return 1;
 }
