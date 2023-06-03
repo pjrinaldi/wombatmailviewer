@@ -373,6 +373,13 @@ long WombatMail::MessageSelected(FXObject*, FXSelector, void*)
     return 1;
 }
 
+long WombatMail::AttachmentSelected(FXObject*, FXSelector, void*)
+{
+    std::cout << "attachment selected, do something with it here..." << std::endl;
+
+    return 1;
+}
+
 void WombatMail::PopulatePstEmail(FXString mailboxpath, FXString curitemtext)
 {
     int msgid = tablelist->getItemText(tablelist->getCurrentRow(), 0).toInt() - 1;
@@ -469,7 +476,8 @@ void WombatMail::PopulatePstEmail(FXString mailboxpath, FXString curitemtext)
     libpff_error_free(&pfferr);
 }
 
-void WombatMail::GetMimeAttachments(std::string* msg, std::vector<std::string>* attachlist)
+//void WombatMail::GetMimeAttachments(std::string* msg, std::vector<std::string>* attachlist)
+void WombatMail::GetMimeAttachments(std::string* msg)
 {
     vmime::string msgdata = *msg;
     vmime::shared_ptr<vmime::message> vmsg = vmime::make_shared<vmime::message>();
@@ -477,12 +485,12 @@ void WombatMail::GetMimeAttachments(std::string* msg, std::vector<std::string>* 
     vmime::messageParser vparser(vmsg);
     if(vparser.getAttachmentCount() > 0)
     {
-	attachlist->clear();
+	//attachlist->clear();
 	attachmentlist->clearItems();
 	for(int i=0; i < vparser.getAttachmentCount(); i++)
 	{
 	    const vmime::attachment& att = *vparser.getAttachmentAt(i);
-	    attachlist->push_back(att.getName().getConvertedText(ch));
+	    //attachlist->push_back(att.getName().getConvertedText(ch));
 	    attachmentlist->appendItem(att.getName().getConvertedText(ch).c_str());
 	    //std::cout << "name: " << att.getName().getConvertedText(ch) << std::endl;
 	    //std::cout << "description: " << att.getDescription().getConvertedText(ch) << std::endl;
@@ -512,8 +520,9 @@ void WombatMail::PopulateEml(FXString mailboxpath)
     std::string contents = "";
     GetMessageContent(&msg, &contents);
     plaintext->setText(FXString(contents.c_str()).substitute('\r', ' '));
-    std::vector<std::string> attachmentlist;
-    GetMimeAttachments(&msg, &attachmentlist);
+    //std::vector<std::string> attachmentlist;
+    //GetMimeAttachments(&msg, &attachmentlist);
+    GetMimeAttachments(&msg);
 }
 
 void WombatMail::PopulateMboxEmail(FXString mailboxpath, FXString curitemtext)

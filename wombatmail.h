@@ -107,6 +107,7 @@ class WombatMail : public FXMainWindow
         long PublishReport(FXObject*, FXSelector, void*);
         long TableUp(FXObject*, FXSelector, void*);
         long ShowHeader(FXObject*, FXSelector, void* checkstate);
+        long AttachmentSelected(FXObject*, FXSelector, void*);
         
         uint8_t MailBoxType(std::string mailboxpath);
         void PopulateMbox(std::string mailboxpath);
@@ -130,7 +131,8 @@ class WombatMail : public FXMainWindow
         void GetMimeFrom(std::string* msg, std::string* from);
         void GetMimeDate(std::string* msg, std::string* date);
         void GetMessageContent(std::string* msg, std::string* content);
-	void GetMimeAttachments(std::string* msg, std::vector<std::string>* attachlist);
+	void GetMimeAttachments(std::string* msg);
+	//void GetMimeAttachments(std::string* msg, std::vector<std::string>* attachlist);
 };
 
 FXDEFMAP(WombatMail) WombatMailMap[]={
@@ -147,6 +149,7 @@ FXDEFMAP(WombatMail) WombatMailMap[]={
     FXMAPFUNC(SEL_COMMAND, WombatMail::ID_PREVIEW, WombatMail::PreviewReport),
     FXMAPFUNC(SEL_COMMAND, WombatMail::ID_PUBLISH, WombatMail::PublishReport),
     FXMAPFUNC(SEL_KEYPRESS, WombatMail::ID_TABLESELECT, WombatMail::TableUp),
+    FXMAPFUNC(SEL_SELECTED, WombatMail::ID_LISTSELECT, WombatMail::AttachmentSelected),
 };
 
 #endif // WOMBATMAIL_H
