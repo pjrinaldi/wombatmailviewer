@@ -376,15 +376,36 @@ long WombatMail::MessageSelected(FXObject*, FXSelector, void*)
 long WombatMail::AttachmentSelected(FXObject*, FXSelector, void*)
 {
     // save file content to tmp
-
-    //std::cout << "attachment selected, do something with it here..." << std::endl;
-    /*
-    std::string xchomppath = apppath.substr(0, found);
-    xchomppath += "/xchomp &";
-    //std::cout << xchomppath << std::endl;
-    std::system(xchomppath.c_str());
-    std::system("xdg-open filename");
-     */ 
+    FXTreeItem* curitem = treelist->getCurrentItem();
+    FXString rootstring = "";
+    FXString mailboxpath = "";
+    GetRootString(curitem, &rootstring);
+    int found1 = rootstring.find(" (");
+    int found2 = rootstring.find(")");
+    mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
+    FILE* mailboxfile = fopen(mailboxpath.text(), "r");
+    struct stat sb{};
+    std::string msg;
+    stat(mailboxpath.text(), &sb);
+    msg.resize(sb.st_size);
+    fread(const_cast<char*>(msg.data()), sb.st_size, 1, mailboxfile);
+    fclose(mailboxfile);
+    int curitemid = attachmentlist->getCurrentItem();
+    vmime::string msgdata = msg;
+    vmime::shared_ptr<vmime::message> vmsg = vmime::make_shared<vmime::message>();
+    vmsg->parse(msgdata);
+    vmime::messageParser vparser(vmsg);
+    const vmime::attachment& att = *vparser.getAttachmentAt(curitemid);
+    vmime::string tstr;
+    vmime::utility::outputStreamStringAdapter ostrm(tstr);
+    att.getData()->extract(ostrm);
+    FXString tmpfilename = "/tmp/" + attachmentlist->getItemText(curitemid);
+    FXString buf = FXString(tstr.c_str()).substitute('\r', ' ');
+    FXFile* tmpfile = new FXFile(tmpfilename, FXIO::Writing, FXIO::OwnerReadWrite);
+    tmpfile->writeBlock(buf.text(), buf.length());
+    tmpfile->close();
+    std::string defaultopen = "xdg-open " + std::string(tmpfilename.text()) + " &";
+    std::system(defaultopen.c_str());
 
     return 1;
 }
@@ -485,7 +506,6 @@ void WombatMail::PopulatePstEmail(FXString mailboxpath, FXString curitemtext)
     libpff_error_free(&pfferr);
 }
 
-//void WombatMail::GetMimeAttachments(std::string* msg, std::vector<std::string>* attachlist)
 void WombatMail::GetMimeAttachments(std::string* msg)
 {
     vmime::string msgdata = *msg;
@@ -494,21 +514,11 @@ void WombatMail::GetMimeAttachments(std::string* msg)
     vmime::messageParser vparser(vmsg);
     if(vparser.getAttachmentCount() > 0)
     {
-	//attachlist->clear();
 	attachmentlist->clearItems();
 	for(int i=0; i < vparser.getAttachmentCount(); i++)
 	{
 	    const vmime::attachment& att = *vparser.getAttachmentAt(i);
-	    //attachlist->push_back(att.getName().getConvertedText(ch));
 	    attachmentlist->appendItem(att.getName().getConvertedText(ch).c_str());
-	    //std::cout << "name: " << att.getName().getConvertedText(ch) << std::endl;
-	    //std::cout << "description: " << att.getDescription().getConvertedText(ch) << std::endl;
-            //vmime::string tstr;
-            //vmime::utility::outputStreamStringAdapter ostrm(tstr);
-	    //att.getData()->extract(ostrm);
-            //htp->getPlainText()->extract(ostrm);
-	    // Media type (content type) is in "att.getType()"
-	    // Description is in "att.getDescription()"
 	}
     }
 }
@@ -529,8 +539,6 @@ void WombatMail::PopulateEml(FXString mailboxpath)
     std::string contents = "";
     GetMessageContent(&msg, &contents);
     plaintext->setText(FXString(contents.c_str()).substitute('\r', ' '));
-    //std::vector<std::string> attachmentlist;
-    //GetMimeAttachments(&msg, &attachmentlist);
     GetMimeAttachments(&msg);
 }
 
@@ -540,6 +548,7 @@ void WombatMail::PopulateMboxEmail(FXString mailboxpath, FXString curitemtext)
     std::string contents = "";
     GetMessageContent(&(msgs.at(msgid)), &contents);
     plaintext->setText(FXString(contents.c_str()).substitute('\r', ' '));
+    GetMimeAttachments(&(msgs.at(msgid)));
 }
 
 void WombatMail::GetMessageContent(std::string* msg, std::string* content)
