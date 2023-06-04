@@ -398,19 +398,16 @@ long WombatMail::AttachmentSelected(FXObject*, FXSelector, void*)
     const vmime::attachment& att = *vparser.getAttachmentAt(curitemid);
     vmime::byteArray ba;
     vmime::utility::outputStreamByteArrayAdapter bastrm(ba);
-    /*
-    //vmime::string tstr;
-    //vmime::utility::outputStreamAdapter ostrm(tstr);
-    
-    //att.getData()->extract(ostrm);
+    att.getData()->extract(bastrm);
     FXString tmpfilename = "/tmp/" + attachmentlist->getItemText(curitemid);
-    FXString buf = FXString(tstr.c_str()).substitute('\r', ' ');
+    FXString buf = "";
+    for(int i=0; i < ba.size(); i++)
+        buf.append(ba.at(i));
     FXFile* tmpfile = new FXFile(tmpfilename, FXIO::Writing, FXIO::OwnerReadWrite);
     tmpfile->writeBlock(buf.text(), buf.length());
     tmpfile->close();
     std::string defaultopen = "xdg-open " + std::string(tmpfilename.text()) + " &";
     std::system(defaultopen.c_str());
-    */
 
     return 1;
 }
