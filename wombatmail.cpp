@@ -383,31 +383,116 @@ long WombatMail::AttachmentSelected(FXObject*, FXSelector, void*)
     int found1 = rootstring.find(" (");
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
-    FILE* mailboxfile = fopen(mailboxpath.text(), "r");
-    struct stat sb{};
-    std::string msg;
-    stat(mailboxpath.text(), &sb);
-    msg.resize(sb.st_size);
-    fread(const_cast<char*>(msg.data()), sb.st_size, 1, mailboxfile);
-    fclose(mailboxfile);
+    uint8_t mailboxtype = 0x00;
+    mailboxtype = MailBoxType(mailboxpath.text());
     int curitemid = attachmentlist->getCurrentItem();
-    vmime::string msgdata = msg;
-    vmime::shared_ptr<vmime::message> vmsg = vmime::make_shared<vmime::message>();
-    vmsg->parse(msgdata);
-    vmime::messageParser vparser(vmsg);
-    const vmime::attachment& att = *vparser.getAttachmentAt(curitemid);
-    vmime::byteArray ba;
-    vmime::utility::outputStreamByteArrayAdapter bastrm(ba);
-    att.getData()->extract(bastrm);
-    FXString tmpfilename = "/tmp/" + attachmentlist->getItemText(curitemid);
-    FXString buf = "";
-    for(int i=0; i < ba.size(); i++)
-        buf.append(ba.at(i));
-    FXFile* tmpfile = new FXFile(tmpfilename, FXIO::Writing, FXIO::OwnerReadWrite);
-    tmpfile->writeBlock(buf.text(), buf.length());
-    tmpfile->close();
-    std::string defaultopen = "xdg-open " + std::string(tmpfilename.text()) + " &";
-    std::system(defaultopen.c_str());
+    if(mailboxtype == 0x03) // MSG
+    {
+    }
+    else if(mailboxtype == 0x02 || mailboxtype == 0x04) // MBOX || EML
+    {
+        FILE* mailboxfile = fopen(mailboxpath.text(), "r");
+        struct stat sb{};
+        std::string msg;
+        stat(mailboxpath.text(), &sb);
+        msg.resize(sb.st_size);
+        fread(const_cast<char*>(msg.data()), sb.st_size, 1, mailboxfile);
+        fclose(mailboxfile);
+        vmime::string msgdata = msg;
+        vmime::shared_ptr<vmime::message> vmsg = vmime::make_shared<vmime::message>();
+        vmsg->parse(msgdata);
+        vmime::messageParser vparser(vmsg);
+        const vmime::attachment& att = *vparser.getAttachmentAt(curitemid);
+        vmime::byteArray ba;
+        vmime::utility::outputStreamByteArrayAdapter bastrm(ba);
+        att.getData()->extract(bastrm);
+        FXString tmpfilename = "/tmp/" + attachmentlist->getItemText(curitemid);
+        FXString buf = "";
+        for(int i=0; i < ba.size(); i++)
+            buf.append(ba.at(i));
+        FXFile* tmpfile = new FXFile(tmpfilename, FXIO::Writing, FXIO::OwnerReadWrite);
+        tmpfile->writeBlock(buf.text(), buf.length());
+        tmpfile->close();
+        std::string defaultopen = "xdg-open " + std::string(tmpfilename.text()) + " &";
+        std::system(defaultopen.c_str());
+    }
+    else if(mailboxtype == 0x01) // PST/OST
+    {
+        int msgid = tablelist->getItemText(tablelist->getCurrentRow(), 0).toInt() - 1;
+        int reterr = 0;
+        libpff_error_t* pfferr = NULL;
+        if(libpff_check_file_signature(mailboxpath.text(), &pfferr)) // is pst/ost
+        {
+            libpff_file_t* pffile = NULL;
+            reterr = libpff_file_initialize(&pffile, &pfferr);
+            reterr = libpff_file_open(pffile, mailboxpath.text(), LIBPFF_OPEN_READ, &pfferr);
+            libpff_error_fprint(pfferr, stderr);
+            libpff_item_t* rootfolder = NULL;
+            reterr = libpff_file_get_root_folder(pffile, &rootfolder, &pfferr);
+            libpff_error_fprint(pfferr, stderr);
+            libpff_item_t* selectedfolder = NULL;
+            libpff_item_t* tmpitem = NULL;
+            tmpitem = rootfolder;
+            std::string curitemstring = std::string(curitem->getText().text());
+            std::string curitemindex = "";
+            std::map<std::string, std::string>::const_iterator keyval = foldermap.find(curitemstring);
+            if(keyval == foldermap.end())
+            {
+                std::cout << curitemstring << " not in the map, but should be.." << std::endl;
+            }
+            else
+                curitemindex = keyval->second;
+            std::vector<std::string> indexlist;
+            indexlist.clear();
+            std::istringstream indexliststream(curitemindex);
+            std::string curindex;
+            while(getline(indexliststream, curindex, ','))
+                indexlist.push_back(curindex);
+            for(int i = 0; i < indexlist.size(); i++)
+            {
+                libpff_item_t* curitem = NULL;
+                reterr = libpff_folder_get_sub_folder(tmpitem, std::stoi(indexlist.at(i)), &curitem, &pfferr);
+                if(i < indexlist.size() - 1)
+                {
+                    tmpitem = curitem;
+                    curitem = NULL;
+                }
+                else
+                {
+                    selectedfolder = curitem;
+                    tmpitem = NULL;
+                }
+            }
+            libpff_item_t* curmsg = NULL;
+            reterr = libpff_folder_get_sub_message(selectedfolder, msgid, &curmsg, &pfferr);
+            libpff_item_t* curattach = NULL;
+            reterr = libpff_message_get_attachment(curmsg, curitemid, &curattach, &pfferr);
+            size_t attachnamesize = 0;
+            reterr = libpff_message_get_entry_value_utf8_string_size(curattach, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, &attachnamesize, &pfferr);
+            uint8_t attachname[attachnamesize];
+            reterr = libpff_message_get_entry_value_utf8_string(curattach, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, attachname, attachnamesize, &pfferr);
+            size64_t attachsize = 0;
+            reterr = libpff_attachment_get_data_size(curattach, &attachsize, &pfferr);
+            uint8_t attachbuf[attachsize];
+            ssize_t bufread = 0;
+            bufread = libpff_attachment_data_read_buffer(curattach, attachbuf, attachsize, &pfferr);
+            FXString tmpfilename = "/tmp/" + FXString(reinterpret_cast<char*>(attachname));
+            FXString buf = "";
+            for(int i=0; i < attachsize; i++)
+                buf.append((char)attachbuf[i]);
+            FXFile* tmpfile = new FXFile(tmpfilename, FXIO::Writing, FXIO::OwnerReadWrite);
+            tmpfile->writeBlock(buf.text(), buf.length());
+            tmpfile->close();
+            std::string defaultopen = "xdg-open \"" + std::string(tmpfilename.text()) + "\" &";
+            std::system(defaultopen.c_str());
+            reterr = libpff_item_free(&curmsg, &pfferr);
+            reterr = libpff_item_free(&selectedfolder, &pfferr);
+            reterr = libpff_item_free(&rootfolder, &pfferr);
+            reterr = libpff_file_close(pffile, &pfferr);
+            reterr = libpff_file_free(&pffile, &pfferr);
+        }
+        libpff_error_free(&pfferr);
+    }
 
     return 1;
 }
@@ -475,8 +560,8 @@ void WombatMail::PopulatePstEmail(FXString mailboxpath, FXString curitemtext)
 	reterr = libpff_message_get_plain_text_body(curmsg, msgbody, msgbodysize, &pfferr);
 	msgbodystr += FXString(reinterpret_cast<char*>(msgbody));
 	plaintext->setText(msgbodystr.substitute('\r', ' '));
-	/*
 	// POPULATE ATTACHMENT PORTIONS
+        attachmentlist->clearItems();
 	int attachcnt = 0;
 	reterr = libpff_message_get_number_of_attachments(curmsg, &attachcnt, &pfferr);
 	libpff_error_fprint(pfferr, stderr);
@@ -488,17 +573,8 @@ void WombatMail::PopulatePstEmail(FXString mailboxpath, FXString curitemtext)
 	    reterr = libpff_message_get_entry_value_utf8_string_size(curattach, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, &attachnamesize, &pfferr);
 	    uint8_t attachname[attachnamesize];
 	    reterr = libpff_message_get_entry_value_utf8_string(curattach, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, attachname, attachnamesize, &pfferr);
-	    //qDebug() << "Attachment Name:" << QString::fromUtf8(reinterpret_cast<char*>(attachname));
-	    size64_t attachsize = 0;
-	    reterr = libpff_attachment_get_data_size(curattach, &attachsize, &pfferr);
-	    QString attachstr = QString::fromUtf8(reinterpret_cast<char*>(attachname)) + " (" + QString::number(attachsize) + " bytes)";
-	    //tmpitem->setText(attachstr);
-	    ui->listwidget->addItem(new QListWidgetItem(attachstr));
-	    //uint8_t attachbuf[attachsize];
-	    //ssize_t bufread = 0;
-	    //bufread = libpff_attachment_data_read_buffer(curattach, attachbuf, attachsize, &pfferr);
+            attachmentlist->appendItem(FXString(reinterpret_cast<char*>(attachname)));
 	}
-	*/
 	reterr = libpff_item_free(&curmsg, &pfferr);
 	reterr = libpff_item_free(&selectedfolder, &pfferr);
 	reterr = libpff_item_free(&rootfolder, &pfferr);
