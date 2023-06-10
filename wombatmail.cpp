@@ -309,7 +309,7 @@ long WombatMail::MailBoxSelected(FXObject* sender, FXSelector, void*)
     {
 	PopulateMsg(mailboxpath.text());
     }
-    else
+    else if(mailboxtype == 0x04) // EML
     {
 	PopulateEml(mailboxpath.text());
     }
@@ -962,6 +962,15 @@ uint8_t WombatMail::MailBoxType(std::string mailboxpath)
 
 void WombatMail::PopulateMsg(std::string mailboxpath)
 {
+    int ret = 0;
+    libolecf_error_t* err = NULL;
+    if(libolecf_check_file_signature(mailboxpath.c_str(), &err))
+    {
+        //libolectf_error_fprint(err, stderr);
+    }
+    else
+        std::cout << "not valid msg..." << std::endl;
+    libolecf_error_free(&err);
 }
 
 void WombatMail::PopulateMbox(std::string mailboxpath)
