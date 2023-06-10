@@ -966,7 +966,31 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     libolecf_error_t* err = NULL;
     if(libolecf_check_file_signature(mailboxpath.c_str(), &err))
     {
-        //libolectf_error_fprint(err, stderr);
+        libolecf_file_t* olecfile = NULL;
+        ret = libolecf_file_initialize(&olecfile, &err);
+        if(ret == -1)
+            libolecf_error_fprint(err, stderr);
+        ret = libolecf_file_open(olecfile, mailboxpath.c_str(), libolecf_get_access_flags_read(), &err);
+        if(ret == -1)
+            libolecf_error_fprint(err, stderr);
+        size32_t sectorsize = 0;
+        libolecf_file_get_sector_size(olecfile, &sectorsize, &err);
+        std::cout << "sector size: " << sectorsize << std::endl;
+        libolecf_item_t* rootitem = NULL;
+        libolecf_file_get_root_item(olecfile, &rootitem, &err);
+        size_t namesize = 0;
+        libolecf_item_get_utf8_name_size(rootitem, &namesize, &err);
+        uint8_t name[namesize];
+        libolecf_item_get_utf8_name(rootitem, name, namesize, &err);
+        std::cout << "item name: " << (unsigned char*)name << std::endl;
+        int subitemcnt = 0;
+        libolecf_item_get_number_of_sub_items(rootitem, &subitemcnt, &err);
+        std::cout << "sub item count: " << subitemcnt << std::endl;
+
+
+        libolecf_item_free(&rootitem, &err);
+        libolecf_file_close(olecfile, &err);
+        libolecf_file_free(&olecfile, &err);
     }
     else
         std::cout << "not valid msg..." << std::endl;
