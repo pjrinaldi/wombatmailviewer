@@ -986,6 +986,20 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
         int subitemcnt = 0;
         libolecf_item_get_number_of_sub_items(rootitem, &subitemcnt, &err);
         std::cout << "sub item count: " << subitemcnt << std::endl;
+        for(int i=0; i < subitemcnt; i++)
+        {
+            libolecf_item_t* subitem = NULL;
+            libolecf_item_get_sub_item(rootitem, i, &subitem, &err);
+            uint8_t type = 0;
+            libolecf_item_get_type(subitem, &type, &err);
+            uint32_t subitemsize = 0;
+            libolecf_item_get_size(subitem, &subitemsize, &err);
+            if(subitemsize > 0)
+            {
+                std::cout << "sub item size: " << subitemsize << std::endl;
+                std::cout << "sub item " << i << ": type: " << (uint)type << std::endl;
+            }
+        }
 
 
         libolecf_item_free(&rootitem, &err);
