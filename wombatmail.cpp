@@ -994,10 +994,36 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
             libolecf_item_get_type(subitem, &type, &err);
             uint32_t subitemsize = 0;
             libolecf_item_get_size(subitem, &subitemsize, &err);
-            if(subitemsize > 0)
+	    size_t subnamesize = 0;
+	    libolecf_item_get_utf8_name_size(subitem, &subnamesize, &err);
+	    uint8_t subname[subnamesize];
+	    libolecf_item_get_utf8_name(subitem, name, namesize, &err);
+            //if(subitemsize > 0)
             {
+		/*
+		LIBOLECF_ITEM_TYPE_EMPTY                                        = 0x00,
+		LIBOLECF_ITEM_TYPE_STORAGE                                      = 0x01,
+		LIBOLECF_ITEM_TYPE_STREAM                                       = 0x02,
+		LIBOLECF_ITEM_TYPE_LOCK_BYTES                                   = 0x03,
+		LIBOLECF_ITEM_TYPE_PROPERTY                                     = 0x04,
+		LIBOLECF_ITEM_TYPE_ROOT_STORAGE                                 = 0x05
+		 */ 
                 std::cout << "sub item size: " << subitemsize << std::endl;
-                std::cout << "sub item " << i << ": type: " << (uint)type << std::endl;
+                std::cout << "sub item " << i << ": type: " << (uint)type;
+		if(type == 0x00)
+		    std::cout << " empty";
+		else if(type == 0x01)
+		    std::cout << " storage";
+		else if(type == 0x02)
+		    std::cout << " stream";
+		else if(type == 0x03)
+		    std::cout << " lock bytes";
+		else if(type == 0x04)
+		    std::cout << " property";
+		else if(type == 0x05)
+		    std::cout << " root storage";
+		std::cout << std::endl;
+		std::cout << "sub item name: " << (unsigned char*)subname << std::endl;
             }
         }
 
