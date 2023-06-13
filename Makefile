@@ -1,4 +1,4 @@
-OBJECTS = icons.o wombatmail.o managetags.o aboutbox.o viewer.o
+OBJECTS = icons.o wombatmail.o managetags.o aboutbox.o viewer.o pole/pole.o pole/msg.o
 
 ICONS = resources/folder-open.png resources/help-contents.png resources/managetags.png resources/paperairplane2.png resources/reportpreview1.png resources/wombat_32.ico resources/bookmark.png resources/bookmark-new.png resources/bookmark-rem.png resources/aboutwombat.png resources/mail.png
 
@@ -9,6 +9,6 @@ icons: $(ICONS) icons.h
 # Link it all together
 
 wombatmail: $(OBJECTS)
-	g++ -O3 -o wombatmail $(OBJECTS) -lX11 -lXext -lXft -lfontconfig -lfreetype -lXcursor -lXrender -lXrandr -lXfixes -lXi -lGLU -lGL -ldl -lpthread -ljpeg -lrt -lpng -ltiff -lz -lbz2 -lcrypto -lgsasl -licuuc libFOX-1.7.a libpff.a libolecf.a libvmime.a
+	g++ -O3 -o wombatmail $(OBJECTS) -lX11 -lXext -lXft -lfontconfig -lfreetype -lXcursor -lXrender -lXrandr -lXfixes -lXi -lGLU -lGL -ldl -lpthread -ljpeg -lrt -lpng -ltiff -lz -lbz2 -lcrypto -lgsasl -licuuc libFOX-1.7.a libpff.a libvmime.a #libolecf.a
 
-wombatmail.o: wombatmail.cpp icons.h managetags.cpp aboutbox.cpp viewer.cpp
+wombatmail.o: wombatmail.cpp icons.h managetags.cpp aboutbox.cpp viewer.cpp pole/pole.cpp pole/msg.cpp

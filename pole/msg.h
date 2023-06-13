@@ -44,7 +44,7 @@ class Msg
     std::string m_Bcc;
     std::string m_date;
     std::string m_body;
-    std::string m_hash;
+    //std::string m_hash;
     bool m_hasAttachments;
 
   protected:
@@ -72,7 +72,7 @@ class Msg
     const std::string subject();
     const std::string date();
     const std::string& body();
-    const std::string hash();
+    //const std::string hash();
 
     bool hasAttachments();
 

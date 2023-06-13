@@ -21,8 +21,10 @@
 #include "icons.h"
 
 #include "libpff.h"
-#include "libolecf.h"
+//#include "libolecf.h"
 #include "vmime/vmime.hpp"
+#include "pole/pole.h"
+#include "pole/msg.h"
 
 #include "managetags.h"
 #include "aboutbox.h"

@@ -911,10 +911,12 @@ uint8_t WombatMail::MailBoxType(std::string mailboxpath)
 {
     uint8_t mailboxtype = 0x00;
     libpff_error_t* pfferr = NULL;
-    libolecf_error_t* olecerr = NULL;
+    POLE::Storage* pmsg = new POLE::Storage(mailboxpath.c_str());
+    //libolecf_error_t* olecerr = NULL;
     if(libpff_check_file_signature(mailboxpath.c_str(), &pfferr)) // is pst/ost
 	mailboxtype = 0x01; // PST/OST
-    else if(libolecf_check_file_signature(mailboxpath.c_str(), &olecerr)) // is msg
+    else if(pmsg->open()) // is msg
+    //else if(libolecf_check_file_signature(mailboxpath.c_str(), &olecerr)) // is msg
     {
         mailboxtype = 0x03; // MSG
     }
@@ -954,14 +956,40 @@ uint8_t WombatMail::MailBoxType(std::string mailboxpath)
 	    }
 	}
     }
-    libolecf_error_free(&olecerr);
+    //libolecf_error_free(&olecerr);
     libpff_error_free(&pfferr);
+    pmsg = NULL;
 
     return mailboxtype;
 }
 
 void WombatMail::PopulateMsg(std::string mailboxpath)
 {
+    // pole/msg method
+    Core::Msg* pmsg = NULL;
+    pmsg = new Core::Msg(mailboxpath.c_str());
+    if(pmsg != NULL)
+    {
+        std::string sender = pmsg->senderName();
+        std::cout << "Sender Name: " << sender << std::endl;
+        std::string senderaddr = pmsg->senderAddress();
+        std::cout << "Sender Address: " << senderaddr << std::endl;
+        std::string recnames = pmsg->receiversNames();
+        std::cout << "Receivers: " << recnames << std::endl;
+        bool hasattach = pmsg->hasAttachments();
+        std::cout << "Has Attachments: " << hasattach << std::endl;
+    }
+    /*
+    // pole method
+    POLE::Storage* polemsg = new POLE::Storage(mailboxpath.c_str());
+    if(polemsg->open())
+    {
+        std::string sender = getStringFromStream("__substg1.0_0C1A001F");
+        std::cout << "polemsg is open... working so far." << std::endl;
+    }
+    */
+    // libolecf way
+    /*
     int ret = 0;
     libolecf_error_t* err = NULL;
     if(libolecf_check_file_signature(mailboxpath.c_str(), &err))
@@ -999,15 +1027,13 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
 	    uint8_t subname[subnamesize];
 	    libolecf_item_get_utf8_name(subitem, name, namesize, &err);
             //if(subitemsize > 0)
-            {
-		/*
-		LIBOLECF_ITEM_TYPE_EMPTY                                        = 0x00,
-		LIBOLECF_ITEM_TYPE_STORAGE                                      = 0x01,
-		LIBOLECF_ITEM_TYPE_STREAM                                       = 0x02,
-		LIBOLECF_ITEM_TYPE_LOCK_BYTES                                   = 0x03,
-		LIBOLECF_ITEM_TYPE_PROPERTY                                     = 0x04,
-		LIBOLECF_ITEM_TYPE_ROOT_STORAGE                                 = 0x05
-		 */ 
+            //{
+		//LIBOLECF_ITEM_TYPE_EMPTY                                        = 0x00,
+		//LIBOLECF_ITEM_TYPE_STORAGE                                      = 0x01,
+		//LIBOLECF_ITEM_TYPE_STREAM                                       = 0x02,
+		//LIBOLECF_ITEM_TYPE_LOCK_BYTES                                   = 0x03,
+		//LIBOLECF_ITEM_TYPE_PROPERTY                                     = 0x04,
+		//LIBOLECF_ITEM_TYPE_ROOT_STORAGE                                 = 0x05
                 std::cout << "sub item size: " << subitemsize << std::endl;
                 std::cout << "sub item " << i << ": type: " << (uint)type;
 		if(type == 0x00)
@@ -1024,7 +1050,7 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
 		    std::cout << " root storage";
 		std::cout << std::endl;
 		std::cout << "sub item name: " << (unsigned char*)subname << std::endl;
-            }
+            //}
         }
 
 
@@ -1035,6 +1061,7 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     else
         std::cout << "not valid msg..." << std::endl;
     libolecf_error_free(&err);
+    */
 }
 
 void WombatMail::PopulateMbox(std::string mailboxpath)

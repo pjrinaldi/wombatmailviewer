@@ -33,7 +33,7 @@
 
 // local
 #include "msg.h"
-#include "md5.hh"
+//#include "md5.hh"
 
 namespace Core
 {
@@ -107,6 +107,7 @@ const std::string& Msg::body()
     return m_body;
 }
 
+/*
 const std::string Msg::hash()
 {
     if (m_hash.empty()) {
@@ -115,6 +116,7 @@ const std::string Msg::hash()
     }
     return m_hash;
 }
+*/
 
 bool Msg::hasAttachments()
 {
@@ -313,7 +315,7 @@ Msg::Msg(Msg&& rhs)
       m_ReceiversNames(std::move(rhs.m_ReceiversNames)),
       m_ReceiversAddresses(std::move(rhs.m_ReceiversAddresses)), m_Subject(std::move(rhs.m_Subject)),
       m_CC(std::move(rhs.m_CC)), m_Bcc(std::move(rhs.m_Bcc)), m_date(std::move(rhs.m_date)),
-      m_body(std::move(rhs.m_body)), m_hash(std::move(rhs.m_hash)),
+      m_body(std::move(rhs.m_body)), //m_hash(std::move(rhs.m_hash)),
       m_hasAttachments(std::move(rhs.m_hasAttachments))
 {
     m_File     = rhs.m_File;
@@ -334,7 +336,7 @@ Msg& Msg::operator=(Msg&& rhs)
         m_Bcc                = std::move(rhs.m_Bcc);
         m_date               = std::move(rhs.m_date);
         m_body               = std::move(rhs.m_body);
-        m_hash               = std::move(rhs.m_hash);
+        //m_hash               = std::move(rhs.m_hash);
         m_hasAttachments     = std::move(rhs.m_hasAttachments);
         m_File               = rhs.m_File;
         rhs.m_File           = nullptr;
