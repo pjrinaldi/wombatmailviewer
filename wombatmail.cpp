@@ -1123,7 +1123,7 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
 		else if(type == 0x05)
 		    std::cout << " root storage";
 		std::cout << std::endl;
-		std::cout << "sub item name: " << (unsigned char*)subname << std::endl;
+		//std::cout << "sub item name: " << (unsigned char*)subname << std::endl;
             //}
         }
 
