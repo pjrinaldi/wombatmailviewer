@@ -182,6 +182,16 @@ bool Msg::open(const char* arg1)
             m_SenderAddress = getStringFromStream("__substg1.0_5D01001F");
         if (m_SenderAddress.empty())
             m_SenderAddress = getStringFromStream("__substg1.0_5D02001F");
+        if (m_SenderAddress.empty())
+            m_SenderAddress = getString8FromStream("__substg1.0_0065001E");
+        if (m_SenderAddress.empty())
+            m_SenderAddress = getString8FromStream("__substg1.0_0C1F001E");
+        if (m_SenderAddress.empty())
+            m_SenderAddress = getString8FromStream("__substg1.0_5D01001E");
+        if (m_SenderAddress.empty())
+            m_SenderAddress = getString8FromStream("__substg1.0_5D02001E");
+        if (m_SenderAddress.empty())
+            m_SenderAddress = getString8FromStream("__substg1.0_3003001E");
 
         // Subject
         m_Subject = getStringFromStream("__substg1.0_0070001F");
