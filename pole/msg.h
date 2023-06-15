@@ -50,6 +50,7 @@ class Msg
   protected:
     const std::string getDateTimeFromStream(const char* stream);
     const std::string getStringFromStream(const char* stream);
+    const std::string getString8FromStream(const char* stream);
     void visit(int indent, POLE::Storage* storage, std::string path);
 
   public:

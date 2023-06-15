@@ -163,6 +163,12 @@ bool Msg::open(const char* arg1)
             m_SenderName = getStringFromStream("__substg1.0_3FFA001F");
         if (m_SenderName.empty())
             m_SenderName = getStringFromStream("__substg1.0_0042001F");
+        if (m_SenderName.empty())
+            m_SenderName = getString8FromStream("__substg1.0_0C1A001E");
+        if (m_SenderName.empty())
+            m_SenderName = getString8FromStream("__substg1.0_0042001E");
+        if (m_SenderName.empty())
+            m_SenderName = getString8FromStream("__substg1.0_3FFA001E");
 
         // Sender Address
         m_SenderAddress = getStringFromStream("__substg1.0_0065001F");
@@ -299,6 +305,21 @@ const std::string Msg::getStringFromStream(const char* stream)
                 helper.resize(helper.length() - 1);
         ret = converter.to_bytes(helper);
     }
+    return ret;
+}
+
+const std::string Msg::getString8FromStream(const char* stream)
+{
+    std::string ret;
+    POLE::Stream requested_stream(m_File, stream);
+    unsigned char buffer[requested_stream.size()];
+    if(!requested_stream.fail())
+    {
+        ret.reserve(requested_stream.size());
+        requested_stream.read(buffer, sizeof(buffer));
+        ret = std::string(reinterpret_cast<char*>(buffer));
+    }
+
     return ret;
 }
 
