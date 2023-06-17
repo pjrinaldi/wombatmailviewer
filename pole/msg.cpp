@@ -215,16 +215,26 @@ bool Msg::open(const char* arg1)
 
         // BCC
         m_Bcc = getStringFromStream("__substg1.0_0E02001F");
+        if (m_Bcc.empty())
+            m_Bcc = getString8FromStream("__substg1.0_0E02001E");
         // CC
         m_CC = getStringFromStream("__substg1.0_0E03001F");
+        if (m_CC.empty())
+            m_CC = getString8FromStream("__substg1.0_0E03001E");
 
         // Receivers Names
         m_ReceiversNames = getStringFromStream("__substg1.0_0E04001F");
+        if (m_ReceiversNames.empty())
+            m_ReceiversNames = getString8FromStream("__substg1.0E04001E");
 
         // Receivers Addresses
         m_ReceiversAddresses = getStringFromStream("__substg1.0_5D01001F");
         if (m_ReceiversAddresses.empty())
             m_ReceiversAddresses = getStringFromStream("__substg1.0_5D09001F");
+        if (m_ReceiversAddresses.empty())
+            m_ReceiversAddresses = getString8FromStream("__substg1.0_5D01001E");
+        if (m_ReceiversAddresses.empty())
+            m_ReceiversAddresses = getString8FromStream("__substg1.0_5D09001E");
 
         // Sent date
         m_date = getDateTimeFromStream("__properties_version1.0");
