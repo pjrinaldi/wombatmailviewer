@@ -981,8 +981,22 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
 	std::string recnames = pmsg->receiversNames();
 	std::string recaddrs = pmsg->receiversAddresses();
 	std::cout << "recnames: " << recnames << std::endl << "recaddrs: " << recaddrs << std::endl;
+        std::string ccs = pmsg->CCs();
+        std::string bccs = pmsg->Bccs();
+        std::string subject = pmsg->subject();
+        std::string msgdate = pmsg->date();
+        std::string msgbody = pmsg->body();
+        std::cout << "ccs: " << ccs << std::endl << "bccs: " << bccs << std::endl << "subject: " << subject;
+        std::cout << std::endl << "date: " << msgdate << std::endl << "body: " << msgbody << std::endl;
 	content.append("\n");
 	plaintext->setText(FXString(content.c_str()));
+        /*
+    const std::string CCs();
+    const std::string Bccs();
+    const std::string subject();
+    const std::string date();
+    const std::string& body();
+         */ 
 
         //std::string recnames = pmsg->receiversNames();
         //std::cout << "Receivers: " << recnames << std::endl;

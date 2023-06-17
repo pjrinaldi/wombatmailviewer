@@ -98,6 +98,8 @@ void Msg::loadBody()
 {
     if (m_body.empty() && m_Opened) {
         m_body = getStringFromStream("__substg1.0_1000001F");
+        if (m_body.empty())
+            m_body = getString8FromStream("__substg1.0_1000001E");
     }
 }
 
@@ -225,7 +227,7 @@ bool Msg::open(const char* arg1)
         // Receivers Names
         m_ReceiversNames = getStringFromStream("__substg1.0_0E04001F");
         if (m_ReceiversNames.empty())
-            m_ReceiversNames = getString8FromStream("__substg1.0E04001E");
+            m_ReceiversNames = getString8FromStream("__substg1.0_0E04001E");
 
         // Receivers Addresses
         m_ReceiversAddresses = getStringFromStream("__substg1.0_5D01001F");
