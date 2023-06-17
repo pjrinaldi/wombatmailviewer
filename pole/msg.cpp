@@ -199,6 +199,12 @@ bool Msg::open(const char* arg1)
             m_Subject = getStringFromStream("__substg1.0_0E1D001F");
         if (m_Subject.empty())
             m_Subject = getStringFromStream("__substg1.0_0037001F");
+        if (m_Subject.empty())
+            m_Subject = getString8FromStream("__substg1.0_0070001E");
+        if (m_Subject.empty())
+            m_Subject = getString8FromStream("__substg1.0_0E1D001E");
+        if (m_Subject.empty())
+            m_Subject = getString8FromStream("__substg1.0_0037001E");
 
         std::transform(m_Subject.begin(), m_Subject.end(), m_Subject.begin(), [](char c) -> char {
             if (c == '\'')
