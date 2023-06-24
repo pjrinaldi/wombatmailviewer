@@ -160,6 +160,7 @@ bool Msg::open(const char* arg1)
     m_Opened = m_File->open();
     if (m_Opened) {
         // Look for Sender Name
+        m_SenderName = "";
         m_SenderName = getStringFromStream("__substg1.0_0C1A001F");
         if (m_SenderName.empty())
             m_SenderName = getStringFromStream("__substg1.0_3FFA001F");
@@ -196,6 +197,7 @@ bool Msg::open(const char* arg1)
             m_SenderAddress = getString8FromStream("__substg1.0_3003001E");
 
         // Subject
+        m_Subject = "";
         m_Subject = getStringFromStream("__substg1.0_0070001F");
         if (m_Subject.empty())
             m_Subject = getStringFromStream("__substg1.0_0E1D001F");
