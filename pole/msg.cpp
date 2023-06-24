@@ -199,16 +199,22 @@ bool Msg::open(const char* arg1)
         // Subject
         m_Subject = "";
         m_Subject = getStringFromStream("__substg1.0_0070001F");
+        //std::cout << "subj 1: " << m_Subject << std::endl;
         if (m_Subject.empty())
             m_Subject = getStringFromStream("__substg1.0_0E1D001F");
+        //std::cout << "subj 2: " << m_Subject << std::endl;
         if (m_Subject.empty())
             m_Subject = getStringFromStream("__substg1.0_0037001F");
+        //std::cout << "subj 3: " << m_Subject << std::endl;
         if (m_Subject.empty())
             m_Subject = getString8FromStream("__substg1.0_0070001E");
+        //std::cout << "subj 4: " << m_Subject << std::endl;
         if (m_Subject.empty())
             m_Subject = getString8FromStream("__substg1.0_0E1D001E");
+        //std::cout << "subj 5: " << m_Subject << std::endl;
         if (m_Subject.empty())
             m_Subject = getString8FromStream("__substg1.0_0037001E");
+        //std::cout << "subj 6: " << m_Subject << std::endl;
 
         std::transform(m_Subject.begin(), m_Subject.end(), m_Subject.begin(), [](char c) -> char {
             if (c == '\'')
@@ -218,20 +224,26 @@ bool Msg::open(const char* arg1)
         });
 
         // BCC
+        m_Bcc = "";
         m_Bcc = getStringFromStream("__substg1.0_0E02001F");
         if (m_Bcc.empty())
             m_Bcc = getString8FromStream("__substg1.0_0E02001E");
         // CC
+        m_CC = "";
         m_CC = getStringFromStream("__substg1.0_0E03001F");
         if (m_CC.empty())
             m_CC = getString8FromStream("__substg1.0_0E03001E");
 
         // Receivers Names
+        m_ReceiversNames = "";
         m_ReceiversNames = getStringFromStream("__substg1.0_0E04001F");
+        std::cout << "recnames 1: " << m_ReceiversNames << std::endl;
         if (m_ReceiversNames.empty())
             m_ReceiversNames = getString8FromStream("__substg1.0_0E04001E");
+        std::cout << "recnames 2: " << m_ReceiversNames << std::endl;
 
         // Receivers Addresses
+        m_ReceiversAddresses = "";
         m_ReceiversAddresses = getStringFromStream("__substg1.0_5D01001F");
         if (m_ReceiversAddresses.empty())
             m_ReceiversAddresses = getStringFromStream("__substg1.0_5D09001F");
@@ -241,6 +253,7 @@ bool Msg::open(const char* arg1)
             m_ReceiversAddresses = getString8FromStream("__substg1.0_5D09001E");
 
         // Sent date
+        m_date = "";
         m_date = getDateTimeFromStream("__properties_version1.0");
 
         // If has attachments.
@@ -340,14 +353,17 @@ const std::string Msg::getStringFromStream(const char* stream)
 
 const std::string Msg::getString8FromStream(const char* stream)
 {
-    std::string ret;
+    std::string ret = "";
     POLE::Stream requested_stream(m_File, stream);
     unsigned char buffer[requested_stream.size()];
+    std::cout << "reg stream size: " << requested_stream.size() << std::endl;
     if(!requested_stream.fail())
     {
         ret.reserve(requested_stream.size());
+        std::cout << "sizeof buffer: " << sizeof(buffer) << std::endl;
         requested_stream.read(buffer, sizeof(buffer));
         ret = std::string(reinterpret_cast<char*>(buffer));
+        ret[requested_stream.size()] = 0;
     }
 
     return ret;
