@@ -237,10 +237,10 @@ bool Msg::open(const char* arg1)
         // Receivers Names
         m_ReceiversNames = "";
         m_ReceiversNames = getStringFromStream("__substg1.0_0E04001F");
-        std::cout << "recnames 1: " << m_ReceiversNames << std::endl;
+        //std::cout << "recnames 1: " << m_ReceiversNames << std::endl;
         if (m_ReceiversNames.empty())
             m_ReceiversNames = getString8FromStream("__substg1.0_0E04001E");
-        std::cout << "recnames 2: " << m_ReceiversNames << std::endl;
+        //std::cout << "recnames 2: " << m_ReceiversNames << std::endl;
 
         // Receivers Addresses
         m_ReceiversAddresses = "";
@@ -355,15 +355,15 @@ const std::string Msg::getString8FromStream(const char* stream)
 {
     std::string ret = "";
     POLE::Stream requested_stream(m_File, stream);
-    unsigned char buffer[requested_stream.size()];
-    std::cout << "reg stream size: " << requested_stream.size() << std::endl;
+    unsigned char buffer[requested_stream.size() + 1];
+    //std::cout << "reg stream size: " << requested_stream.size() << std::endl;
     if(!requested_stream.fail())
     {
-        ret.reserve(requested_stream.size());
-        std::cout << "sizeof buffer: " << sizeof(buffer) << std::endl;
+        ret.reserve(requested_stream.size() + 1);
+        //std::cout << "sizeof buffer: " << sizeof(buffer) << std::endl;
         requested_stream.read(buffer, sizeof(buffer));
+        buffer[requested_stream.size()] = '\0';
         ret = std::string(reinterpret_cast<char*>(buffer));
-        ret[requested_stream.size()] = 0;
     }
 
     return ret;
