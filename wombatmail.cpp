@@ -993,9 +993,41 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
         while(getline(rastream, ra, ';'))
             raddrs.push_back(ra);
         //std::cout << "a n :" << raddrs.size() << " " << rnames.size() << std::endl;
-        if(raddrs.size() == 0 || rnames.size() == 0)
+        if(raddrs.size() == 0) // no addresses, just display names
         {
-            std::cout << "addr or names is zero, so i need to figure it out..." << std::endl;
+            for(int i=0; i < rnames.size(); i++)
+            {
+                content.append(rnames.at(i));
+                if(i < rnames.size() - 1)
+                    content.append(";");
+            }
+        }
+        else if(raddrs.size() > 0 && rnames.size() == 0) // no names, just display addresses
+        {
+            for(int i=0; i < raddrs.size(); i++)
+            {
+                content.append(raddrs.at(i));
+                if(i < raddrs.size() - 1)
+                    content.append(";");
+            }
+        }
+        else if(raddrs.size() > 0 && rnames.size() > 0)
+        {
+            if(raddrs.size() < rnames.size()) // more names than addresses
+            {
+            }
+            else if(raddrs.size() > rnames.size()) // more addresses than names
+            {
+            }
+            else if(raddrs.size() == rnames.size()) // equal amount of addresses and names
+            {
+                for(int i=0; i < raddrs.size(); i++)
+                {
+                    content.append(rnames.at(i) + " <" + raddrs.at(i) + ">");
+                    if(i < raddrs.size() - 1)
+                        content.append(";");
+                }
+            }
         }
         content.append("\n");
 	//std::cout << "recnames: " << recnames << std::endl << "recaddrs: " << recaddrs << std::endl;
@@ -1022,12 +1054,16 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
         content.append(msgdate);
         content.append("\n");
         std::string msgbody = pmsg->body();
+        content.append("----------\n");
         content.append("\n");
-        content.append("Body:\n");
         content.append(msgbody);
         //std::cout << "ccs: " << ccs << std::endl << "bccs: " << bccs << std::endl << "subject: " << subject;
         //std::cout << std::endl << "date: " << msgdate << std::endl << "body: " << msgbody << std::endl;
-	content.append("\n");
+	content.append("\n\n");
+        std::string msgheader = pmsg->header();
+        content.append("----------\n");
+        content.append(msgheader);
+        content.append("\n");
 	plaintext->setText(FXString(content.c_str()).substitute('\r', ' '));
         /*
     const std::string CCs();

@@ -109,6 +109,11 @@ const std::string& Msg::body()
     return m_body;
 }
 
+const std::string Msg::header()
+{
+    return m_header;
+}
+
 /*
 const std::string Msg::hash()
 {
@@ -256,6 +261,12 @@ bool Msg::open(const char* arg1)
         m_date = "";
         m_date = getDateTimeFromStream("__properties_version1.0");
 
+        // Header
+        m_header = "";
+        m_header = getStringFromStream("__substg1.0_007D001F");
+        if(m_header.empty())
+            m_header = getString8FromStream("__substg1.0_007D001E");
+
         // If has attachments.
         m_hasAttachments = m_File->exists("__attach_version1.0_#00000000");
     }
@@ -275,6 +286,7 @@ void Msg::close()
     m_Bcc.clear();
     m_date.clear();
     m_body.clear();
+    m_header.clear();
     m_hasAttachments = false;
     m_Opened         = false;
 
@@ -391,6 +403,7 @@ Msg::Msg(Msg&& rhs)
       m_ReceiversAddresses(std::move(rhs.m_ReceiversAddresses)), m_Subject(std::move(rhs.m_Subject)),
       m_CC(std::move(rhs.m_CC)), m_Bcc(std::move(rhs.m_Bcc)), m_date(std::move(rhs.m_date)),
       m_body(std::move(rhs.m_body)), //m_hash(std::move(rhs.m_hash)),
+      m_header(std::move(rhs.m_header)),
       m_hasAttachments(std::move(rhs.m_hasAttachments))
 {
     m_File     = rhs.m_File;
@@ -411,6 +424,7 @@ Msg& Msg::operator=(Msg&& rhs)
         m_Bcc                = std::move(rhs.m_Bcc);
         m_date               = std::move(rhs.m_date);
         m_body               = std::move(rhs.m_body);
+        m_header             = std::move(rhs.m_header);
         //m_hash               = std::move(rhs.m_hash);
         m_hasAttachments     = std::move(rhs.m_hasAttachments);
         m_File               = rhs.m_File;
