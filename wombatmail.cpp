@@ -999,7 +999,7 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
             {
                 content.append(rnames.at(i));
                 if(i < rnames.size() - 1)
-                    content.append(";");
+                    content.append("; ");
             }
         }
         else if(raddrs.size() > 0 && rnames.size() == 0) // no names, just display addresses
@@ -1008,16 +1008,32 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
             {
                 content.append(raddrs.at(i));
                 if(i < raddrs.size() - 1)
-                    content.append(";");
+                    content.append("; ");
             }
         }
         else if(raddrs.size() > 0 && rnames.size() > 0)
         {
             if(raddrs.size() < rnames.size()) // more names than addresses
             {
+                for(int i=0; i < raddrs.size(); i++)
+                    content.append(rnames.at(i) + " <" + raddrs.at(i) + ">; ");
+                for(int i = raddrs.size(); i < rnames.size(); i++)
+                {
+                    content.append(rnames.at(i));
+                    if(i < rnames.size() - 1)
+                        content.append("; ");
+                }
             }
             else if(raddrs.size() > rnames.size()) // more addresses than names
             {
+                for(int i=0; i < rnames.size(); i++)
+                    content.append(rnames.at(i) + " <" + raddrs.at(i) + ">; ");
+                for(int i = rnames.size(); i < raddrs.size(); i++)
+                {
+                    content.append(raddrs.at(i));
+                    if(i < raddrs.size() - 1)
+                        content.append("; ");
+                }
             }
             else if(raddrs.size() == rnames.size()) // equal amount of addresses and names
             {
@@ -1025,7 +1041,7 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
                 {
                     content.append(rnames.at(i) + " <" + raddrs.at(i) + ">");
                     if(i < raddrs.size() - 1)
-                        content.append(";");
+                        content.append("; ");
                 }
             }
         }
