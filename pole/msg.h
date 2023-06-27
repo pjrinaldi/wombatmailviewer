@@ -47,11 +47,13 @@ class Msg
     std::string m_header;
     //std::string m_hash;
     bool m_hasAttachments;
+    uint32_t m_attachmentCount = 0;
 
   protected:
     const std::string getDateTimeFromStream(const char* stream);
     const std::string getStringFromStream(const char* stream);
     const std::string getString8FromStream(const char* stream);
+    const uint32_t getAttachmentCountFromStream(const char* stream);
     void visit(int indent, POLE::Storage* storage, std::string path);
 
   public:
@@ -78,6 +80,8 @@ class Msg
     //const std::string hash();
 
     bool hasAttachments();
+
+    uint32_t attachmentCount();
 
     void close();
 

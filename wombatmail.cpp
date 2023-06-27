@@ -992,7 +992,6 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
         std::string ra;
         while(getline(rastream, ra, ';'))
             raddrs.push_back(ra);
-        //std::cout << "a n :" << raddrs.size() << " " << rnames.size() << std::endl;
         if(raddrs.size() == 0) // no addresses, just display names
         {
             for(int i=0; i < rnames.size(); i++)
@@ -1046,7 +1045,6 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
             }
         }
         content.append("\n");
-	//std::cout << "recnames: " << recnames << std::endl << "recaddrs: " << recaddrs << std::endl;
         std::string ccs = pmsg->CCs();
         if(!ccs.empty())
         {
@@ -1073,91 +1071,16 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
         content.append("----------\n");
         content.append("\n");
         content.append(msgbody);
-        //std::cout << "ccs: " << ccs << std::endl << "bccs: " << bccs << std::endl << "subject: " << subject;
-        //std::cout << std::endl << "date: " << msgdate << std::endl << "body: " << msgbody << std::endl;
 	content.append("\n\n");
         std::string msgheader = pmsg->header();
         content.append("----------\n");
         content.append(msgheader);
         content.append("\n");
 	plaintext->setText(FXString(content.c_str()).substitute('\r', ' '));
-        /*
-    const std::string CCs();
-    const std::string Bccs();
-    const std::string subject();
-    const std::string date();
-    const std::string& body();
-         */ 
-
-        //std::string recnames = pmsg->receiversNames();
-        //std::cout << "Receivers: " << recnames << std::endl;
-        //bool hasattach = pmsg->hasAttachments();
-        //std::cout << "Has Attachments: " << hasattach << std::endl;
-	/*
-	std::vector<std::string> indexlist;
-	indexlist.clear();
-	std::istringstream indexliststream(curitemindex);
-	std::string curindex;
-	while(getline(indexliststream, curindex, ','))
-	    indexlist.push_back(curindex);
-	 */ 
-	/*
-	vmime::mailbox vfrom = vparser.getExpeditor();
-	content->append("From:\t\t");
-	content->append(vfrom.getName().getConvertedText(ch));
-	content->append(" <");
-	content->append(vfrom.getEmail().toString());
-	content->append(">\n");
-	vmime::addressList vtolist = vparser.getRecipients();
-	for(int i=0; i < vtolist.getAddressCount(); i++)
-	{
-	    vmime::shared_ptr<vmime::mailbox> curto = vmime::dynamicCast<vmime::mailbox>(vtolist.getAddressAt(i));
-	    content->append("To:\t\t");
-	    content->append(curto->getName().getConvertedText(ch));
-	    content->append(" <");
-	    content->append(curto->getEmail().toString());
-	    content->append(">\n");
-	}
-	vmime::addressList vcclist = vparser.getCopyRecipients();
-	for(int i=0; i < vcclist.getAddressCount(); i++)
-	{
-	    vmime::shared_ptr<vmime::mailbox> curcc = vmime::dynamicCast<vmime::mailbox>(vcclist.getAddressAt(i));
-	    content->append("Cc:\t\t");
-	    content->append(curcc->getName().getConvertedText(ch));
-	    content->append(" <");
-	    content->append(curcc->getEmail().toString());
-	    content->append(">\n");
-	}
-	vmime::addressList vbclist = vparser.getBlindCopyRecipients();
-	for(int i=0; i < vbclist.getAddressCount(); i++)
-	{
-	    vmime::shared_ptr<vmime::mailbox> curbc = vmime::dynamicCast<vmime::mailbox>(vbclist.getAddressAt(i));
-	    content->append("Bcc:\t\t");
-	    content->append(curbc->getName().getConvertedText(ch));
-	    content->append(" <");
-	    content->append(curbc->getEmail().toString());
-	    content->append(">\n");
-	}
-	vmime::text vsubj = vparser.getSubject();
-	content->append("Subject:\t");
-	content->append(vsubj.getConvertedText(ch));
-	content->append("\n");
-	vmime::datetime vdate = vparser.getDate();
-	content->append("Date:\t\t");
-	content->append(std::to_string(vdate.getMonth()));
-	content->append("/");
-	content->append(std::to_string(vdate.getDay()));
-	content->append("/");
-	content->append(std::to_string(vdate.getYear()));
-	content->append(" ");
-	content->append(std::to_string(vdate.getHour()));
-	content->append(":");
-	content->append(std::to_string(vdate.getMinute()));
-	content->append(":");
-	content->append(std::to_string(vdate.getSecond()));
-	content->append("\n\n\n");
-
-	 */ 
+        // Populate Attachment List
+        uint32_t attachcount = 0;
+        attachcount = pmsg->attachmentCount();
+        std::cout << "attachment count: " << attachcount << std::endl;
     }
     /*
     // pole method

@@ -17,6 +17,8 @@
 * write to the Free Software Foundation, Inc., 59 Temple Place,           *
 * Suite 330, Boston, MA  02111-1307, USA                                  *
 *                                                                         *
+* modified by Pasquale J. Rinaldi, Jr. to add addtional msg functionality *
+*                                                                         *
 **************************************************************************/
 
 // std
@@ -128,6 +130,11 @@ const std::string Msg::hash()
 bool Msg::hasAttachments()
 {
     return m_hasAttachments;
+}
+
+uint32_t Msg::attachmentCount()
+{
+    return m_attachmentCount;
 }
 
 // Protected
@@ -269,6 +276,10 @@ bool Msg::open(const char* arg1)
 
         // If has attachments.
         m_hasAttachments = m_File->exists("__attach_version1.0_#00000000");
+        
+        // attachment count
+        m_attachmentCount = 0;
+        m_attachmentCount = getAttachmentCountFromStream("__properties_version1.0");
     }
     return m_Opened;
 }
@@ -289,8 +300,25 @@ void Msg::close()
     m_header.clear();
     m_hasAttachments = false;
     m_Opened         = false;
+    m_attachmentCount = 0;
 
     delete m_File;
+}
+
+const uint32_t Msg::getAttachmentCountFromStream(const char* stream)
+{
+    POLE::Stream requested_stream(m_File, stream);
+    if(requested_stream.fail())
+        std::cout << "Failed to obtain stream: " << stream << "\n";
+    else
+    {
+        uint32_t attachcount = 0;
+        requested_stream.seek(20);
+        requested_stream.read(reinterpret_cast<unsigned char*>(&attachcount), 4);
+
+        return attachcount;
+    }
+    return 0;
 }
 
 const std::string Msg::getDateTimeFromStream(const char* stream)
@@ -404,7 +432,8 @@ Msg::Msg(Msg&& rhs)
       m_CC(std::move(rhs.m_CC)), m_Bcc(std::move(rhs.m_Bcc)), m_date(std::move(rhs.m_date)),
       m_body(std::move(rhs.m_body)), //m_hash(std::move(rhs.m_hash)),
       m_header(std::move(rhs.m_header)),
-      m_hasAttachments(std::move(rhs.m_hasAttachments))
+      m_hasAttachments(std::move(rhs.m_hasAttachments)),
+      m_attachmentCount(std::move(rhs.m_attachmentCount))
 {
     m_File     = rhs.m_File;
     rhs.m_File = nullptr;
@@ -427,6 +456,7 @@ Msg& Msg::operator=(Msg&& rhs)
         m_header             = std::move(rhs.m_header);
         //m_hash               = std::move(rhs.m_hash);
         m_hasAttachments     = std::move(rhs.m_hasAttachments);
+        m_attachmentCount    = std::move(rhs.m_attachmentCount);
         m_File               = rhs.m_File;
         rhs.m_File           = nullptr;
     }
