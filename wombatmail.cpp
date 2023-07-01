@@ -1080,6 +1080,8 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
         uint32_t attachcount = 0;
         attachcount = pmsg->attachmentCount();
         std::cout << "attachment count: " << attachcount << std::endl;
+        std::string attachinfo = pmsg->attachmentInfo();
+        std::cout << "attachment info: " << attachinfo << std::endl;
     }
     /*
     // pole method

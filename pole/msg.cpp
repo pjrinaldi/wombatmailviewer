@@ -137,6 +137,12 @@ uint32_t Msg::attachmentCount()
     return m_attachmentCount;
 }
 
+const std::string Msg::attachmentInfo()
+{
+
+    return m_attachInfo;
+}
+
 // Protected
 void Msg::visit(int indent, POLE::Storage* storage, std::string path)
 {
@@ -280,6 +286,20 @@ bool Msg::open(const char* arg1)
         // attachment count
         m_attachmentCount = 0;
         m_attachmentCount = getAttachmentCountFromStream("__properties_version1.0");
+
+        m_attachInfo = "";
+        for(int i=0; i < m_attachmentCount; i++)
+        {
+            std::string attachstr = "";
+            if(i < 0x10)
+                attachstr = "__attach_version1.0_#0000000" + std::to_string(i);
+            else if(i >= 0x10 && i < 0x100)
+                attachstr = "__attach_version1.0_#000000" + std::to_string(i);
+            else
+                attachstr = "__attach_version1.0_#00000" + std::to_string(i);
+            //m_attachInfo += getAttachmentInfoFromStream(attachstr);
+            m_attachInfo += getStringFromStream(attachstr.c_str());
+        }
     }
     return m_Opened;
 }
@@ -301,6 +321,7 @@ void Msg::close()
     m_hasAttachments = false;
     m_Opened         = false;
     m_attachmentCount = 0;
+    m_attachInfo.clear();
 
     delete m_File;
 }
@@ -433,7 +454,8 @@ Msg::Msg(Msg&& rhs)
       m_body(std::move(rhs.m_body)), //m_hash(std::move(rhs.m_hash)),
       m_header(std::move(rhs.m_header)),
       m_hasAttachments(std::move(rhs.m_hasAttachments)),
-      m_attachmentCount(std::move(rhs.m_attachmentCount))
+      m_attachmentCount(std::move(rhs.m_attachmentCount)),
+      m_attachInfo(std::move(rhs.m_attachInfo))
 {
     m_File     = rhs.m_File;
     rhs.m_File = nullptr;
@@ -457,6 +479,7 @@ Msg& Msg::operator=(Msg&& rhs)
         //m_hash               = std::move(rhs.m_hash);
         m_hasAttachments     = std::move(rhs.m_hasAttachments);
         m_attachmentCount    = std::move(rhs.m_attachmentCount);
+        m_attachInfo         = std::move(rhs.m_attachInfo);
         m_File               = rhs.m_File;
         rhs.m_File           = nullptr;
     }
