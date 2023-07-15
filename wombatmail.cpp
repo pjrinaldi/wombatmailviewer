@@ -1079,9 +1079,11 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
         // Populate Attachment List
         uint32_t attachcount = 0;
         attachcount = pmsg->attachmentCount();
-        std::cout << "attachment count: " << attachcount << std::endl;
-        std::string attachinfo = pmsg->attachmentInfo();
-        std::cout << "attachment info: " << attachinfo << std::endl;
+        //std::cout << "attachment count: " << attachcount << std::endl;
+        GetMsgAttachments(attachcount, &mailboxpath);
+        //std::string attachinfo = pmsg->attachmentInfo();
+        //std::cout << "attachment info: " << attachinfo << std::endl;
+
     }
     /*
     // pole method
@@ -1166,6 +1168,41 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
         std::cout << "not valid msg..." << std::endl;
     libolecf_error_free(&err);
     */
+}
+
+void WombatMail::GetMsgAttachments(uint32_t attachcount, std::string* msg)
+{
+    //std::cout << "2nd attachment count: " << attachcount << std::endl;
+    for(int i=0; i < attachcount; i++)
+    {
+        std::stringstream strm;
+        strm << std::hex << i;
+        std::string attachstr = "";
+        if(i < 0x10)
+            attachstr = "__attach_version1.0_#0000000" + strm.str();
+        else if(i >= 0x10 && i < 0x100)
+            attachstr = "__attach_version1.0_#000000" + strm.str();
+        else
+            attachstr = "__attach_version1.0_#00000" + strm.str();
+        //std::cout << "attachment entry: " << attachstr << std::endl;
+        FILE* fp = fopen(msg->c_str(), "rb");
+        fseek(fp, 0, SEEK_END);
+        size_t len = ftell(fp);
+        std::unique_ptr<unsigned char> buffer(new unsigned char[len]);
+        fseek(fp, 0, SEEK_SET);
+        len = fread(buffer.get(), 1, len, fp);
+        CFB::CompoundFileReader reader(buffer.get(), len);
+        std::cout << "atttachstr: " << attachstr.c_str() << std::endl;
+        //__attach_version1.0_#00000000
+        //__attach_version1.0_#00000000
+        const CFB::COMPOUND_FILE_ENTRY* entry = FindStream(reader, attachstr.c_str());
+        if(entry == NULL)
+            std::cout << "entry assignment failed" << std::endl;
+        else
+        {
+            std::cout << "entry size: " << entry->size << std::endl;
+        }
+    }
 }
 
 void WombatMail::PopulateMbox(std::string mailboxpath)

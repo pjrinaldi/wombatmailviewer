@@ -24,6 +24,8 @@
 //#include "libolecf.h"
 #include "vmime/vmime.hpp"
 #include "pole/msg.h"
+#include "cfb/compoundfilereader.h"
+#include "cfb/utf.h"
 
 #include "managetags.h"
 #include "aboutbox.h"
@@ -32,6 +34,38 @@
 #define TICKS_PER_SECOND 10000000
 #define EPOCH_DIFFERENCE 11644473600LL
 #define NSEC_BTWN_1904_1970	(uint32_t) 2082844800U
+
+const CFB::COMPOUND_FILE_ENTRY* FindStream(const CFB::CompoundFileReader& reader, const
+char* streamName)
+{
+    const CFB::COMPOUND_FILE_ENTRY* ret = nullptr;
+    reader.EnumFiles(reader.GetRootEntry(), -1,
+        [&](const CFB::COMPOUND_FILE_ENTRY* entry, const CFB::utf16string& u16dir, int level)->void
+    {
+        if (reader.IsStream(entry))
+        {
+            std::string name = UTF16ToUTF8(entry->name);
+            if (u16dir.length() > 0)
+            {
+                std::string dir = UTF16ToUTF8(u16dir.c_str());
+                if (strncmp(streamName, dir.c_str(), dir.length()) == 0 &&
+                    streamName[dir.length()] == '\\' &&
+                    strcmp(streamName + dir.length() + 1, name.c_str()) == 0)
+                {
+                    ret = entry;
+                }
+            }
+            else
+            {
+                if (strcmp(streamName, name.c_str()) == 0)
+                {
+                    ret = entry;
+                }
+            }
+        }
+    });
+    return ret;
+}
 
 class WombatMail : public FXMainWindow
 {
@@ -133,6 +167,7 @@ class WombatMail : public FXMainWindow
         void GetMimeDate(std::string* msg, std::string* date);
         void GetMessageContent(std::string* msg, std::string* content);
 	void GetMimeAttachments(std::string* msg);
+        void GetMsgAttachments(uint32_t attachcount, std::string* msg);
 };
 
 FXDEFMAP(WombatMail) WombatMailMap[]={
