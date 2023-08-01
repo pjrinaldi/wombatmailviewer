@@ -15,6 +15,7 @@ class ParseMsg
 {
     private:
         std::string* msgfilepath;
+        std::ifstream msgbuffer;
 
     protected: 
         ParseMsg() {};
@@ -23,6 +24,10 @@ class ParseMsg
         ParseMsg(std::string* msgfile);
         ~ParseMsg();
         bool VerifyHeader();
+        void ReturnUint32(uint32_t* tmp32, uint8_t* tmp8, bool isbigendian=false);
+        void ReturnUint16(uint16_t* tmp16, uint8_t* tmp8, bool isbigendian=false);
+        void ReturnUint64(uint64_t* tmp64, uint8_t* tmp8, bool isbigendian=false);
+        void ReadContent(uint8_t* buf, uint64_t pos, uint64_t size);
 };
 
 #endif // PARSEMSG_H
