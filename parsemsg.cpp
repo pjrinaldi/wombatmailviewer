@@ -2,6 +2,7 @@
 
 ParseMsg::ParseMsg(std::string* msgfile)
 {
+    // PARSE HEADER SECTOR HERE
     msgfilepath = msgfile;
     //std::cout << "msgfile: " << *msgfilepath << std::endl;
 }
