@@ -30,6 +30,7 @@
 #include "managetags.h"
 #include "aboutbox.h"
 #include "viewer.h"
+#include "parsemsg.h"
 
 #define TICKS_PER_SECOND 10000000
 #define EPOCH_DIFFERENCE 11644473600LL

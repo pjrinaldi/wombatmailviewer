@@ -908,6 +908,8 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
 
 uint8_t WombatMail::MailBoxType(std::string mailboxpath)
 {
+    ParseMsg* pmsg = new ParseMsg(&mailboxpath);
+    /*
     uint64_t msghdr = 0;
     uint8_t* tmp8 = new uint8_t[8];
     std::ifstream msgstream;
@@ -916,12 +918,15 @@ uint8_t WombatMail::MailBoxType(std::string mailboxpath)
     msgstream.read((char*)tmp8, 8);
     msgstream.close();
     msghdr = (uint64_t)tmp8[0] | (uint64_t)tmp8[1] << 8 | (uint64_t)tmp8[2] << 16 | (uint64_t)tmp8[3] << 24 | (uint64_t)tmp8[4] << 32 | (uint64_t)tmp8[5] << 40 | (uint64_t)tmp8[6] << 48 | (uint64_t)tmp8[7] << 56;
+    */
     uint8_t mailboxtype = 0x00;
     libpff_error_t* pfferr = NULL;
     if(libpff_check_file_signature(mailboxpath.c_str(), &pfferr)) // is pst/ost
 	mailboxtype = 0x01; // PST/OST
-    else if(msghdr == 0xe11ab1a1e011cfd0)
+    else if(pmsg->VerifyHeader())
         mailboxtype = 0x03; // MSG
+    //else if(msghdr == 0xe11ab1a1e011cfd0)
+    //    mailboxtype = 0x03; // MSG
     else // might be mbox or eml
     {
 	/*
