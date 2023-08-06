@@ -82,8 +82,6 @@ void ParseMsg::ParseFat(void)
     {
         std::cout << "item " << i << ": 0x" << std::hex << fatsectorlocations.at(i) << std::dec << std::endl;
         uint16_t fatcnt = sectorsize / 4;
-        //uint8_t* curfatbuffer = new uint8_t[sectorsize];
-        //ReadContent(curfatbuffer, (fatsectorlocations.at(i) + 1) * sectorsize, sectorsize);
         std::vector<uint32_t> curchain;
         curchain.clear();
         for(uint32_t j=0; j < fatcnt; j++)
@@ -128,7 +126,6 @@ void ParseMsg::ParseFat(void)
                 curchain.push_back(nextsector);
         }
     }
-    /*
     for(int i=0; i < fatchains.size(); i++)
     {
         std::cout << "chain " << std::dec << i << std::hex << ": ";
@@ -138,13 +135,55 @@ void ParseMsg::ParseFat(void)
         }
         std::cout << std::endl;
     }
-    */
 }
 
 void ParseMsg::ParseMiniFat(void)
 {
     std::cout << "starting minifat sector: " << startingminifatsector << std::endl;
     std::cout << "minifat sector count: " << minifatsectorcount << std::endl;
+    // FIND MINIFAT FAT CHAIN
+    int fatchainforminifat = 0;
+    for(int i=0; i < fatchains.size(); i++)
+    {
+        if(startingminifatsector == fatchains.at(i).at(0))
+        {
+            fatchainforminifat = i;
+            std::cout << "fat chain for minifat is at i: " << i << std::endl;
+            break;
+        }
+    }
+    for(int i=0; i < fatchains.at(fatchainforminifat).size(); i++)
+    {
+        uint16_t minifatcnt = sectorsize / 4;
+        std::vector<uint32_t> curchain;
+        curchain.clear();
+        for(uint32_t j=0; j < minifatcnt; j++)
+        {
+            if(j == 0)
+                curchain.push_back(0);
+            uint32_t nextsector = 0;
+            ReadContent(&nextsector, (fatchains.at(fatchainforminifat).at(i) + 1) * sectorsize + (j * 4));
+            if(nextsector == 0xfffffffe) // ENDOFCHAIN
+            {
+                minifatchains.push_back(curchain);
+                curchain.clear();
+                curchain.push_back(j+1);
+            }
+            else if(nextsector == 0x00000000)
+                curchain.clear();
+            else
+                curchain.push_back(nextsector);
+        }
+    }
+    for(int i=0; i < minifatchains.size(); i++)
+    {
+        std::cout << "mini fat chain " << std::dec << i << std::hex << ": ";
+        for(int j=0; j < minifatchains.at(i).size(); j++)
+        {
+            std::cout << minifatchains.at(i).at(j) << ",";
+        }
+        std::cout << std::endl;
+    }
 }
 
 void ParseMsg::ParseRootDirectory(void)
@@ -152,6 +191,7 @@ void ParseMsg::ParseRootDirectory(void)
     std::cout << "starting directory sector: " << startingdirectorysector << std::endl;
 }
 
+/*
 void ParseMsg::ReadContent(uint8_t* buf, uint64_t pos, uint64_t size)
 {
     msgbuffer.open(msgfilepath->c_str(), std::ios::in|std::ios::binary);
@@ -159,6 +199,7 @@ void ParseMsg::ReadContent(uint8_t* buf, uint64_t pos, uint64_t size)
     msgbuffer.read((char*)buf, size);
     msgbuffer.close();
 }
+*/
 
 void ParseMsg::ReadContent(uint16_t* val, uint64_t pos, bool isbigendian)
 {
