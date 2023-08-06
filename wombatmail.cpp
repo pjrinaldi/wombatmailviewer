@@ -958,6 +958,12 @@ uint8_t WombatMail::MailBoxType(std::string mailboxpath)
 
 void WombatMail::PopulateMsg(std::string mailboxpath)
 {
+    // my method
+    ParseMsg* msgptr = new ParseMsg(&mailboxpath);
+    std::string msgcontent = "";
+    msgcontent.append("From:\t\t");
+    msgcontent.append(msgptr->SenderName());
+
     // pole/msg method
     Core::Msg* pmsg = NULL;
     pmsg = new Core::Msg(mailboxpath.c_str());

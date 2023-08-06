@@ -196,8 +196,15 @@ void ParseMsg::ParseRootDirectory(void)
     ReadContent(&ministreamsize, (startingdirectorysector + 1) * sectorsize + 0x78);
     std::cout << std::hex << "starting mini stream sector: 0x" << startingministreamsector << std::dec << std::endl;
     std::cout << "mini stream size: " << ministreamsize << std::endl;
-    /*
-    // CODE FOR PARSING THE DIRECTORY ENTRIES, DON"T NEED FOR ROOT DIRECTORY ENTRY
+}
+
+void ParseMsg::FindDirectoryEntry(std::string direntryname)
+{
+}
+
+void ParseMsg::NavigateDirectoryEntries(void)
+{
+    // FIND THE DIRECTORY ENTRIES FAT CHAIN TO LOOP OVER THEM
     int fatchainfordirectoryentries = 0;
     for(int i=0; i < fatchains.size(); i++)
     {
@@ -208,7 +215,48 @@ void ParseMsg::ParseRootDirectory(void)
             break;
         }
     }
-    */
+    int direntrycnt = sectorsize / 128;
+    // START THE PROCESS TO NAVIGATE THE DIRECTORY ENTRIES
+    int a = 1;
+    for(int i=0; i < fatchains.at(fatchainfordirectoryentries).size(); i++)
+    {
+        uint32_t initialsector = fatchains.at(fatchainfordirectoryentries).at(i);
+        //std::cout << std::dec << "initial sector: " << initialsector << std::endl;
+        for(int j=0; j < direntrycnt; j++)
+        {
+            DirectoryEntry curdirentry;
+            ParseDirectoryEntry(&curdirentry, ((initialsector + 1) * sectorsize) + (j * 128));
+            //std::cout << a << " cur dir entry name: " << curdirentry.name << std::endl;
+            a++;
+        }
+    }
+}
+
+void ParseMsg::ParseDirectoryEntry(DirectoryEntry* direntry, uint64_t offset)
+{
+    // directory entry name length is at offset 40
+    //std::cout << "offset: " << offset << std::endl;
+}
+
+std::string ParseMsg::SenderName(void)
+{
+    NavigateDirectoryEntries();
+    std::string sendername = "";
+    /*
+        m_SenderName = getStringFromStream("__substg1.0_0C1A001F");
+        if (m_SenderName.empty())
+            m_SenderName = getStringFromStream("__substg1.0_3FFA001F");
+        if (m_SenderName.empty())
+            m_SenderName = getStringFromStream("__substg1.0_0042001F");
+        if (m_SenderName.empty())
+            m_SenderName = getString8FromStream("__substg1.0_0C1A001E");
+        if (m_SenderName.empty())
+            m_SenderName = getString8FromStream("__substg1.0_0042001E");
+        if (m_SenderName.empty())
+            m_SenderName = getString8FromStream("__substg1.0_3FFA001E");
+     */ 
+
+    return sendername;
 }
 
 /*

@@ -11,6 +11,19 @@
 #include <vector>
 #include <cstdint>
 
+struct DirectoryEntry
+{
+    std::string name;
+    uint16_t namelength;
+    uint8_t objecttype;
+    uint8_t colorflag;
+    uint32_t leftsiblingid;
+    uint32_t rightsiblingid;
+    uint32_t childid;
+    uint32_t startingsector;
+    uint64_t streamsize;
+};
+
 class ParseMsg 
 {
     private:
@@ -49,11 +62,15 @@ class ParseMsg
         void ParseFat(void);
         void ParseMiniFat(void);
         void ParseRootDirectory(void);
+        void ParseDirectoryEntry(DirectoryEntry* direntry, uint64_t offset);
+        void FindDirectoryEntry(std::string direntryname);
+        void NavigateDirectoryEntries();
 
     public:
         ParseMsg(std::string* msgfile);
         ~ParseMsg();
         bool VerifyHeader();
+        std::string SenderName(void);
 };
 
 #endif // PARSEMSG_H
