@@ -152,6 +152,7 @@ void ParseMsg::ParseMiniFat(void)
             break;
         }
     }
+    // PARSE MINIFAT CHAINS
     for(int i=0; i < fatchains.at(fatchainforminifat).size(); i++)
     {
         uint16_t minifatcnt = sectorsize / 4;
@@ -188,7 +189,28 @@ void ParseMsg::ParseMiniFat(void)
 
 void ParseMsg::ParseRootDirectory(void)
 {
-    std::cout << "starting directory sector: " << startingdirectorysector << std::endl;
+    std::cout << "starting directory sector: 0x" << startingdirectorysector << std::endl;
+    //ReadContent(&nextsector, (fatchains.at(fatchainforminifat).at(i) + 1) * sectorsize + (j * 4));
+    startingministreamsector = 0;
+    ReadContent(&startingministreamsector, (startingdirectorysector + 1) * sectorsize + 0x74);
+    ministreamsize = 0;
+    ReadContent(&ministreamsize, (startingdirectorysector + 1) * sectorsize + 0x78);
+    std::cout << std::hex << "starting mini stream sector: 0x" << startingministreamsector << std::dec << std::endl;
+    std::cout << "mini stream size: " << ministreamsize << std::endl;
+
+    /*
+    // CODE FOR PARSING THE DIRECTORY ENTRIES, DON"T NEED FOR ROOT DIRECTORY ENTRY
+    int fatchainfordirectoryentries = 0;
+    for(int i=0; i < fatchains.size(); i++)
+    {
+        if(startingdirectorysector == fatchains.at(i).at(0))
+        {
+            fatchainfordirectoryentries = i;
+            std::cout << "fat chain for directory entries is at i: " << i << std::endl;
+            break;
+        }
+    }
+    */
 }
 
 /*

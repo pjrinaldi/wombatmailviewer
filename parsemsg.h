@@ -30,6 +30,8 @@ class ParseMsg
         uint32_t minifatsectorcount;
         uint32_t startingdifatsector;
         uint32_t difatsectorcount;
+        uint32_t startingministreamsector;
+        uint64_t ministreamsize;
         std::vector<uint32_t> fatsectorlocations;
         std::vector<std::vector<uint32_t>> fatchains;
         std::vector<std::vector<uint32_t>> minifatchains;
