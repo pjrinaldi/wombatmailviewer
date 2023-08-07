@@ -13,10 +13,11 @@
 
 struct DirectoryEntry
 {
+    uint32_t id;
     std::string name;
-    uint16_t namelength;
-    uint8_t objecttype;
-    uint8_t colorflag;
+    //uint16_t namelength;
+    //uint8_t objecttype;
+    //uint8_t colorflag;
     uint32_t leftsiblingid;
     uint32_t rightsiblingid;
     uint32_t childid;
@@ -48,6 +49,7 @@ class ParseMsg
         std::vector<uint32_t> fatsectorlocations;
         std::vector<std::vector<uint32_t>> fatchains;
         std::vector<std::vector<uint32_t>> minifatchains;
+        std::vector<DirectoryEntry> directoryentries;
 
     protected: 
         ParseMsg() {};
@@ -63,8 +65,9 @@ class ParseMsg
         void ParseMiniFat(void);
         void ParseRootDirectory(void);
         void ParseDirectoryEntry(DirectoryEntry* direntry, uint64_t offset);
-        void FindDirectoryEntry(std::string direntryname);
+        //void FindDirectoryEntry(std::string direntryname);
         void NavigateDirectoryEntries();
+        void GetDirectoryEntryStream(std::string* direntrystream, std::string direntryname);
 
     public:
         ParseMsg(std::string* msgfile);

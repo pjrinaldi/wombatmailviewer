@@ -80,7 +80,7 @@ void ParseMsg::ParseFat(void)
 {
     for(int i=0; i < fatsectorlocations.size(); i++)
     {
-        std::cout << "item " << i << ": 0x" << std::hex << fatsectorlocations.at(i) << std::dec << std::endl;
+        //std::cout << "item " << i << ": 0x" << std::hex << fatsectorlocations.at(i) << std::dec << std::endl;
         uint16_t fatcnt = sectorsize / 4;
         std::vector<uint32_t> curchain;
         curchain.clear();
@@ -126,6 +126,7 @@ void ParseMsg::ParseFat(void)
                 curchain.push_back(nextsector);
         }
     }
+    /*
     for(int i=0; i < fatchains.size(); i++)
     {
         std::cout << "chain " << std::dec << i << std::hex << ": ";
@@ -135,12 +136,13 @@ void ParseMsg::ParseFat(void)
         }
         std::cout << std::endl;
     }
+    */
 }
 
 void ParseMsg::ParseMiniFat(void)
 {
-    std::cout << "starting minifat sector: " << startingminifatsector << std::endl;
-    std::cout << "minifat sector count: " << minifatsectorcount << std::endl;
+    //std::cout << "starting minifat sector: " << startingminifatsector << std::endl;
+    //std::cout << "minifat sector count: " << minifatsectorcount << std::endl;
     // FIND MINIFAT FAT CHAIN
     int fatchainforminifat = 0;
     for(int i=0; i < fatchains.size(); i++)
@@ -148,7 +150,7 @@ void ParseMsg::ParseMiniFat(void)
         if(startingminifatsector == fatchains.at(i).at(0))
         {
             fatchainforminifat = i;
-            std::cout << "fat chain for minifat is at i: " << i << std::endl;
+            //std::cout << "fat chain for minifat is at i: " << i << std::endl;
             break;
         }
     }
@@ -176,6 +178,7 @@ void ParseMsg::ParseMiniFat(void)
                 curchain.push_back(nextsector);
         }
     }
+    /*
     for(int i=0; i < minifatchains.size(); i++)
     {
         std::cout << "mini fat chain " << std::dec << i << std::hex << ": ";
@@ -185,21 +188,59 @@ void ParseMsg::ParseMiniFat(void)
         }
         std::cout << std::endl;
     }
+    */
 }
 
 void ParseMsg::ParseRootDirectory(void)
 {
-    std::cout << "starting directory sector: 0x" << startingdirectorysector << std::endl;
+    //std::cout << "starting directory sector: 0x" << startingdirectorysector << std::endl;
     startingministreamsector = 0;
     ReadContent(&startingministreamsector, (startingdirectorysector + 1) * sectorsize + 0x74);
     ministreamsize = 0;
     ReadContent(&ministreamsize, (startingdirectorysector + 1) * sectorsize + 0x78);
-    std::cout << std::hex << "starting mini stream sector: 0x" << startingministreamsector << std::dec << std::endl;
-    std::cout << "mini stream size: " << ministreamsize << std::endl;
+    //std::cout << std::hex << "starting mini stream sector: 0x" << startingministreamsector << std::dec << std::endl;
+    //std::cout << "mini stream size: " << ministreamsize << std::endl;
 }
 
-void ParseMsg::FindDirectoryEntry(std::string direntryname)
+//void ParseMsg::FindDirectoryEntry(std::string direntryname)
+void ParseMsg::GetDirectoryEntryStream(std::string* direntrystream, std::string direntryname)
 {
+    *direntrystream = "";
+    for(int i=0; i < directoryentries.size(); i++)
+    {
+        if(directoryentries.at(i).name.find(direntryname) != std::string::npos)
+        {
+            //std::cout << "match for " << directoryentries.at(i).name << " contains " << direntryname << std::endl
+            if(directoryentries.at(i).streamsize < 4096) // USE MINI STREAM
+            {
+                //std::cout << "id: " << directoryentries.at(i).id << " stream size: " << directoryentries.at(i).streamsize << std::endl;
+                // get chain from mini fat based off of starting sector
+                // then use the stream size to read the content
+                // also need to check if it is 001E (UTF-8) or 001F (UTF-16) so i can parse the stream accordingly.
+                std::cout << "use mini sectors for stream: " << directoryentries.at(i).startingsector << std::endl;
+                for(int j=0; j < minifatchains.size(); j++)
+                {
+                    if(minifatchains.at(j).at(0) == directoryentries.at(i).startingsector)
+                    {
+                        std::cout << minifatchains.at(j).size() << " " << directoryentries.at(i).streamsize << std::endl;
+                        if(directoryentries.at(i).name.find("001E") != std::string::npos) // UTF-8
+                        {
+                        }
+                        else if(directoryentries.at(i).name.find("001F") != std::string::npos) // UTF-16
+                        {
+                        }
+                        break;
+                    }
+                }
+            }
+            else // USE REGULAR SECTORS
+            {
+                // get chain from the fat based off of the starting sector (for/if for 1st entry of each fatchains)
+                // then use the stream size to read the content into the respective storage container.
+                std::cout << "use regular sectors for stream: " << directoryentries.at(i).startingsector << std::endl;
+            }
+        }
+    }
 }
 
 void ParseMsg::NavigateDirectoryEntries(void)
@@ -211,13 +252,13 @@ void ParseMsg::NavigateDirectoryEntries(void)
         if(startingdirectorysector == fatchains.at(i).at(0))
         {
             fatchainfordirectoryentries = i;
-            std::cout << "fat chain for directory entries is at i: " << i << std::endl;
+            //std::cout << "fat chain for directory entries is at i: " << i << std::endl;
             break;
         }
     }
     int direntrycnt = sectorsize / 128;
     // START THE PROCESS TO NAVIGATE THE DIRECTORY ENTRIES
-    int a = 1;
+    int a = 0;
     for(int i=0; i < fatchains.at(fatchainfordirectoryentries).size(); i++)
     {
         uint32_t initialsector = fatchains.at(fatchainfordirectoryentries).at(i);
@@ -225,16 +266,40 @@ void ParseMsg::NavigateDirectoryEntries(void)
         for(int j=0; j < direntrycnt; j++)
         {
             DirectoryEntry curdirentry;
+            curdirentry.id = a;
             ParseDirectoryEntry(&curdirentry, ((initialsector + 1) * sectorsize) + (j * 128));
-            //std::cout << a << " cur dir entry name: " << curdirentry.name << std::endl;
+            //std::cout << curdirentry.id << " " << curdirentry.name << " lid: " << curdirentry.leftsiblingid << " rid: " << curdirentry.rightsiblingid << " cid: " << curdirentry.childid << std::endl;
+            //std::cout << curdirentry.id << " starting sector: " << curdirentry.startingsector << " stream size: " << curdirentry.streamsize << std::endl;
+            directoryentries.push_back(curdirentry);
             a++;
         }
     }
+    //std::cout << "directoryentries count: " << directoryentries.size() << std::endl;
 }
 
 void ParseMsg::ParseDirectoryEntry(DirectoryEntry* direntry, uint64_t offset)
 {
-    // directory entry name length is at offset 40
+    // directory entry name length is at offset 40, 2 bytes
+    uint16_t namelength = 0;
+    ReadContent(&namelength, offset + 0x40);
+    direntry->name = "";
+    for(int i=0; i < namelength / 2; i++)
+    {
+        uint16_t singleletter = 0;
+        ReadContent(&singleletter, offset + i*2);
+        direntry->name += (char)singleletter;
+    }
+    direntry->leftsiblingid = 0;
+    ReadContent(&(direntry->leftsiblingid), offset + 0x44);
+    direntry->rightsiblingid = 0;
+    ReadContent(&(direntry->rightsiblingid), offset + 0x48);
+    direntry->childid = 0;
+    ReadContent(&(direntry->childid), offset + 0x4c);
+    direntry->startingsector = 0;
+    ReadContent(&(direntry->startingsector), offset + 0x74);
+    direntry->streamsize = 0;
+    ReadContent(&(direntry->streamsize), offset + 0x78);
+    //std::cout << "direntry stream size: " << direntry->streamsize << std::endl;
     //std::cout << "offset: " << offset << std::endl;
 }
 
@@ -242,6 +307,8 @@ std::string ParseMsg::SenderName(void)
 {
     NavigateDirectoryEntries();
     std::string sendername = "";
+    //FindDirectoryEntry("0C1A");
+    GetDirectoryEntryStream(&sendername, "0C1A");
     /*
         m_SenderName = getStringFromStream("__substg1.0_0C1A001F");
         if (m_SenderName.empty())
