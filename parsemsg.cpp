@@ -205,41 +205,74 @@ void ParseMsg::ParseRootDirectory(void)
 //void ParseMsg::FindDirectoryEntry(std::string direntryname)
 void ParseMsg::GetDirectoryEntryStream(std::string* direntrystream, std::string direntryname)
 {
+    DirectoryEntry curdirentry;
     *direntrystream = "";
+    // GET CURRENT DIRECTORY ENTRY
     for(int i=0; i < directoryentries.size(); i++)
     {
         if(directoryentries.at(i).name.find(direntryname) != std::string::npos)
         {
-            //std::cout << "match for " << directoryentries.at(i).name << " contains " << direntryname << std::endl
-            if(directoryentries.at(i).streamsize < 4096) // USE MINI STREAM
+            curdirentry = directoryentries.at(i);
+            break;
+        }
+    }
+    if(curdirentry.streamsize < 4096) // USE MINI STREAMS
+    {
+        // GET MINI FAT CHAIN FROM FATCHAIN
+        std::vector<uint32_t> minifatchain;
+        minifatchain.clear();
+        for(int i=0; i < fatchains.size(); i++)
+        {
+            if(fatchains.at(i).at(0) == startingministreamsector)
             {
-                //std::cout << "id: " << directoryentries.at(i).id << " stream size: " << directoryentries.at(i).streamsize << std::endl;
-                // get chain from mini fat based off of starting sector
-                // then use the stream size to read the content
-                // also need to check if it is 001E (UTF-8) or 001F (UTF-16) so i can parse the stream accordingly.
-                std::cout << "use mini sectors for stream: " << directoryentries.at(i).startingsector << std::endl;
-                for(int j=0; j < minifatchains.size(); j++)
-                {
-                    if(minifatchains.at(j).at(0) == directoryentries.at(i).startingsector)
-                    {
-                        std::cout << minifatchains.at(j).size() << " " << directoryentries.at(i).streamsize << std::endl;
-                        if(directoryentries.at(i).name.find("001E") != std::string::npos) // UTF-8
-                        {
-                        }
-                        else if(directoryentries.at(i).name.find("001F") != std::string::npos) // UTF-16
-                        {
-                        }
-                        break;
-                    }
-                }
-            }
-            else // USE REGULAR SECTORS
-            {
-                // get chain from the fat based off of the starting sector (for/if for 1st entry of each fatchains)
-                // then use the stream size to read the content into the respective storage container.
-                std::cout << "use regular sectors for stream: " << directoryentries.at(i).startingsector << std::endl;
+                minifatchain = fatchains.at(i);
+                break;
             }
         }
+
+        /*
+        std::cout << "mini fat chain: ";
+        for(int i=0; i < minifatchain.size(); i++)
+            std::cout << minifatchain.at(i) << ", ";
+        std::cout << std::endl;
+        */
+
+        if(curdirentry.streamsize < 64) // don't need minifatchains, value is contained in 1 minifat sector
+        {
+            //std::cout << "curdirentry starting sector: " << curdirentry.startingsector << std::endl;
+            uint16_t sectorcnt = curdirentry.startingsector / 8;
+            if(curdirentry.startingsector % 8 != 0)
+                sectorcnt++;
+            //std::cout << curdirentry.startingsector / 8 << " " << curdirentry.startingsector % 8 << std::endl;
+            uint64_t curoffset = ((minifatchain.at(sectorcnt - 1)) + 1) * 512 + (curdirentry.startingsector % 8) * 64;
+            //std::cout << "minifatchain offset: " << (minifatchain.at(sectorcnt - 1) + 1) * 512 << std::endl;
+            //std::cout << "curoffset: " << curoffset << std::endl;
+            if(curdirentry.name.find("001E") != std::string::npos) // UTF-8
+            {
+                uint8_t* tmpbuf = new uint8_t[curdirentry.streamsize];
+                ReadContent(tmpbuf, curoffset, curdirentry.streamsize);
+                *direntrystream += (char*)tmpbuf;
+                delete[] tmpbuf;
+            }
+            else if(curdirentry.name.find("001F") != std::string::npos) // UTF-16
+            {
+                for(int i=0; i < curdirentry.streamsize / 2; i++)
+                {
+                    uint16_t singleletter = 0;
+                    ReadContent(&singleletter, curoffset + i*2);
+                    *direntrystream += (char)singleletter;
+                }
+            }
+        }
+        else // ensure the minifatchains are sequential to get the values
+        {
+        }
+    }
+    else // USE REGULAR SECTORS
+    {
+        // get chain from the fat based off of the starting sector (for/if for 1st entry of each fatchains)
+        // then use the stream size to read the content into the respective storage container.
+        std::cout << "use regular sectors for stream: " << curdirentry.startingsector << std::endl;
     }
 }
 
@@ -309,6 +342,11 @@ std::string ParseMsg::SenderName(void)
     std::string sendername = "";
     //FindDirectoryEntry("0C1A");
     GetDirectoryEntryStream(&sendername, "0C1A");
+    if(sendername.empty())
+        GetDirectoryEntryStream(&sendername, "3FFA");
+    if(sendername.empty())
+        GetDirectoryEntryStream(&sendername, "0042");
+    //std::cout << "sender name: " << sendername << std::endl;
     /*
         m_SenderName = getStringFromStream("__substg1.0_0C1A001F");
         if (m_SenderName.empty())
@@ -326,7 +364,6 @@ std::string ParseMsg::SenderName(void)
     return sendername;
 }
 
-/*
 void ParseMsg::ReadContent(uint8_t* buf, uint64_t pos, uint64_t size)
 {
     msgbuffer.open(msgfilepath->c_str(), std::ios::in|std::ios::binary);
@@ -334,7 +371,6 @@ void ParseMsg::ReadContent(uint8_t* buf, uint64_t pos, uint64_t size)
     msgbuffer.read((char*)buf, size);
     msgbuffer.close();
 }
-*/
 
 void ParseMsg::ReadContent(uint16_t* val, uint64_t pos, bool isbigendian)
 {

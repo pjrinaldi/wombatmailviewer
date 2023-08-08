@@ -970,6 +970,8 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     if(pmsg != NULL)
     {
 	std::string content = "";
+        content.append(msgcontent);
+        content.append("\n\n\n");
 	content.append("From:\t\t");
 	content.append(pmsg->senderName());
 	content.append(" <");

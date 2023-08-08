@@ -57,7 +57,7 @@ class ParseMsg
         void ReturnUint32(uint32_t* tmp32, uint8_t* tmp8, bool isbigendian=false);
         void ReturnUint16(uint16_t* tmp16, uint8_t* tmp8, bool isbigendian=false);
         void ReturnUint64(uint64_t* tmp64, uint8_t* tmp8, bool isbigendian=false);
-        //void ReadContent(uint8_t* buf, uint64_t pos, uint64_t size);
+        void ReadContent(uint8_t* buf, uint64_t pos, uint64_t size);
         void ReadContent(uint16_t* val, uint64_t pos, bool isbigendian=false);
         void ReadContent(uint32_t* val, uint64_t pos, bool isbigendian=false);
         void ReadContent(uint64_t* val, uint64_t pos, bool isbigendian=false);
