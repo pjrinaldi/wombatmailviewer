@@ -963,10 +963,15 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
 {
     // my method
     CompoundFileBinary* cfb = new CompoundFileBinary(&mailboxpath);
-    std::string msgcontent = "";
-    msgcontent.append("From:\t\t");
-    msgcontent.append(SenderName(&mailboxpath));
+    std::string content = "";
+    content.append("From:\t\t");
+    content.append(SenderName(&mailboxpath));
+    content.append(" <");
+    content.append(SenderAddress(&mailboxpath));
+    content.append(">\n");
+    content.append("To:\t\t");
 
+    plaintext->setText(FXString(content.c_str()).substitute('\r', ' '));
     /*
     // pole/msg method
     Core::Msg* pmsg = NULL;

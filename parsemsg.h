@@ -14,5 +14,6 @@
 #include "cfb.h"
 
 std::string SenderName(std::string* mailboxpath);
+std::string SenderAddress(std::string* mailboxpath);
 
 #endif // PARSEMSG_H
