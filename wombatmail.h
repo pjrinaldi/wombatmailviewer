@@ -24,8 +24,8 @@
 //#include "libolecf.h"
 #include "vmime/vmime.hpp"
 #include "pole/msg.h"
-#include "cfb/compoundfilereader.h"
-#include "cfb/utf.h"
+//#include "cfb/compoundfilereader.h"
+//#include "cfb/utf.h"
 
 #include "managetags.h"
 #include "aboutbox.h"
@@ -36,6 +36,7 @@
 #define EPOCH_DIFFERENCE 11644473600LL
 #define NSEC_BTWN_1904_1970	(uint32_t) 2082844800U
 
+/*
 const CFB::COMPOUND_FILE_ENTRY* FindStream(const CFB::CompoundFileReader& reader, const
 char* streamName)
 {
@@ -67,6 +68,7 @@ char* streamName)
     });
     return ret;
 }
+*/
 
 class WombatMail : public FXMainWindow
 {

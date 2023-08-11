@@ -1,5 +1,5 @@
-#ifndef PARSEMSG_H
-#define PARSEMSG_H
+#ifndef COMPOUNDFILEBINARY_H
+#define COMPOUNDFILEBINARY_H
 
 // Copyright 2023-2023 Pasquale J. Rinaldi, Jr.
 // Distributed under the terms of the GNU General Public License version 2
@@ -11,11 +11,6 @@
 #include <vector>
 #include <cstdint>
 
-#include "cfb.h"
-
-std::string SenderName(std::string* mailboxpath);
-
-/*
 struct DirectoryEntry
 {
     uint32_t id;
@@ -29,13 +24,10 @@ struct DirectoryEntry
     uint32_t startingsector;
     uint64_t streamsize;
 };
-*/
 
-/*
-class ParseMsg 
+class CompoundFileBinary 
 {
     private:
-        /*
         std::string* msgfilepath;
         std::ifstream msgbuffer;
         uint16_t majorversion;
@@ -58,11 +50,9 @@ class ParseMsg
         std::vector<std::vector<uint32_t>> fatchains;
         std::vector<std::vector<uint32_t>> minifatchains;
         std::vector<DirectoryEntry> directoryentries;
-        */
-/*
+
     protected: 
-        ParseMsg() {};
-        /*
+        CompoundFileBinary() {};
         void GetHeaderValues(void);
         void ReturnUint32(uint32_t* tmp32, uint8_t* tmp8, bool isbigendian=false);
         void ReturnUint16(uint16_t* tmp16, uint8_t* tmp8, bool isbigendian=false);
@@ -76,16 +66,14 @@ class ParseMsg
         void ParseRootDirectory(void);
         void ParseDirectoryEntry(DirectoryEntry* direntry, uint64_t offset);
         //void FindDirectoryEntry(std::string direntryname);
+
+    public:
+        CompoundFileBinary(std::string* msgfile);
+        ~CompoundFileBinary();
+        bool VerifyHeader();
         void NavigateDirectoryEntries();
         void GetDirectoryEntryStream(std::string* direntrystream, std::string direntryname);
-        */
-/*
-    public:
-        ParseMsg(std::string* msgfile);
-        ~ParseMsg();
-        //bool VerifyHeader();
-        std::string SenderName(void);
+        //std::string SenderName(void);
 };
-*/
 
-#endif // PARSEMSG_H
+#endif // COMPUNDFILEBINARY_H

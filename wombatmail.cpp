@@ -908,13 +908,16 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
 
 uint8_t WombatMail::MailBoxType(std::string mailboxpath)
 {
-    ParseMsg* pmsg = new ParseMsg(&mailboxpath);
+    CompoundFileBinary* cfb = new CompoundFileBinary(&mailboxpath);
+    //ParseMsg* pmsg = new ParseMsg(&mailboxpath);
     uint8_t mailboxtype = 0x00;
     libpff_error_t* pfferr = NULL;
     if(libpff_check_file_signature(mailboxpath.c_str(), &pfferr)) // is pst/ost
 	mailboxtype = 0x01; // PST/OST
-    else if(pmsg->VerifyHeader())
+    else if(cfb->VerifyHeader())
         mailboxtype = 0x03; // MSG
+    //else if(pmsg->VerifyHeader())
+    //    mailboxtype = 0x03; // MSG
     else // might be mbox or eml
     {
 	/*
@@ -959,10 +962,10 @@ uint8_t WombatMail::MailBoxType(std::string mailboxpath)
 void WombatMail::PopulateMsg(std::string mailboxpath)
 {
     // my method
-    ParseMsg* msgptr = new ParseMsg(&mailboxpath);
+    CompoundFileBinary* cfb = new CompoundFileBinary(&mailboxpath);
     std::string msgcontent = "";
     msgcontent.append("From:\t\t");
-    msgcontent.append(msgptr->SenderName());
+    msgcontent.append(SenderName(&mailboxpath));
 
     // pole/msg method
     Core::Msg* pmsg = NULL;
@@ -1192,6 +1195,7 @@ void WombatMail::GetMsgAttachments(uint32_t attachcount, std::string* msg)
         std::unique_ptr<unsigned char> buffer(new unsigned char[len]);
         fseek(fp, 0, SEEK_SET);
         len = fread(buffer.get(), 1, len, fp);
+        /*
         CFB::CompoundFileReader reader(buffer.get(), len);
         std::cout << "atttachstr: " << attachstr.c_str() << std::endl;
         //__attach_version1.0_#00000000
@@ -1203,6 +1207,7 @@ void WombatMail::GetMsgAttachments(uint32_t attachcount, std::string* msg)
         {
             std::cout << "entry size: " << entry->size << std::endl;
         }
+        */
     }
 }
 
