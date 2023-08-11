@@ -15,9 +15,6 @@ struct DirectoryEntry
 {
     uint32_t id;
     std::string name;
-    //uint16_t namelength;
-    //uint8_t objecttype;
-    //uint8_t colorflag;
     uint32_t leftsiblingid;
     uint32_t rightsiblingid;
     uint32_t childid;

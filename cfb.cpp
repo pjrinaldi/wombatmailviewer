@@ -13,10 +13,6 @@ bool CompoundFileBinary::VerifyHeader()
     bool ismsg = false;
     uint64_t msghdr = 0;
     ReadContent(&msghdr, 0);
-    //uint8_t* tmp8 = new uint8_t[8];
-    //ReadContent(tmp8, 0, 8);
-    //ReturnUint64(&msghdr, tmp8);
-    //delete[] tmp8;
     if(msghdr == 0xe11ab1a1e011cfd0)
         ismsg = true;
 
