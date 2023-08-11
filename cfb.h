@@ -73,7 +73,6 @@ class CompoundFileBinary
         bool VerifyHeader();
         void NavigateDirectoryEntries();
         void GetDirectoryEntryStream(std::string* direntrystream, std::string direntryname);
-        //std::string SenderName(void);
 };
 
 #endif // COMPUNDFILEBINARY_H

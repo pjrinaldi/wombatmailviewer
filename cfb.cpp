@@ -336,34 +336,6 @@ void CompoundFileBinary::ParseDirectoryEntry(DirectoryEntry* direntry, uint64_t 
     //std::cout << "offset: " << offset << std::endl;
 }
 
-/*
-std::string CompoundFileBinary::SenderName(void)
-{
-    NavigateDirectoryEntries();
-    std::string sendername = "";
-    //FindDirectoryEntry("0C1A");
-    GetDirectoryEntryStream(&sendername, "0C1A");
-    if(sendername.empty())
-        GetDirectoryEntryStream(&sendername, "3FFA");
-    if(sendername.empty())
-        GetDirectoryEntryStream(&sendername, "0042");
-    //std::cout << "sender name: " << sendername << std::endl;
-        //m_SenderName = getStringFromStream("__substg1.0_0C1A001F");
-        //if (m_SenderName.empty())
-        //    m_SenderName = getStringFromStream("__substg1.0_3FFA001F");
-        //if (m_SenderName.empty())
-        //    m_SenderName = getStringFromStream("__substg1.0_0042001F");
-        //if (m_SenderName.empty())
-        //    m_SenderName = getString8FromStream("__substg1.0_0C1A001E");
-        //if (m_SenderName.empty())
-        //    m_SenderName = getString8FromStream("__substg1.0_0042001E");
-        //if (m_SenderName.empty())
-        //    m_SenderName = getString8FromStream("__substg1.0_3FFA001E");
-
-    return sendername;
-}
-*/
-
 void CompoundFileBinary::ReadContent(uint8_t* buf, uint64_t pos, uint64_t size)
 {
     msgbuffer.open(msgfilepath->c_str(), std::ios::in|std::ios::binary);

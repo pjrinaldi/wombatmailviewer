@@ -23,7 +23,7 @@
 #include "libpff.h"
 //#include "libolecf.h"
 #include "vmime/vmime.hpp"
-#include "pole/msg.h"
+//#include "pole/msg.h"
 //#include "cfb/compoundfilereader.h"
 //#include "cfb/utf.h"
 

@@ -967,6 +967,7 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     msgcontent.append("From:\t\t");
     msgcontent.append(SenderName(&mailboxpath));
 
+    /*
     // pole/msg method
     Core::Msg* pmsg = NULL;
     pmsg = new Core::Msg(mailboxpath.c_str());
@@ -1087,8 +1088,9 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
         GetMsgAttachments(attachcount, &mailboxpath);
         //std::string attachinfo = pmsg->attachmentInfo();
         //std::cout << "attachment info: " << attachinfo << std::endl;
-
     }
+    */
+
     /*
     // pole method
     POLE::Storage* polemsg = new POLE::Storage(mailboxpath.c_str());
@@ -1162,7 +1164,6 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
 		//std::cout << "sub item name: " << (unsigned char*)subname << std::endl;
             //}
         }
-
 
         libolecf_item_free(&rootitem, &err);
         libolecf_file_close(olecfile, &err);
