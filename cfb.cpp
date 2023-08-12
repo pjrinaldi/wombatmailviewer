@@ -245,10 +245,12 @@ void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, st
             //std::cout << "curoffset: " << curoffset << std::endl;
             if(curdirentry.name.find("001E") != std::string::npos) // UTF-8
             {
-                uint8_t* tmpbuf = new uint8_t[curdirentry.streamsize];
+                uint8_t* tmpbuf = new uint8_t[curdirentry.streamsize+1];
                 ReadContent(tmpbuf, curoffset, curdirentry.streamsize);
+                tmpbuf[curdirentry.streamsize] = '\0';
                 *direntrystream += (char*)tmpbuf;
                 delete[] tmpbuf;
+                //std::cout << "utf-8: |" << *direntrystream << "|" << std::endl;
             }
             else if(curdirentry.name.find("001F") != std::string::npos) // UTF-16
             {
@@ -258,6 +260,7 @@ void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, st
                     ReadContent(&singleletter, curoffset + i*2);
                     *direntrystream += (char)singleletter;
                 }
+                //std::cout << "utf-16: |" << *direntrystream << "|" << std::endl;
             }
         }
         else // ensure the minifatchains are sequential to get the values

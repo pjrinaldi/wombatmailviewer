@@ -5,6 +5,7 @@
 // Distributed under the terms of the GNU General Public License version 2
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <stdio.h>
 #include <string>
@@ -15,5 +16,7 @@
 
 std::string SenderName(std::string* mailboxpath);
 std::string SenderAddress(std::string* mailboxpath);
+void ReceiverNames(std::string* mailboxpath, std::vector<std::string>* receivernames);
+void ReceiverAddresses(std::string* mailboxpath, std::vector<std::string>* receiveraddresses);
 
 #endif // PARSEMSG_H

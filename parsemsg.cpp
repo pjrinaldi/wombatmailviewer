@@ -35,3 +35,37 @@ std::string SenderAddress(std::string* mailboxpath)
 
     return senderaddress;
 }
+
+void ReceiverNames(std::string* mailboxpath, std::vector<std::string>* receivernames)
+{
+    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
+    cfb->NavigateDirectoryEntries();
+    std::string rnameslist = "";
+    cfb->GetDirectoryEntryStream(&rnameslist, "0E04");
+
+    if(!rnameslist.empty())
+    {
+        std::istringstream rnstream(rnameslist);
+        std::string rn;
+        while(getline(rnstream, rn, ';'))
+            receivernames->push_back(rn);
+    }
+}
+
+void ReceiverAddresses(std::string* mailboxpath, std::vector<std::string>* receiveraddresses)
+{
+    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
+    cfb->NavigateDirectoryEntries();
+    std::string raddrlist = "";
+    cfb->GetDirectoryEntryStream(&raddrlist, "5D01");
+    if(raddrlist.empty())
+        cfb->GetDirectoryEntryStream(&raddrlist, "5D09");
+
+    if(!raddrlist.empty())
+    {
+        std::istringstream rastream(raddrlist);
+        std::string ra;
+        while(getline(rastream, ra, ';'))
+            receiveraddresses->push_back(ra);
+    }
+}

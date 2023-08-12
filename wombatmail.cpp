@@ -970,89 +970,69 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     content.append(SenderAddress(&mailboxpath));
     content.append(">\n");
     content.append("To:\t\t");
+    std::vector<std::string> receivernames;
+    receivernames.clear();
+    ReceiverNames(&mailboxpath, &receivernames);
+    std::vector<std::string> receiveraddresses;
+    receiveraddresses.clear();
+    ReceiverAddresses(&mailboxpath, &receiveraddresses);
+    if(receiveraddresses.size() == 0) // NO ADDRESSES, JUST NAMES
+    {
+        for(int i=0; i < receivernames.size(); i++)
+        {
+            content.append(receivernames.at(i));
+            if(i < receivernames.size() - 1)
+                content.append("; ");
+        }
+    }
+    else if(receiveraddresses.size() > 0 && receivernames.size() == 0) // NO NAMES, JUST ADDRESSES
+    {
+        for(int i=0; i < receiveraddresses.size(); i++)
+        {
+            content.append(receiveraddresses.at(i));
+            if(i < receiveraddresses.size() - 1)
+                content.append("; ");
+        }
+    }
+    else if(receiveraddresses.size() > 0 && receivernames.size() > 0) // BOTH NAMES & ADDRESSES
+    {
+        if(receiveraddresses.size() < receivernames.size()) // MORE NAMES THAN ADDRESSES
+        {
+            for(int i=0; i < receiveraddresses.size(); i++)
+                content.append(receivernames.at(i) + " <" + receiveraddresses.at(i) + ">; ");
+            for(int i = receiveraddresses.size(); i < receivernames.size(); i++)
+            {
+                content.append(receivernames.at(i));
+                if(i < receivernames.size() - 1)
+                    content.append("; ");
+            }
+        }
+        else if(receiveraddresses.size() > receivernames.size()) // MORE ADDRESSES THAN NAMES
+        {
+            for(int i=0; i < receivernames.size(); i++)
+                content.append(receivernames.at(i) + " <" + receiveraddresses.at(i) + ">; ");
+            for(int i = receivernames.size(); i < receiveraddresses.size(); i++)
+            {
+                content.append(receiveraddresses.at(i));
+                if(i < receiveraddresses.size() - 1)
+                    content.append("; ");
+            }
+        }
+        else if(receiveraddresses.size() == receivernames.size()) // ADDRESSES EQUALS NAMES
+        {
+            for(int i=0; i < receiveraddresses.size(); i++)
+            {
+                content.append(receivernames.at(i) + " <" + receiveraddresses.at(i) + ">");
+                if(i < receiveraddresses.size() - 1)
+                    content.append("; ");
+            }
+        }
+    }
+    content.append("\n");
 
     plaintext->setText(FXString(content.c_str()).substitute('\r', ' '));
     /*
     // pole/msg method
-    Core::Msg* pmsg = NULL;
-    pmsg = new Core::Msg(mailboxpath.c_str());
-    if(pmsg != NULL)
-    {
-	std::string content = "";
-        content.append(msgcontent);
-        content.append("\n\n\n");
-	content.append("From:\t\t");
-	content.append(pmsg->senderName());
-	content.append(" <");
-	content.append(pmsg->senderAddress());
-	content.append(">\n");
-	content.append("To:\t\t");
-	std::string recnames = pmsg->receiversNames();
-	std::string recaddrs = pmsg->receiversAddresses();
-        std::vector<std::string> rnames;
-        rnames.clear();
-        std::istringstream rnstream(recnames);
-        std::string rn;
-        while(getline(rnstream, rn, ';'))
-            rnames.push_back(rn);
-        std::vector<std::string> raddrs;
-        raddrs.clear();
-        std::istringstream rastream(recaddrs);
-        std::string ra;
-        while(getline(rastream, ra, ';'))
-            raddrs.push_back(ra);
-        if(raddrs.size() == 0) // no addresses, just display names
-        {
-            for(int i=0; i < rnames.size(); i++)
-            {
-                content.append(rnames.at(i));
-                if(i < rnames.size() - 1)
-                    content.append("; ");
-            }
-        }
-        else if(raddrs.size() > 0 && rnames.size() == 0) // no names, just display addresses
-        {
-            for(int i=0; i < raddrs.size(); i++)
-            {
-                content.append(raddrs.at(i));
-                if(i < raddrs.size() - 1)
-                    content.append("; ");
-            }
-        }
-        else if(raddrs.size() > 0 && rnames.size() > 0)
-        {
-            if(raddrs.size() < rnames.size()) // more names than addresses
-            {
-                for(int i=0; i < raddrs.size(); i++)
-                    content.append(rnames.at(i) + " <" + raddrs.at(i) + ">; ");
-                for(int i = raddrs.size(); i < rnames.size(); i++)
-                {
-                    content.append(rnames.at(i));
-                    if(i < rnames.size() - 1)
-                        content.append("; ");
-                }
-            }
-            else if(raddrs.size() > rnames.size()) // more addresses than names
-            {
-                for(int i=0; i < rnames.size(); i++)
-                    content.append(rnames.at(i) + " <" + raddrs.at(i) + ">; ");
-                for(int i = rnames.size(); i < raddrs.size(); i++)
-                {
-                    content.append(raddrs.at(i));
-                    if(i < raddrs.size() - 1)
-                        content.append("; ");
-                }
-            }
-            else if(raddrs.size() == rnames.size()) // equal amount of addresses and names
-            {
-                for(int i=0; i < raddrs.size(); i++)
-                {
-                    content.append(rnames.at(i) + " <" + raddrs.at(i) + ">");
-                    if(i < raddrs.size() - 1)
-                        content.append("; ");
-                }
-            }
-        }
         content.append("\n");
         std::string ccs = pmsg->CCs();
         if(!ccs.empty())
