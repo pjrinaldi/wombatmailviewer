@@ -212,7 +212,10 @@ void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, st
             break;
         }
     }
-    if(curdirentry.streamsize < 4096) // USE MINI STREAMS
+    if(curdirentry.streamsize == 0) // DO NOTHING
+    {
+    }
+    else if(curdirentry.streamsize < 4096) // USE MINI STREAMS
     {
         // GET MINI FAT CHAIN FROM FATCHAIN
         std::vector<uint32_t> minifatchain;
@@ -240,8 +243,12 @@ void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, st
             if(curdirentry.startingsector % 8 != 0)
                 sectorcnt++;
             //std::cout << curdirentry.startingsector / 8 << " " << curdirentry.startingsector % 8 << std::endl;
-            uint64_t curoffset = ((minifatchain.at(sectorcnt - 1)) + 1) * 512 + (curdirentry.startingsector % 8) * 64;
-            //std::cout << "minifatchain offset: " << (minifatchain.at(sectorcnt - 1) + 1) * 512 << std::endl;
+            uint64_t curoffset = 0;
+            if(curdirentry.startingsector % 8 == 0)
+                curoffset = ((minifatchain.at(sectorcnt - 1)) + 2) * sectorsize;
+            else
+                curoffset = ((minifatchain.at(sectorcnt - 1)) + 1) * sectorsize + (curdirentry.startingsector % 8) * 64;
+            //std::cout << "minifatchain offset: " << (minifatchain.at(sectorcnt - 1) + 1) * sectorsize << std::endl;
             //std::cout << "curoffset: " << curoffset << std::endl;
             if(curdirentry.name.find("001E") != std::string::npos) // UTF-8
             {

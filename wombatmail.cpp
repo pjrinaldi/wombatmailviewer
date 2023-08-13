@@ -1029,29 +1029,27 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
         }
     }
     content.append("\n");
+    std::string ccstr = CarbonCopy(&mailboxpath);
+    if(!ccstr.empty())
+    {
+        content.append("Cc:\t\t");
+        content.append(ccstr);
+        content.append("\n");
+    }
+    std::string bccstr = BlindCarbonCopy(&mailboxpath);
+    if(!bccstr.empty())
+    {
+        content.append("Bcc:\t\t");
+        content.append(bccstr);
+        content.append("\n");
+    }
+    content.append("Subject:\t");
+    content.append(Subject(&mailboxpath));
+    content.append("\n");
 
     plaintext->setText(FXString(content.c_str()).substitute('\r', ' '));
     /*
     // pole/msg method
-        content.append("\n");
-        std::string ccs = pmsg->CCs();
-        if(!ccs.empty())
-        {
-            content.append("Cc:\t\t");
-            content.append(ccs);
-            content.append("\n");
-        }
-        std::string bccs = pmsg->Bccs();
-        if(!bccs.empty())
-        {
-            content.append("Bcc:\t\t");
-            content.append(bccs);
-            content.append("\n");
-        }
-        std::string subject = pmsg->subject();
-        content.append("Subject:\t");
-        content.append(subject);
-        content.append("\n");
         std::string msgdate = pmsg->date();
         content.append("Date:\t\t");
         content.append(msgdate);

@@ -18,5 +18,9 @@ std::string SenderName(std::string* mailboxpath);
 std::string SenderAddress(std::string* mailboxpath);
 void ReceiverNames(std::string* mailboxpath, std::vector<std::string>* receivernames);
 void ReceiverAddresses(std::string* mailboxpath, std::vector<std::string>* receiveraddresses);
+std::string CarbonCopy(std::string* mailboxpath);
+std::string BlindCarbonCopy(std::string* mailboxpath);
+std::string Subject(std::string* mailboxpath);
+std::string Date(std::string* mailboxpath);
 
 #endif // PARSEMSG_H
