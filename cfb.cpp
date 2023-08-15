@@ -198,12 +198,133 @@ void CompoundFileBinary::ParseRootDirectory(void)
     //std::cout << "mini stream size: " << ministreamsize << std::endl;
 }
 
+void CompoundFileBinary::NavigateDirectoryTree(DirectoryEntry* currententry, std::string direntryname, uint32_t curid)
+{
+    // MIGHT NEED TO KEEP UP WITH PARID, SO IF THERE IS NO CHILD LEFT OR RIGHT, THEN WE CAN GO BACK TO THE LAST PARENT AND GO NEXT SIBLING INSTEAD OF CHILD.... REQUIRE MORE THOUGHT
+    DirectoryEntry curentry;
+    if(curid == 0)
+        curentry = directoryentries.at(0);
+    else
+    {
+        for(int i=0; i < directoryentries.size(); i++)
+        {
+            if(curid == directoryentries.at(i).id)
+            {
+                curentry = directoryentries.at(i);
+                break;
+            }
+        }
+    }
+    if(curentry.name.find(direntryname) != std::string::npos)
+    {
+        //std::cout << "match" << std::endl;
+        *currententry = curentry;
+    }
+    else
+    {
+        //std::cout << "no match." << std::endl;
+        //std::cout << "old id: " << curid << std::endl;
+        if(curid == 0 || (curentry.rightsiblingid == 0xffffffff && curentry.childid != 0xffffffff))
+            curid = curentry.childid;
+        else
+            curid = curentry.rightsiblingid;
+        //std::cout << "new id: " << curid << std::endl;
+        NavigateDirectoryTree(currententry, direntryname, curid);
+    }
+}
+
+void CompoundFileBinary::GetDirectoryEntryStream(DirectoryEntry* curdirentry, std::string* direntrystream)
+{
+    *direntrystream = "";
+    // GET CURRENT DIRECTORY ENTRY
+    // MOVE NAVIGATEDIRECTORYTREE HERE...
+    /*
+    for(int i=0; i < directoryentries.size(); i++)
+    {
+        if(directoryentries.at(i).name.find(direntryname) != std::string::npos)
+        {
+            curdirentry = directoryentries.at(i);
+            break;
+        }
+    }
+    */
+    if(curdirentry->streamsize == 0) // DO NOTHING
+    {
+    }
+    else if(curdirentry->streamsize < 4096) // USE MINI STREAMS
+    {
+        // GET MINI FAT CHAIN FROM FATCHAIN
+        std::vector<uint32_t> minifatchain;
+        minifatchain.clear();
+        for(int i=0; i < fatchains.size(); i++)
+        {
+            if(fatchains.at(i).at(0) == startingministreamsector)
+            {
+                minifatchain = fatchains.at(i);
+                break;
+            }
+        }
+
+        /*
+        std::cout << "mini fat chain: ";
+        for(int i=0; i < minifatchain.size(); i++)
+            std::cout << minifatchain.at(i) << ", ";
+        std::cout << std::endl;
+        */
+
+        if(curdirentry->streamsize < 64) // don't need minifatchains, value is contained in 1 minifat sector
+        {
+            //std::cout << "curdirentry starting sector: " << curdirentry.startingsector << std::endl;
+            uint16_t sectorcnt = curdirentry->startingsector / 8;
+            if(curdirentry->startingsector % 8 != 0)
+                sectorcnt++;
+            //std::cout << curdirentry.startingsector / 8 << " " << curdirentry.startingsector % 8 << std::endl;
+            uint64_t curoffset = 0;
+            if(curdirentry->startingsector % 8 == 0)
+                curoffset = ((minifatchain.at(sectorcnt - 1)) + 2) * sectorsize;
+            else
+                curoffset = ((minifatchain.at(sectorcnt - 1)) + 1) * sectorsize + (curdirentry->startingsector % 8) * 64;
+            //std::cout << "minifatchain offset: " << (minifatchain.at(sectorcnt - 1) + 1) * sectorsize << std::endl;
+            //std::cout << "curoffset: " << curoffset << std::endl;
+            if(curdirentry->name.find("001E") != std::string::npos) // UTF-8
+            {
+                uint8_t* tmpbuf = new uint8_t[curdirentry->streamsize+1];
+                ReadContent(tmpbuf, curoffset, curdirentry->streamsize);
+                tmpbuf[curdirentry->streamsize] = '\0';
+                *direntrystream += (char*)tmpbuf;
+                delete[] tmpbuf;
+                //std::cout << "utf-8: |" << *direntrystream << "|" << std::endl;
+            }
+            else if(curdirentry->name.find("001F") != std::string::npos) // UTF-16
+            {
+                for(int i=0; i < curdirentry->streamsize / 2; i++)
+                {
+                    uint16_t singleletter = 0;
+                    ReadContent(&singleletter, curoffset + i*2);
+                    *direntrystream += (char)singleletter;
+                }
+                //std::cout << "utf-16: |" << *direntrystream << "|" << std::endl;
+            }
+        }
+        else // ensure the minifatchains are sequential to get the values
+        {
+        }
+    }
+    else // USE REGULAR SECTORS
+    {
+        // get chain from the fat based off of the starting sector (for/if for 1st entry of each fatchains)
+        // then use the stream size to read the content into the respective storage container.
+        std::cout << "use regular sectors for stream: " << curdirentry->startingsector << std::endl;
+    }
+}
+
 //void CompoundFileBinary::FindDirectoryEntry(std::string direntryname)
 void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, std::string direntryname)
 {
     DirectoryEntry curdirentry;
     *direntrystream = "";
     // GET CURRENT DIRECTORY ENTRY
+    // MOVE NAVIGATEDIRECTORYTREE HERE INSTEAD OF THIS GENERIC FOR LOOP
     for(int i=0; i < directoryentries.size(); i++)
     {
         if(directoryentries.at(i).name.find(direntryname) != std::string::npos)

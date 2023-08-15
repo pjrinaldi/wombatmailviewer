@@ -62,7 +62,6 @@ class CompoundFileBinary
         void ParseMiniFat(void);
         void ParseRootDirectory(void);
         void ParseDirectoryEntry(DirectoryEntry* direntry, uint64_t offset);
-        //void FindDirectoryEntry(std::string direntryname);
 
     public:
         CompoundFileBinary(std::string* msgfile);
@@ -70,6 +69,9 @@ class CompoundFileBinary
         bool VerifyHeader();
         void NavigateDirectoryEntries();
         void GetDirectoryEntryStream(std::string* direntrystream, std::string direntryname);
+        void GetDirectoryEntryStream(DirectoryEntry* currententry, std::string* direntrystream);
+        //void FindDirectoryEntry(std::string direntryname);
+        void NavigateDirectoryTree(DirectoryEntry* currententry, std::string direntyname, uint32_t curid);
 };
 
 #endif // COMPUNDFILEBINARY_H

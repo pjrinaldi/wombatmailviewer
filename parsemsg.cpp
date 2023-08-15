@@ -5,7 +5,12 @@ std::string SenderName(std::string* mailboxpath)
     CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
     cfb->NavigateDirectoryEntries();
     std::string sendername = "";
-    cfb->GetDirectoryEntryStream(&sendername, "0C1A");
+    DirectoryEntry curentry;
+    // need to move the navigatedirectorytree into getdirectoryentrystream
+    cfb->NavigateDirectoryTree(&curentry, "0C1A", 0);
+    cfb->GetDirectoryEntryStream(&curentry, &sendername);
+    std::cout << "sender name: " << sendername << std::endl;
+    //cfb->GetDirectoryEntryStream(&sendername, "0C1A");
     if(sendername.empty())
         cfb->GetDirectoryEntryStream(&sendername, "3FFA");
     if(sendername.empty())
@@ -106,6 +111,7 @@ std::string Subject(std::string* mailboxpath)
 
 std::string Date(std::string* mailboxpath)
 {
+    return "";
     /*
     //m_date = getDateTimeFromStream("__properties_version1.0");
     std::stringstream ss;
