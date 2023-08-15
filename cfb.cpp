@@ -208,6 +208,7 @@ void CompoundFileBinary::NavigateDirectoryTree(DirectoryEntry* currententry, std
     {
         for(int i=0; i < directoryentries.size(); i++)
         {
+            //std::cout << "curid: " << curid << " id: " << directoryentries.at(i).id << " name: " << directoryentries.at(i).name << " to mach: " << direntryname << std::endl;
             if(curid == directoryentries.at(i).id)
             {
                 curentry = directoryentries.at(i);
@@ -219,6 +220,10 @@ void CompoundFileBinary::NavigateDirectoryTree(DirectoryEntry* currententry, std
     {
         //std::cout << "match" << std::endl;
         *currententry = curentry;
+    }
+    else if(curid == 0xffffffff)
+    {
+       //std::cout << "stream not found" << std::endl;
     }
     else
     {
@@ -233,21 +238,20 @@ void CompoundFileBinary::NavigateDirectoryTree(DirectoryEntry* currententry, std
     }
 }
 
+/*
 void CompoundFileBinary::GetDirectoryEntryStream(DirectoryEntry* curdirentry, std::string* direntrystream)
 {
     *direntrystream = "";
     // GET CURRENT DIRECTORY ENTRY
     // MOVE NAVIGATEDIRECTORYTREE HERE...
-    /*
-    for(int i=0; i < directoryentries.size(); i++)
-    {
-        if(directoryentries.at(i).name.find(direntryname) != std::string::npos)
-        {
-            curdirentry = directoryentries.at(i);
-            break;
-        }
-    }
-    */
+    //for(int i=0; i < directoryentries.size(); i++)
+    //{
+    //    if(directoryentries.at(i).name.find(direntryname) != std::string::npos)
+    //    {
+    //        curdirentry = directoryentries.at(i);
+    //        break;
+    //    }
+    //}
     if(curdirentry->streamsize == 0) // DO NOTHING
     {
     }
@@ -265,12 +269,10 @@ void CompoundFileBinary::GetDirectoryEntryStream(DirectoryEntry* curdirentry, st
             }
         }
 
-        /*
-        std::cout << "mini fat chain: ";
-        for(int i=0; i < minifatchain.size(); i++)
-            std::cout << minifatchain.at(i) << ", ";
-        std::cout << std::endl;
-        */
+        //std::cout << "mini fat chain: ";
+        //for(int i=0; i < minifatchain.size(); i++)
+        //    std::cout << minifatchain.at(i) << ", ";
+        //std::cout << std::endl;
 
         if(curdirentry->streamsize < 64) // don't need minifatchains, value is contained in 1 minifat sector
         {
@@ -317,6 +319,7 @@ void CompoundFileBinary::GetDirectoryEntryStream(DirectoryEntry* curdirentry, st
         std::cout << "use regular sectors for stream: " << curdirentry->startingsector << std::endl;
     }
 }
+*/
 
 //void CompoundFileBinary::FindDirectoryEntry(std::string direntryname)
 void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, std::string direntryname)
@@ -325,6 +328,7 @@ void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, st
     *direntrystream = "";
     // GET CURRENT DIRECTORY ENTRY
     // MOVE NAVIGATEDIRECTORYTREE HERE INSTEAD OF THIS GENERIC FOR LOOP
+    /*
     for(int i=0; i < directoryentries.size(); i++)
     {
         if(directoryentries.at(i).name.find(direntryname) != std::string::npos)
@@ -333,6 +337,8 @@ void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, st
             break;
         }
     }
+    */
+    NavigateDirectoryTree(&curdirentry, direntryname, 0);
     if(curdirentry.streamsize == 0) // DO NOTHING
     {
     }
@@ -434,6 +440,12 @@ void CompoundFileBinary::NavigateDirectoryEntries(void)
             a++;
         }
     }
+    /*
+    for(int i=0; i < directoryentries.size(); i++)
+    {
+        std::cout << std::hex << "id: " << directoryentries.at(i).id << " name: " << directoryentries.at(i).name << " rid: " << directoryentries.at(i).rightsiblingid << " cid: " << directoryentries.at(i).childid << std::dec << std::endl;
+    }
+    */
     //std::cout << "directoryentries count: " << directoryentries.size() << std::endl;
 }
 

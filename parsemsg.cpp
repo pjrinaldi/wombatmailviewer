@@ -7,10 +7,10 @@ std::string SenderName(std::string* mailboxpath)
     std::string sendername = "";
     DirectoryEntry curentry;
     // need to move the navigatedirectorytree into getdirectoryentrystream
-    cfb->NavigateDirectoryTree(&curentry, "0C1A", 0);
-    cfb->GetDirectoryEntryStream(&curentry, &sendername);
-    std::cout << "sender name: " << sendername << std::endl;
-    //cfb->GetDirectoryEntryStream(&sendername, "0C1A");
+    //cfb->NavigateDirectoryTree(&curentry, "0C1A", 0);
+    //cfb->GetDirectoryEntryStream(&curentry, &sendername);
+    //std::cout << "sender name: " << sendername << std::endl;
+    cfb->GetDirectoryEntryStream(&sendername, "0C1A");
     if(sendername.empty())
         cfb->GetDirectoryEntryStream(&sendername, "3FFA");
     if(sendername.empty())
@@ -31,8 +31,8 @@ std::string SenderAddress(std::string* mailboxpath)
         cfb->GetDirectoryEntryStream(&senderaddress, "800B");
     if(senderaddress.empty())
         cfb->GetDirectoryEntryStream(&senderaddress, "3FFA");
-    if(senderaddress.empty())
-        cfb->GetDirectoryEntryStream(&senderaddress, "5D01");
+    //if(senderaddress.empty())
+    //    cfb->GetDirectoryEntryStream(&senderaddress, "5D01");
     if(senderaddress.empty())
         cfb->GetDirectoryEntryStream(&senderaddress, "5D02");
     if(senderaddress.empty())
