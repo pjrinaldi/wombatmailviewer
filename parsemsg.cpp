@@ -109,68 +109,132 @@ std::string Subject(std::string* mailboxpath)
     return subj;
 }
 
+std::string Body(std::string* mailboxpath)
+{
+    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
+    cfb->NavigateDirectoryEntries();
+    std::string body = "";
+    cfb->GetDirectoryEntryStream(&body, "1000");
+
+    return body;
+}
+
+uint8_t* substr(uint8_t* arr, int begin, int len)
+{
+    uint8_t* res = new uint8_t[len + 1];
+    for (int i = 0; i < len; i++)
+        res[i] = *(arr + begin + i);
+    res[len] = 0;
+    return res;
+}
+
+void ReadInteger(uint8_t* arr, int begin, uint16_t* val, bool isbigendian)
+{
+    uint8_t* tmp8 = new uint8_t[2];
+    tmp8 = substr(arr, begin, 2);
+    ReturnUint16(val, tmp8, isbigendian);
+    delete[] tmp8;
+}
+
+void ReadInteger(uint8_t* arr, int begin, uint32_t* val, bool isbigendian)
+{
+    uint8_t* tmp8 = new uint8_t[4];
+    tmp8 = substr(arr, begin, 4);
+    ReturnUint32(val, tmp8, isbigendian);
+    delete[] tmp8;
+}
+
+void ReadInteger(uint8_t* arr, int begin, uint64_t* val, bool isbigendian)
+{
+    uint8_t* tmp8 = new uint8_t[8];
+    tmp8 = substr(arr, begin, 8);
+    ReturnUint64(val, tmp8, isbigendian);
+    delete[] tmp8;
+}
+
+void ReturnUint32(uint32_t* tmp32, uint8_t* tmp8, bool isbigendian)
+{
+    if(isbigendian)
+        *tmp32 = __builtin_bswap32((uint32_t)tmp8[0] | (uint32_t)tmp8[1] << 8 | (uint32_t)tmp8[2] << 16 | (uint32_t)tmp8[3] << 24);
+    else
+        *tmp32 = (uint32_t)tmp8[0] | (uint32_t)tmp8[1] << 8 | (uint32_t)tmp8[2] << 16 | (uint32_t)tmp8[3] << 24;
+}
+
+void ReturnUint16(uint16_t* tmp16, uint8_t* tmp8, bool isbigendian)
+{
+    if(isbigendian)
+        *tmp16 = __builtin_bswap16((uint16_t)tmp8[0] | (uint16_t)tmp8[1] << 8);
+    else
+        *tmp16 = (uint16_t)tmp8[0] | (uint16_t)tmp8[1] << 8;
+}
+
+void ReturnUint64(uint64_t* tmp64, uint8_t* tmp8, bool isbigendian)
+{
+    if(isbigendian)
+        *tmp64 = __builtin_bswap64((uint64_t)tmp8[0] | (uint64_t)tmp8[1] << 8 | (uint64_t)tmp8[2] << 16 | (uint64_t)tmp8[3] << 24 | (uint64_t)tmp8[4] << 32 | (uint64_t)tmp8[5] << 40 | (uint64_t)tmp8[6] << 48 | (uint64_t)tmp8[7] << 56);
+    else
+        *tmp64 = (uint64_t)tmp8[0] | (uint64_t)tmp8[1] << 8 | (uint64_t)tmp8[2] << 16 | (uint64_t)tmp8[3] << 24 | (uint64_t)tmp8[4] << 32 | (uint64_t)tmp8[5] << 40 | (uint64_t)tmp8[6] << 48 | (uint64_t)tmp8[7] << 56;
+}
+
+std::string ConvertWindowsTimeToUnixTimeUTC(uint64_t input)
+{
+    uint64_t temp;
+    temp = input / TICKS_PER_SECOND; //convert from 100ns intervals to seconds;
+    temp = temp - EPOCH_DIFFERENCE;  //subtract number of seconds between epochs
+    time_t crtimet = (time_t)temp;
+    struct tm* dt;
+    dt = gmtime(&crtimet);
+    char timestr[30];
+    strftime(timestr, sizeof(timestr), "%m/%d/%Y %I:%M:%S %p", dt);
+
+    return timestr;
+}
+
 std::string Date(std::string* mailboxpath)
 {
     CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
     cfb->NavigateDirectoryEntries();
     std::string date = "";
     uint8_t* propertybuffer = NULL;
-    cfb->GetDirectoryEntryBuffer(&propertybuffer, "__properties_version1.0");
-    std::cout << "pbuf at 8: " << (uint)propertybuffer[8] << std::endl;
+    uint64_t pbsize = 0;
+    cfb->GetDirectoryEntryBuffer(&propertybuffer, &pbsize, "__properties_version1.0");
+    //std::cout << "pbsize: " << pbsize << std::endl;
+    //std::cout << "propertybuffer size: " << sizeof(propertybuffer) << std::endl;
+    //std::cout << "pbuf at 8: " << (uint)propertybuffer[8] << std::endl;
     //cfb->GetDirectoryEntryStream(&date, "__properties_version1.0");
+    uint32_t propertycount = (pbsize - 32) / 16;
+    //std::cout << "propertycount: " << propertycount << std::endl;
+    // LOOP OVER PROPERTIES TO FIND THE TIMES
+    uint64_t cursize = pbsize - 32;
+    int curoffset = 32;
+    for(int i=0; i < propertycount; i++)
+    {
+        curoffset = 32 + (i * 16);
+        uint16_t ptype = 0;
+        //std::cout << "curoffset: " << curoffset << std::endl;
+        ReadInteger(propertybuffer, curoffset, &ptype); 
+        //std::cout << "ptype: " << ptype << std::endl;
+        if(date.empty())
+        {
+            if(ptype == 0x0040)
+            {
+                //std::cout << "it's a time property, so get it." << std::endl;
+                uint16_t dtype = 0;
+                ReadInteger(propertybuffer, curoffset + 2, &dtype);
+                //std::cout << "date type: " << std::hex << "0x" << dtype << std::dec << std::endl;
+                if(dtype == 0x0010 || dtype == 0x0e06 || dtype == 0x3008 || dtype == 0x3007 || dtype == 0x0039)
+                {
+                    uint64_t filetime = 0;
+                    ReadInteger(propertybuffer, curoffset + 8, &filetime);
+                    date = ConvertWindowsTimeToUnixTimeUTC(filetime);
+                    //std::cout << "time: " << ConvertWindowsTimeToUnixTimeUTC(filetime) << std::endl;
+                }
+            }
+        }
+        else if(!date.empty())
+            break;
+    }
 
     //std::cout << "properties: " << date.at(0) << std::endl;
-    return "";
-    /*
-    //m_date = getDateTimeFromStream("__properties_version1.0");
-    std::stringstream ss;
-    POLE::Stream requested_stream(m_File, stream);
-    if (requested_stream.fail())
-        std::cout << "Failed to obtain stream: " << stream << '\n';
-    else {
-        uint64_t microt = 0;
-        uint32_t address = 0;
-        int read;
-        do {
-            read = requested_stream.read(reinterpret_cast<unsigned char*>(&address), 4);
-        } while (read > 0 && address != 0x00390040u && address != 0x0E060040u && address != 0x80080040u);
-
-        //std::cout << "microt: " << microt << " address: " << address << std::endl;
-
-        if (address == 0x00390040u || address == 0x0E060040u || address == 0x80080040u) {
-            requested_stream.read(reinterpret_cast<unsigned char*>(&address), 4);
-            requested_stream.read(reinterpret_cast<unsigned char*>(&microt), 8);
-        
-            //std::cout << "microt: " << microt << " address: " << address << std::endl;
-
-            microt = microt / 10;
-
-            std::tm t;
-            t.tm_year = 1601 - 1900;
-            t.tm_mday = 1;
-            t.tm_mon  = 0;
-            t.tm_hour = 0;
-            t.tm_min  = 0;
-            t.tm_sec  = 0;
-
-            std::time_t pTypTime = std::mktime(&t); // PTypTime() ==
-                                                    // 01/01/1601
-                                                    // 00:00:00.
-
-            std::chrono::system_clock::time_point tpDate =
-                (std::chrono::system_clock::from_time_t(pTypTime) + std::chrono::microseconds(microt));
-            std::time_t ttDate = std::chrono::system_clock::to_time_t(tpDate);
-
-            t = *(std::localtime(&ttDate));
-
-            //ss << std::setw(4) << std::setfill('0') << t.tm_year + 1900 << '-' << std::setw(2)
-               //<< std::setfill('0') << t.tm_mon + 1 << '-' << std::setw(2) << std::setfill('0') << t.tm_mday
-            ss << std::setw(2) << std::setfill('0') << t.tm_mon + 1 << "/" << std::setw(2) << std::setfill('0')
-               << t.tm_mday << "/" << std::setw(4) << std::setfill('0') << t.tm_year + 1900
-               << " " << std::setw(2) << std::setfill('0') << t.tm_hour << ":" << std::setw(2) << std::setfill('0')
-               << t.tm_min << ":" << std::setw(2) << std::setfill('0') << t.tm_sec << " UTC";
-        }
-    }
-    return ss.str();
-    */
+    return date;
 }

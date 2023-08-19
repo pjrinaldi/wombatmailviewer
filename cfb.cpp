@@ -409,7 +409,7 @@ void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, st
     }
 }
 
-void CompoundFileBinary::GetDirectoryEntryBuffer(uint8_t** buffer, std::string direntryname)
+void CompoundFileBinary::GetDirectoryEntryBuffer(uint8_t** buffer, uint64_t* pbsize, std::string direntryname)
 {
     DirectoryEntry curdirentry;
     // GET CURRENT DIRECTORY ENTRY
@@ -451,6 +451,7 @@ void CompoundFileBinary::GetDirectoryEntryBuffer(uint8_t** buffer, std::string d
 
         //std::cout << "curoffset " << curoffset << std::endl;
         //uint8_t* tmpbuf = new uint8_t[curdirentry.streamsize];
+        *pbsize = curdirentry.streamsize;
         *buffer = new uint8_t[curdirentry.streamsize];
         ReadContent(*buffer, curoffset, curdirentry.streamsize);
         //ReadContent(tmpbuf, curoffset, curdirentry.streamsize);
@@ -460,35 +461,6 @@ void CompoundFileBinary::GetDirectoryEntryBuffer(uint8_t** buffer, std::string d
     else // USE FAT SECTORS
     {
     }
-    /*
-    *direntrystream = "";
-    else if(curdirentry.streamsize < 4096) // USE MINI STREAMS
-    {
-            if(curdirentry.name.find("001E") != std::string::npos) // UTF-8
-            {
-                uint8_t* tmpbuf = new uint8_t[curdirentry.streamsize+1];
-                ReadContent(tmpbuf, curoffset, curdirentry.streamsize);
-                tmpbuf[curdirentry.streamsize] = '\0';
-                *direntrystream += (char*)tmpbuf;
-                delete[] tmpbuf;
-                //std::cout << "utf-8: |" << *direntrystream << "|" << std::endl;
-            }
-            else if(curdirentry.name.find("001F") != std::string::npos) // UTF-16
-            {
-                for(int i=0; i < curdirentry.streamsize / 2; i++)
-                {
-                    uint16_t singleletter = 0;
-                    ReadContent(&singleletter, curoffset + i*2);
-                    *direntrystream += (char)singleletter;
-                }
-                //std::cout << "utf-16: |" << *direntrystream << "|" << std::endl;
-            }
-        }
-        else // ensure the minifatchains are sequential to get the values
-        {
-        }
-    }
-    */
 }
 
 void CompoundFileBinary::NavigateDirectoryEntries(void)
@@ -522,12 +494,10 @@ void CompoundFileBinary::NavigateDirectoryEntries(void)
             a++;
         }
     }
-    /*
-    for(int i=0; i < directoryentries.size(); i++)
-    {
-        std::cout << std::hex << "id: " << directoryentries.at(i).id << " name: " << directoryentries.at(i).name << " rid: " << directoryentries.at(i).rightsiblingid << " cid: " << directoryentries.at(i).childid << std::dec << std::endl;
-    }
-    */
+    //for(int i=0; i < directoryentries.size(); i++)
+    //{
+    //    std::cout << std::hex << "id: " << directoryentries.at(i).id << " name: " << directoryentries.at(i).name << " rid: " << directoryentries.at(i).rightsiblingid << " cid: " << directoryentries.at(i).childid << std::dec << std::endl;
+    //}
     //std::cout << "directoryentries count: " << directoryentries.size() << std::endl;
 }
 
