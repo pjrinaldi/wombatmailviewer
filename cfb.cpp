@@ -229,7 +229,7 @@ void CompoundFileBinary::NavigateDirectoryTree(DirectoryEntry* currententry, std
     {
         //std::cout << "no match." << std::endl;
         //std::cout << "old id: " << curid << std::endl;
-        if(curid == 0 || (curentry.rightsiblingid == 0xffffffff && curentry.childid != 0xffffffff))
+        if(curid == 0)// || (curentry.rightsiblingid == 0xffffffff && curentry.childid != 0xffffffff))
             curid = curentry.childid;
         else
             curid = curentry.rightsiblingid;
@@ -407,6 +407,85 @@ void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, st
         // then use the stream size to read the content into the respective storage container.
         std::cout << "use regular sectors for stream: " << curdirentry.startingsector << std::endl;
     }
+}
+
+void CompoundFileBinary::GetDirectoryEntryBuffer(std::string direntryname)
+{
+    DirectoryEntry curdirentry;
+    // GET CURRENT DIRECTORY ENTRY
+    NavigateDirectoryTree(&curdirentry, direntryname, 0);
+    //std::cout << "stream offset: " << curdirentry.startingsector << " stream size: " << curdirentry.streamsize << std::endl;
+    if(curdirentry.streamsize == 0) // DO NOTHING
+    {
+    }
+    else if(curdirentry.streamsize < 4096) // USE MINI STREAMS
+    {
+        // GET MINI FAT CHAIN FROM FATCHAIN
+        std::vector<uint32_t> minifatchain;
+        minifatchain.clear();
+        for(int i=0; i < fatchains.size(); i++)
+        {
+            if(fatchains.at(i).at(0) == startingministreamsector)
+            {
+                minifatchain = fatchains.at(i);
+                break;
+            }
+        }
+
+        /*
+        std::cout << "mini fat chain: ";
+        for(int i=0; i < minifatchain.size(); i++)
+            std::cout << minifatchain.at(i) << ", ";
+        std::cout << std::endl;
+        */
+
+        uint16_t sectorcnt = curdirentry.startingsector / 8;
+        if(curdirentry.startingsector % 8 != 0)
+            sectorcnt++;
+        //std::cout << curdirentry.startingsector / 8 << " " << curdirentry.startingsector % 8 << std::endl;
+        uint64_t curoffset = 0;
+        if(curdirentry.startingsector % 8 == 0)
+            curoffset = ((minifatchain.at(sectorcnt - 1)) + 2) * sectorsize;
+        else
+            curoffset = ((minifatchain.at(sectorcnt - 1)) + 1) * sectorsize + (curdirentry.startingsector % 8) * 64;
+
+        std::cout << "curoffset " << curoffset << std::endl;
+        uint8_t* tmpbuf = new uint8_t[curdirentry.streamsize];
+        ReadContent(tmpbuf, curoffset, curdirentry.streamsize);
+        std::cout << "buf: " << (uint)tmpbuf[8] << std::endl;
+    }
+    else // USE FAT SECTORS
+    {
+    }
+    /*
+    *direntrystream = "";
+    else if(curdirentry.streamsize < 4096) // USE MINI STREAMS
+    {
+            if(curdirentry.name.find("001E") != std::string::npos) // UTF-8
+            {
+                uint8_t* tmpbuf = new uint8_t[curdirentry.streamsize+1];
+                ReadContent(tmpbuf, curoffset, curdirentry.streamsize);
+                tmpbuf[curdirentry.streamsize] = '\0';
+                *direntrystream += (char*)tmpbuf;
+                delete[] tmpbuf;
+                //std::cout << "utf-8: |" << *direntrystream << "|" << std::endl;
+            }
+            else if(curdirentry.name.find("001F") != std::string::npos) // UTF-16
+            {
+                for(int i=0; i < curdirentry.streamsize / 2; i++)
+                {
+                    uint16_t singleletter = 0;
+                    ReadContent(&singleletter, curoffset + i*2);
+                    *direntrystream += (char)singleletter;
+                }
+                //std::cout << "utf-16: |" << *direntrystream << "|" << std::endl;
+            }
+        }
+        else // ensure the minifatchains are sequential to get the values
+        {
+        }
+    }
+    */
 }
 
 void CompoundFileBinary::NavigateDirectoryEntries(void)
