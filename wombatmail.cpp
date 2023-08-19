@@ -1050,14 +1050,13 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     content.append("Date:\t\t");
     content.append(date);
     content.append("\n");
-    std::string body = Body(&mailboxpath);
     content.append("----------\n");
     content.append("\n");
-    content.append(body);
+    content.append(Body(&mailboxpath));
     content.append("\n\n");
-    // or i can just make a std::string ConvertWindowsTimeToUnixTime(Date());
-    // get uint64_t for date returned Date();
-    // then use content.append(ConvertWindowsTimeToUnixTime(Date()).string());
+    content.append("----------\n");
+    content.append(TransportHeader(&mailboxpath));
+    content.append("\n");
 
     plaintext->setText(FXString(content.c_str()).substitute('\r', ' '));
     /*

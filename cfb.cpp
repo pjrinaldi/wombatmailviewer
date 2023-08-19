@@ -363,7 +363,8 @@ void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, st
         std::cout << std::endl;
         */
 
-        if(curdirentry.streamsize < 64) // don't need minifatchains, value is contained in 1 minifat sector
+        // ASSUME THE MINIFAT CHAINS FOR STREAMS ARE CONTINUOUS
+        if(curdirentry.streamsize < 4096) // don't need minifatchains, value is contained in 1 minifat sector
         {
             //std::cout << "curdirentry starting sector: " << curdirentry.startingsector << std::endl;
             uint16_t sectorcnt = curdirentry.startingsector / 8;

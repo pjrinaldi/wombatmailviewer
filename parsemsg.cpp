@@ -119,6 +119,16 @@ std::string Body(std::string* mailboxpath)
     return body;
 }
 
+std::string TransportHeader(std::string* mailboxpath)
+{
+    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
+    cfb->NavigateDirectoryEntries();
+    std::string transportheader = "";
+    cfb->GetDirectoryEntryStream(&transportheader, "007D");
+
+    return transportheader;
+}
+
 uint8_t* substr(uint8_t* arr, int begin, int len)
 {
     uint8_t* res = new uint8_t[len + 1];
