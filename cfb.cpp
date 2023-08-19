@@ -409,7 +409,7 @@ void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, st
     }
 }
 
-void CompoundFileBinary::GetDirectoryEntryBuffer(std::string direntryname)
+void CompoundFileBinary::GetDirectoryEntryBuffer(uint8_t** buffer, std::string direntryname)
 {
     DirectoryEntry curdirentry;
     // GET CURRENT DIRECTORY ENTRY
@@ -449,10 +449,13 @@ void CompoundFileBinary::GetDirectoryEntryBuffer(std::string direntryname)
         else
             curoffset = ((minifatchain.at(sectorcnt - 1)) + 1) * sectorsize + (curdirentry.startingsector % 8) * 64;
 
-        std::cout << "curoffset " << curoffset << std::endl;
-        uint8_t* tmpbuf = new uint8_t[curdirentry.streamsize];
-        ReadContent(tmpbuf, curoffset, curdirentry.streamsize);
-        std::cout << "buf: " << (uint)tmpbuf[8] << std::endl;
+        //std::cout << "curoffset " << curoffset << std::endl;
+        //uint8_t* tmpbuf = new uint8_t[curdirentry.streamsize];
+        *buffer = new uint8_t[curdirentry.streamsize];
+        ReadContent(*buffer, curoffset, curdirentry.streamsize);
+        //ReadContent(tmpbuf, curoffset, curdirentry.streamsize);
+        //std::cout << "buf: " << (uint)tmpbuf[8] << std::endl;
+        //std::cout << "buf: " << (uint)buffer[8] << std::endl;
     }
     else // USE FAT SECTORS
     {

@@ -72,7 +72,7 @@ class CompoundFileBinary
         //void GetDirectoryEntryStream(DirectoryEntry* currententry, std::string* direntrystream);
         //void FindDirectoryEntry(std::string direntryname);
         void NavigateDirectoryTree(DirectoryEntry* currententry, std::string direntyname, uint32_t curid);
-        void GetDirectoryEntryBuffer(std::string direntryname);
+        void GetDirectoryEntryBuffer(uint8_t** buffer, std::string direntryname);
 };
 
 #endif // COMPUNDFILEBINARY_H

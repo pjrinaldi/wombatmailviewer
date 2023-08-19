@@ -114,7 +114,9 @@ std::string Date(std::string* mailboxpath)
     CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
     cfb->NavigateDirectoryEntries();
     std::string date = "";
-    cfb->GetDirectoryEntryBuffer("__properties_version1.0");
+    uint8_t* propertybuffer = NULL;
+    cfb->GetDirectoryEntryBuffer(&propertybuffer, "__properties_version1.0");
+    std::cout << "pbuf at 8: " << (uint)propertybuffer[8] << std::endl;
     //cfb->GetDirectoryEntryStream(&date, "__properties_version1.0");
 
     //std::cout << "properties: " << date.at(0) << std::endl;
