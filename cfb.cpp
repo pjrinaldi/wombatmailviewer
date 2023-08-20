@@ -321,6 +321,18 @@ void CompoundFileBinary::GetDirectoryEntryStream(DirectoryEntry* curdirentry, st
 }
 */
 
+void CompoundFileBinary::GetDirectoryEntry(DirectoryEntry* currententry, uint32_t curid)
+{
+    for(int i=0; i < directoryentries.size(); i++)
+    {
+        if(directoryentries.at(i).id == curid)
+        {
+            *currententry = directoryentries.at(i);
+            break;
+        }
+    }
+}
+
 //void CompoundFileBinary::FindDirectoryEntry(std::string direntryname)
 void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, std::string direntryname)
 {

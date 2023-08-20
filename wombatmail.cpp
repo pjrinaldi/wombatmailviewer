@@ -1065,7 +1065,7 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     //std::cout << "Attachment Count: " << attachcount << std::endl;
     std::vector<AttachmentInfo> msgattachments;
     msgattachments.clear();
-    GetMsgAttachments(&msgattachments, &mailboxpath);
+    GetMsgAttachments(&msgattachments, attachcount, &mailboxpath);
 }
 
 /*

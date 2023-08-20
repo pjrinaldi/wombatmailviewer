@@ -248,9 +248,73 @@ void AttachmentCount(uint32_t* attachcount, std::string* mailboxpath)
     ReadInteger(propertybuffer, 20, attachcount);
 }
 
-void GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, std::string* mailboxpath)
+void GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, uint32_t attachcount, std::string* mailboxpath)
 {
     CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
     cfb->NavigateDirectoryEntries();
-    
+    for(uint32_t i=0; i < attachcount; i++)
+    {
+        std::stringstream strm;
+        strm << std::hex << i;
+        std::string attachstr = "";
+        if(i < 0x10)
+            attachstr = "__attach_version1.0_#0000000" + strm.str();
+        else if(i >= 0x10 && i < 0x100)
+            attachstr = "__attach_version1.0_#000000" + strm.str();
+        else
+            attachstr = "__attach_version1.0_#00000" + strm.str();
+        std::cout << "attachment entry: " << attachstr << std::endl;
+        DirectoryEntry parentry;
+        cfb->NavigateDirectoryTree(&parentry, attachstr, 0);
+        std::cout << parentry.name << " parentry id: " << parentry.id << " cid: " << parentry.childid << std::endl;
+        DirectoryEntry curentry;
+        uint32_t curid = parentry.childid;
+        while(curentry.rightsiblingid < 0xffffffff)
+        {
+            AttachmentInfo curattachinfo;
+            curattachinfo.id = i;
+            cfb->GetDirectoryEntry(&curentry, curid);
+            if(curentry.name.find("3701") != std::string::npos) // Binary Data
+            {
+                std::cout << "get binary data" << std::endl;
+            }
+            else if(curentry.name.find("3704") != std::string::npos) // Name
+            {
+                std::cout << "get short name" << std::endl;
+            }
+            else if(curentry.name.find("3707") != std::string::npos) // Long Name
+            {
+                std::cout << "get long name" << std::endl;
+            }
+            else if(curentry.name.find("370E") != std::string::npos) // Mime Type
+            {
+                std::cout << "get mime tag" << std::endl;
+            }
+            else if(curentry.name.find("3712") != std::string::npos) // Content Id
+            {
+                std::cout << "get content id" << std::endl;
+            }
+            std::cout << curentry.name << " nextid: " << curentry.rightsiblingid << std::endl;
+            curid = curentry.rightsiblingid;
+        }
+    }
 }
+/*
+ *      std::stringstream strm;
+        strm << std::hex << i;
+        std::string attachstr = "";
+        if(i < 0x10)
+            attachstr = "__attach_version1.0_#0000000" + strm.str();
+        else if(i >= 0x10 && i < 0x100)
+            attachstr = "__attach_version1.0_#000000" + strm.str();
+        else
+            attachstr = "__attach_version1.0_#00000" + strm.str();
+        //std::cout << "attachment entry: " << attachstr << std::endl;
+        FILE* fp = fopen(msg->c_str(), "rb");
+        fseek(fp, 0, SEEK_END);
+        size_t len = ftell(fp);
+        std::unique_ptr<unsigned char> buffer(new unsigned char[len]);
+        fseek(fp, 0, SEEK_SET);
+        len = fread(buffer.get(), 1, len, fp);
+*/
+ 

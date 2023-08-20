@@ -18,6 +18,17 @@
 #define EPOCH_DIFFERENCE 11644473600LL
 #define NSEC_BTWN_1904_1970	(uint32_t) 2082844800U
 
+struct AttachmentInfo
+{
+    uint8_t id;
+    uint8_t* data;          // 0x3701 // 0x0102 - Binary data type
+    std::string extension;  // 0x3703 // 0x001F/1E - String
+    std::string name;       // 0x3704 // 0x001F/1E - String
+    std::string longname;   // 0x3707 // 0x001F/1E - String
+    std::string mimetag;    // 0x370E // 0x001F/1E - String
+    std::string contentid;  // 0x3712 // 0x001F/1E - String
+};
+
 std::string SenderName(std::string* mailboxpath);
 std::string SenderAddress(std::string* mailboxpath);
 void ReceiverNames(std::string* mailboxpath, std::vector<std::string>* receivernames);
@@ -29,7 +40,7 @@ std::string Date(std::string* mailboxpath);
 std::string Body(std::string* mailboxpath);
 std::string TransportHeader(std::string* mailboxpath);
 void AttachmentCount(uint32_t* attachcount, std::string* mailboxpath);
-void GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, std::string* mailboxpath);
+void GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, uint32_t attachcount, std::string* mailboxpath);
 
 uint8_t* substr(uint8_t* arr, int begin, int len);
 void ReturnUint32(uint32_t* tmp32, uint8_t* tmp8, bool isbigendian=false);

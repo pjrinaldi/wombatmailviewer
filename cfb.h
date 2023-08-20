@@ -22,16 +22,6 @@ struct DirectoryEntry
     uint64_t streamsize;
 };
 
-struct AttachmentInfo
-{
-    uint8_t id;
-    uint8_t* data;
-    std::string extension;
-    std::string name;
-    std::string longname;
-    std::string mimetag;
-};
-
 class CompoundFileBinary 
 {
     private:
@@ -78,6 +68,7 @@ class CompoundFileBinary
         ~CompoundFileBinary();
         bool VerifyHeader();
         void NavigateDirectoryEntries();
+        void GetDirectoryEntry(DirectoryEntry* currententry, uint32_t curid);
         void GetDirectoryEntryStream(std::string* direntrystream, std::string direntryname);
         //void GetDirectoryEntryStream(DirectoryEntry* currententry, std::string* direntrystream);
         //void FindDirectoryEntry(std::string direntryname);
