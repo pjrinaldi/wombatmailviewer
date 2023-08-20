@@ -208,12 +208,7 @@ std::string Date(std::string* mailboxpath)
     uint8_t* propertybuffer = NULL;
     uint64_t pbsize = 0;
     cfb->GetDirectoryEntryBuffer(&propertybuffer, &pbsize, "__properties_version1.0");
-    //std::cout << "pbsize: " << pbsize << std::endl;
-    //std::cout << "propertybuffer size: " << sizeof(propertybuffer) << std::endl;
-    //std::cout << "pbuf at 8: " << (uint)propertybuffer[8] << std::endl;
-    //cfb->GetDirectoryEntryStream(&date, "__properties_version1.0");
     uint32_t propertycount = (pbsize - 32) / 16;
-    //std::cout << "propertycount: " << propertycount << std::endl;
     // LOOP OVER PROPERTIES TO FIND THE TIMES
     uint64_t cursize = pbsize - 32;
     int curoffset = 32;
@@ -221,30 +216,39 @@ std::string Date(std::string* mailboxpath)
     {
         curoffset = 32 + (i * 16);
         uint16_t ptype = 0;
-        //std::cout << "curoffset: " << curoffset << std::endl;
         ReadInteger(propertybuffer, curoffset, &ptype); 
-        //std::cout << "ptype: " << ptype << std::endl;
         if(date.empty())
         {
             if(ptype == 0x0040)
             {
-                //std::cout << "it's a time property, so get it." << std::endl;
                 uint16_t dtype = 0;
                 ReadInteger(propertybuffer, curoffset + 2, &dtype);
-                //std::cout << "date type: " << std::hex << "0x" << dtype << std::dec << std::endl;
                 if(dtype == 0x0010 || dtype == 0x0e06 || dtype == 0x3008 || dtype == 0x3007 || dtype == 0x0039)
                 {
                     uint64_t filetime = 0;
                     ReadInteger(propertybuffer, curoffset + 8, &filetime);
                     date = ConvertWindowsTimeToUnixTimeUTC(filetime);
-                    //std::cout << "time: " << ConvertWindowsTimeToUnixTimeUTC(filetime) << std::endl;
                 }
             }
         }
         else if(!date.empty())
             break;
     }
-
     //std::cout << "properties: " << date.at(0) << std::endl;
     return date;
 }
+
+void AttachmentCount(uint32_t* attachcount, std::string* mailboxpath)
+{
+    CompoundFileBinary*cfb = new CompoundFileBinary(mailboxpath);
+    cfb->NavigateDirectoryEntries();
+    uint8_t* propertybuffer = NULL;
+    uint64_t pbsize = 0;
+    cfb->GetDirectoryEntryBuffer(&propertybuffer, &pbsize, "__properties_version1.0");
+    ReadInteger(propertybuffer, 20, attachcount);
+}
+
+
+
+
+

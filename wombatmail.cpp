@@ -1059,6 +1059,10 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     content.append("\n");
 
     plaintext->setText(FXString(content.c_str()).substitute('\r', ' '));
+    // GET ATTACHMENT COUNT
+    uint32_t attachcount = 0;
+    AttachmentCount(&attachcount, &mailboxpath);
+    std::cout << "Attachment Count: " << attachcount << std::endl;
     /*
     // pole/msg method
         // Populate Attachment List
