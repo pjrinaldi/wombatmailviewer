@@ -22,6 +22,16 @@ struct DirectoryEntry
     uint64_t streamsize;
 };
 
+struct AttachmentInfo
+{
+    uint8_t id;
+    uint8_t* data;
+    std::string extension;
+    std::string name;
+    std::string longname;
+    std::string mimetag;
+};
+
 class CompoundFileBinary 
 {
     private:

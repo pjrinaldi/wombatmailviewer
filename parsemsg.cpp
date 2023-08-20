@@ -240,7 +240,7 @@ std::string Date(std::string* mailboxpath)
 
 void AttachmentCount(uint32_t* attachcount, std::string* mailboxpath)
 {
-    CompoundFileBinary*cfb = new CompoundFileBinary(mailboxpath);
+    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
     cfb->NavigateDirectoryEntries();
     uint8_t* propertybuffer = NULL;
     uint64_t pbsize = 0;
@@ -248,7 +248,9 @@ void AttachmentCount(uint32_t* attachcount, std::string* mailboxpath)
     ReadInteger(propertybuffer, 20, attachcount);
 }
 
-
-
-
-
+void GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, std::string* mailboxpath)
+{
+    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
+    cfb->NavigateDirectoryEntries();
+    
+}

@@ -1062,103 +1062,13 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     // GET ATTACHMENT COUNT
     uint32_t attachcount = 0;
     AttachmentCount(&attachcount, &mailboxpath);
-    std::cout << "Attachment Count: " << attachcount << std::endl;
-    /*
-    // pole/msg method
-        // Populate Attachment List
-        uint32_t attachcount = 0;
-        attachcount = pmsg->attachmentCount();
-        //std::cout << "attachment count: " << attachcount << std::endl;
-        GetMsgAttachments(attachcount, &mailboxpath);
-        //std::string attachinfo = pmsg->attachmentInfo();
-        //std::cout << "attachment info: " << attachinfo << std::endl;
-    }
-    */
-
-    /*
-    // pole method
-    POLE::Storage* polemsg = new POLE::Storage(mailboxpath.c_str());
-    if(polemsg->open())
-    {
-        std::string sender = getStringFromStream("__substg1.0_0C1A001F");
-        std::cout << "polemsg is open... working so far." << std::endl;
-    }
-    */
-    // libolecf way
-    /*
-    int ret = 0;
-    libolecf_error_t* err = NULL;
-    if(libolecf_check_file_signature(mailboxpath.c_str(), &err))
-    {
-        libolecf_file_t* olecfile = NULL;
-        ret = libolecf_file_initialize(&olecfile, &err);
-        if(ret == -1)
-            libolecf_error_fprint(err, stderr);
-        ret = libolecf_file_open(olecfile, mailboxpath.c_str(), libolecf_get_access_flags_read(), &err);
-        if(ret == -1)
-            libolecf_error_fprint(err, stderr);
-        size32_t sectorsize = 0;
-        libolecf_file_get_sector_size(olecfile, &sectorsize, &err);
-        std::cout << "sector size: " << sectorsize << std::endl;
-        libolecf_item_t* rootitem = NULL;
-        libolecf_file_get_root_item(olecfile, &rootitem, &err);
-        size_t namesize = 0;
-        libolecf_item_get_utf8_name_size(rootitem, &namesize, &err);
-        uint8_t name[namesize];
-        libolecf_item_get_utf8_name(rootitem, name, namesize, &err);
-        std::cout << "item name: " << (unsigned char*)name << std::endl;
-        int subitemcnt = 0;
-        libolecf_item_get_number_of_sub_items(rootitem, &subitemcnt, &err);
-        std::cout << "sub item count: " << subitemcnt << std::endl;
-        for(int i=0; i < subitemcnt; i++)
-        {
-            libolecf_item_t* subitem = NULL;
-            libolecf_item_get_sub_item(rootitem, i, &subitem, &err);
-            uint8_t type = 0;
-            libolecf_item_get_type(subitem, &type, &err);
-            uint32_t subitemsize = 0;
-            libolecf_item_get_size(subitem, &subitemsize, &err);
-	    size_t subnamesize = 0;
-	    libolecf_item_get_utf8_name_size(subitem, &subnamesize, &err);
-	    uint8_t subname[subnamesize];
-	    libolecf_item_get_utf8_name(subitem, name, namesize, &err);
-            //if(subitemsize > 0)
-            //{
-		//LIBOLECF_ITEM_TYPE_EMPTY                                        = 0x00,
-		//LIBOLECF_ITEM_TYPE_STORAGE                                      = 0x01,
-		//LIBOLECF_ITEM_TYPE_STREAM                                       = 0x02,
-		//LIBOLECF_ITEM_TYPE_LOCK_BYTES                                   = 0x03,
-		//LIBOLECF_ITEM_TYPE_PROPERTY                                     = 0x04,
-		//LIBOLECF_ITEM_TYPE_ROOT_STORAGE                                 = 0x05
-                std::cout << "sub item size: " << subitemsize << std::endl;
-                std::cout << "sub item " << i << ": type: " << (uint)type;
-		if(type == 0x00)
-		    std::cout << " empty";
-		else if(type == 0x01)
-		    std::cout << " storage";
-		else if(type == 0x02)
-		    std::cout << " stream";
-		else if(type == 0x03)
-		    std::cout << " lock bytes";
-		else if(type == 0x04)
-		    std::cout << " property";
-		else if(type == 0x05)
-		    std::cout << " root storage";
-		std::cout << std::endl;
-		//std::cout << "sub item name: " << (unsigned char*)subname << std::endl;
-            //}
-        }
-
-        libolecf_item_free(&rootitem, &err);
-        libolecf_file_close(olecfile, &err);
-        libolecf_file_free(&olecfile, &err);
-    }
-    else
-        std::cout << "not valid msg..." << std::endl;
-    libolecf_error_free(&err);
-    */
+    //std::cout << "Attachment Count: " << attachcount << std::endl;
+    std::vector<AttachmentInfo> msgattachments;
+    msgattachments.clear();
+    GetMsgAttachments(&msgattachments, &mailboxpath);
 }
 
+/*
 void WombatMail::GetMsgAttachments(uint32_t attachcount, std::string* msg)
 {
     //std::cout << "2nd attachment count: " << attachcount << std::endl;
@@ -1180,21 +1090,9 @@ void WombatMail::GetMsgAttachments(uint32_t attachcount, std::string* msg)
         std::unique_ptr<unsigned char> buffer(new unsigned char[len]);
         fseek(fp, 0, SEEK_SET);
         len = fread(buffer.get(), 1, len, fp);
-        /*
-        CFB::CompoundFileReader reader(buffer.get(), len);
-        std::cout << "atttachstr: " << attachstr.c_str() << std::endl;
-        //__attach_version1.0_#00000000
-        //__attach_version1.0_#00000000
-        const CFB::COMPOUND_FILE_ENTRY* entry = FindStream(reader, attachstr.c_str());
-        if(entry == NULL)
-            std::cout << "entry assignment failed" << std::endl;
-        else
-        {
-            std::cout << "entry size: " << entry->size << std::endl;
-        }
-        */
     }
 }
+*/
 
 void WombatMail::PopulateMbox(std::string mailboxpath)
 {

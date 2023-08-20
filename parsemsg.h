@@ -29,6 +29,7 @@ std::string Date(std::string* mailboxpath);
 std::string Body(std::string* mailboxpath);
 std::string TransportHeader(std::string* mailboxpath);
 void AttachmentCount(uint32_t* attachcount, std::string* mailboxpath);
+void GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, std::string* mailboxpath);
 
 uint8_t* substr(uint8_t* arr, int begin, int len);
 void ReturnUint32(uint32_t* tmp32, uint8_t* tmp8, bool isbigendian=false);

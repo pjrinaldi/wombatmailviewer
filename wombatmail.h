@@ -21,11 +21,7 @@
 #include "icons.h"
 
 #include "libpff.h"
-//#include "libolecf.h"
 #include "vmime/vmime.hpp"
-//#include "pole/msg.h"
-//#include "cfb/compoundfilereader.h"
-//#include "cfb/utf.h"
 
 #include "managetags.h"
 #include "aboutbox.h"
@@ -170,7 +166,7 @@ class WombatMail : public FXMainWindow
         void GetMimeDate(std::string* msg, std::string* date);
         void GetMessageContent(std::string* msg, std::string* content);
 	void GetMimeAttachments(std::string* msg);
-        void GetMsgAttachments(uint32_t attachcount, std::string* msg);
+        //void GetMsgAttachments(uint32_t attachcount, std::string* msg);
 };
 
 FXDEFMAP(WombatMail) WombatMailMap[]={
