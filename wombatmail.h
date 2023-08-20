@@ -103,6 +103,7 @@ class WombatMail : public FXMainWindow
         std::map<std::string, std::string> foldermap;
         std::vector<std::string> msgs;
         vmime::charset ch;
+        std::vector<AttachmentInfo> msgattachments;
 
     protected:
         WombatMail() {}

@@ -20,9 +20,9 @@
 
 struct AttachmentInfo
 {
-    uint8_t id;
-    uint8_t* data;          // 0x3701 // 0x0102 - Binary data type
-    std::string extension;  // 0x3703 // 0x001F/1E - String
+    //uint8_t id;             // Attachment Id
+    uint32_t dataid;        // 0x3701 // 0x0102 - Binary data type
+    //std::string extension;  // 0x3703 // 0x001F/1E - String
     std::string name;       // 0x3704 // 0x001F/1E - String
     std::string longname;   // 0x3707 // 0x001F/1E - String
     std::string mimetag;    // 0x370E // 0x001F/1E - String

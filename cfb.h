@@ -69,6 +69,8 @@ class CompoundFileBinary
         bool VerifyHeader();
         void NavigateDirectoryEntries();
         void GetDirectoryEntry(DirectoryEntry* currententry, uint32_t curid);
+        void GetEntryStream(DirectoryEntry* currententry, std::string* entrystream);
+        void GetEntryBuffer(DirectoryEntry* currententry, uint8_t** entrybuffer);
         void GetDirectoryEntryStream(std::string* direntrystream, std::string direntryname);
         //void GetDirectoryEntryStream(DirectoryEntry* currententry, std::string* direntrystream);
         //void FindDirectoryEntry(std::string direntryname);

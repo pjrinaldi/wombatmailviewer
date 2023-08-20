@@ -263,40 +263,47 @@ void GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, uint32_t att
             attachstr = "__attach_version1.0_#000000" + strm.str();
         else
             attachstr = "__attach_version1.0_#00000" + strm.str();
-        std::cout << "attachment entry: " << attachstr << std::endl;
+        //std::cout << "attachment entry: " << attachstr << std::endl;
         DirectoryEntry parentry;
         cfb->NavigateDirectoryTree(&parentry, attachstr, 0);
-        std::cout << parentry.name << " parentry id: " << parentry.id << " cid: " << parentry.childid << std::endl;
+        //std::cout << parentry.name << " parentry id: " << parentry.id << " cid: " << parentry.childid << std::endl;
         DirectoryEntry curentry;
         uint32_t curid = parentry.childid;
+        AttachmentInfo curattachinfo;
         while(curentry.rightsiblingid < 0xffffffff)
         {
-            AttachmentInfo curattachinfo;
-            curattachinfo.id = i;
+            //curattachinfo.id = i;
             cfb->GetDirectoryEntry(&curentry, curid);
             if(curentry.name.find("3701") != std::string::npos) // Binary Data
             {
-                std::cout << "get binary data" << std::endl;
+                curattachinfo.dataid = curentry.id;
+                //std::cout << "data id:" << curentry.id << "|" << curid << std::endl;
             }
             else if(curentry.name.find("3704") != std::string::npos) // Name
             {
-                std::cout << "get short name" << std::endl;
+                cfb->GetEntryStream(&curentry, &(curattachinfo.name));
+                //void GetEntryStream(DirectoryEntry* currententry, std::string* entrystream);
+                //std::cout << "get short name" << std::endl;
             }
             else if(curentry.name.find("3707") != std::string::npos) // Long Name
             {
-                std::cout << "get long name" << std::endl;
+                cfb->GetEntryStream(&curentry, &(curattachinfo.longname));
+                //std::cout << "get long name" << std::endl;
             }
             else if(curentry.name.find("370E") != std::string::npos) // Mime Type
             {
-                std::cout << "get mime tag" << std::endl;
+                cfb->GetEntryStream(&curentry, &(curattachinfo.mimetag));
+                //std::cout << "get mime tag" << std::endl;
             }
             else if(curentry.name.find("3712") != std::string::npos) // Content Id
             {
-                std::cout << "get content id" << std::endl;
+                cfb->GetEntryStream(&curentry, &(curattachinfo.contentid));
+                //std::cout << "get content id" << std::endl;
             }
-            std::cout << curentry.name << " nextid: " << curentry.rightsiblingid << std::endl;
+            //std::cout << curentry.name << " nextid: " << curentry.rightsiblingid << std::endl;
             curid = curentry.rightsiblingid;
         }
+        msgattachments->push_back(curattachinfo);
     }
 }
 /*

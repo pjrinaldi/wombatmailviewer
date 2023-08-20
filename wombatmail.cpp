@@ -387,6 +387,27 @@ long WombatMail::AttachmentSelected(FXObject*, FXSelector, void*)
     int curitemid = attachmentlist->getCurrentItem();
     if(mailboxtype == 0x03) // MSG
     {
+        if(msgattachments.size() > 0)
+        {
+            std::string mbpath(mailboxpath.text());
+            CompoundFileBinary* cfb = new CompoundFileBinary(&mbpath);
+            cfb->NavigateDirectoryEntries();
+            DirectoryEntry currententry;
+            cfb->GetDirectoryEntry(&currententry, msgattachments.at(curitemid).dataid);
+            uint8_t* entrybuffer = NULL;
+            cfb->GetEntryBuffer(&currententry, &entrybuffer);
+            //std::cout << msgattachments.at(curitemid).dataid << std::endl;
+            FXString tmpfilename = "/tmp/" + attachmentlist->getItemText(curitemid);
+            FXString buf = "";
+            for(int i=0; i < currententry.streamsize; i++)
+                buf.append(entrybuffer[i]);
+            //FXString buf((char*)entrybuffer);
+            FXFile* tmpfile = new FXFile(tmpfilename, FXIO::Writing, FXIO::OwnerReadWrite);
+            tmpfile->writeBlock(buf.text(), buf.length());
+            tmpfile->close();
+            std::string defaultopen = "xdg-open " + std::string(tmpfilename.text()) + " &";
+            std::system(defaultopen.c_str());
+        }
     }
     else if(mailboxtype == 0x02 || mailboxtype == 0x04) // MBOX || EML
     {
@@ -1063,9 +1084,28 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     uint32_t attachcount = 0;
     AttachmentCount(&attachcount, &mailboxpath);
     //std::cout << "Attachment Count: " << attachcount << std::endl;
-    std::vector<AttachmentInfo> msgattachments;
     msgattachments.clear();
     GetMsgAttachments(&msgattachments, attachcount, &mailboxpath);
+    //std::cout << "attachment count: " << msgattachments.size() << std::endl;
+    // POPULATE ATTACHMENTS
+    attachmentlist->clearItems();
+    for(int i=0; i < msgattachments.size(); i++)
+    {
+        if(!msgattachments.at(i).longname.empty())
+            attachmentlist->appendItem(FXString(msgattachments.at(i).longname.c_str()));
+        else if(!msgattachments.at(i).name.empty())
+            attachmentlist->appendItem(FXString(msgattachments.at(i).name.c_str()));
+        else if(!msgattachments.at(i).contentid.empty())
+            attachmentlist->appendItem(FXString(msgattachments.at(i).contentid.c_str()));
+        //attachmentlist->appendItem(FXString(reinterpret_cast<char*>(attachname)));
+        /*
+        std::cout << "dataid: " << msgattachments.at(i).dataid << std::endl;
+        std::cout << "name: " << msgattachments.at(i).name << std::endl;
+        std::cout << "longname: " << msgattachments.at(i).longname << std::endl;
+        std::cout << "mimetag: " << msgattachments.at(i).mimetag << std::endl;
+        std::cout << "contentid: " << msgattachments.at(i).contentid << std::endl;
+        */
+    }
 }
 
 /*

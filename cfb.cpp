@@ -333,6 +333,84 @@ void CompoundFileBinary::GetDirectoryEntry(DirectoryEntry* currententry, uint32_
     }
 }
 
+void CompoundFileBinary::GetEntryStream(DirectoryEntry* curdirentry, std::string* entrystream)
+{
+    if(curdirentry->streamsize > 0 && curdirentry->streamsize < 4096) // USE MINI STREAMS
+    {
+        // GET MINI FAT CHAIN FROM FATCHAIN
+        std::vector<uint32_t> minifatchain;
+        minifatchain.clear();
+        for(int i=0; i < fatchains.size(); i++)
+        {
+            if(fatchains.at(i).at(0) == startingministreamsector)
+            {
+                minifatchain = fatchains.at(i);
+                break;
+            }
+        }
+
+        /*
+        std::cout << "mini fat chain: ";
+        for(int i=0; i < minifatchain.size(); i++)
+            std::cout << minifatchain.at(i) << ", ";
+        std::cout << std::endl;
+        */
+
+        // ASSUME THE MINIFAT CHAINS FOR STREAMS ARE CONTINUOUS
+        //if(curdirentry.streamsize < 4096) // don't need minifatchains, value is contained in 1 minifat sector
+        //{
+        //std::cout << "curdirentry starting sector: " << curdirentry.startingsector << std::endl;
+        uint16_t sectorcnt = curdirentry->startingsector / 8;
+        if(curdirentry->startingsector % 8 != 0)
+            sectorcnt++;
+        //std::cout << curdirentry.startingsector / 8 << " " << curdirentry.startingsector % 8 << std::endl;
+        uint64_t curoffset = 0;
+        if(curdirentry->startingsector % 8 == 0)
+            curoffset = ((minifatchain.at(sectorcnt - 1)) + 2) * sectorsize;
+        else
+            curoffset = ((minifatchain.at(sectorcnt - 1)) + 1) * sectorsize + (curdirentry->startingsector % 8) * 64;
+        //std::cout << "minifatchain offset: " << (minifatchain.at(sectorcnt - 1) + 1) * sectorsize << std::endl;
+        //std::cout << "curoffset: " << curoffset << std::endl;
+        if(curdirentry->name.find("001E") != std::string::npos) // UTF-8
+        {
+            uint8_t* tmpbuf = new uint8_t[curdirentry->streamsize+1];
+            ReadContent(tmpbuf, curoffset, curdirentry->streamsize);
+            tmpbuf[curdirentry->streamsize] = '\0';
+            *entrystream += (char*)tmpbuf;
+            delete[] tmpbuf;
+            //std::cout << "utf-8: |" << *direntrystream << "|" << std::endl;
+        }
+        else if(curdirentry->name.find("001F") != std::string::npos) // UTF-16
+        {
+            for(int i=0; i < curdirentry->streamsize / 2; i++)
+            {
+                uint16_t singleletter = 0;
+                ReadContent(&singleletter, curoffset + i*2);
+                *entrystream += (char)singleletter;
+            }
+            //std::cout << "utf-16: |" << *direntrystream << "|" << std::endl;
+        }
+        /*
+        }
+        else // ensure the minifatchains are sequential to get the values
+        {
+        }
+        */
+    }
+    /*
+    else // USE SECTOR STREAMS
+    {
+        for(int i=0; i < fatchains.size(); i++)
+        {
+            if(fatchains.at(i).at(0) == curdirentry->startingsector)
+            {
+            }
+
+        }
+    }
+    */
+}
+
 //void CompoundFileBinary::FindDirectoryEntry(std::string direntryname)
 void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, std::string direntryname)
 {
@@ -418,7 +496,62 @@ void CompoundFileBinary::GetDirectoryEntryStream(std::string* direntrystream, st
     {
         // get chain from the fat based off of the starting sector (for/if for 1st entry of each fatchains)
         // then use the stream size to read the content into the respective storage container.
-        std::cout << "use regular sectors for stream: " << curdirentry.startingsector << std::endl;
+        //std::cout << "use regular sectors for stream: " << curdirentry.startingsector << std::endl;
+    }
+}
+
+void CompoundFileBinary::GetEntryBuffer(DirectoryEntry* curdirentry, uint8_t** entrybuffer)
+{
+    if(curdirentry->streamsize > 0 && curdirentry->streamsize < 4096)
+    {
+        // GET MINI FAT CHAIN FROM FATCHAIN
+        std::vector<uint32_t> minifatchain;
+        minifatchain.clear();
+        for(int i=0; i < fatchains.size(); i++)
+        {
+            if(fatchains.at(i).at(0) == startingministreamsector)
+            {
+                minifatchain = fatchains.at(i);
+                break;
+            }
+        }
+
+        /*
+        std::cout << "mini fat chain: ";
+        for(int i=0; i < minifatchain.size(); i++)
+            std::cout << minifatchain.at(i) << ", ";
+        std::cout << std::endl;
+        */
+
+        uint16_t sectorcnt = curdirentry->startingsector / 8;
+        if(curdirentry->startingsector % 8 != 0)
+            sectorcnt++;
+        //std::cout << curdirentry.startingsector / 8 << " " << curdirentry.startingsector % 8 << std::endl;
+        uint64_t curoffset = 0;
+        if(curdirentry->startingsector % 8 == 0)
+            curoffset = ((minifatchain.at(sectorcnt - 1)) + 2) * sectorsize;
+        else
+            curoffset = ((minifatchain.at(sectorcnt - 1)) + 1) * sectorsize + (curdirentry->startingsector % 8) * 64;
+
+        //std::cout << "curoffset " << curoffset << std::endl;
+        //uint8_t* tmpbuf = new uint8_t[curdirentry.streamsize];
+        //*pbsize = curdirentry->streamsize;
+        *entrybuffer = new uint8_t[curdirentry->streamsize];
+        ReadContent(*entrybuffer, curoffset, curdirentry->streamsize);
+        //ReadContent(tmpbuf, curoffset, curdirentry.streamsize);
+        //std::cout << "buf: " << (uint)tmpbuf[8] << std::endl;
+        //std::cout << "buf: " << (uint)buffer[8] << std::endl;
+    }
+    else if(curdirentry->streamsize >= 4096)
+    {
+        for(int i=0; i < fatchains.size(); i++)
+        {
+            if(fatchains.at(i).at(0) == curdirentry->startingsector)
+            {
+                *entrybuffer = new uint8_t[curdirentry->streamsize];
+                ReadContent(*entrybuffer, (curdirentry->startingsector + 1) * sectorsize, curdirentry->streamsize);
+            }
+        }
     }
 }
 
