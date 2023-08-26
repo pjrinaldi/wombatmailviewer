@@ -640,11 +640,13 @@ void CompoundFileBinary::NavigateDirectoryEntries(void)
             a++;
         }
     }
-    //for(int i=0; i < directoryentries.size(); i++)
-    //{
-    //    std::cout << std::hex << "id: " << directoryentries.at(i).id << " name: " << directoryentries.at(i).name << " rid: " << directoryentries.at(i).rightsiblingid << " cid: " << directoryentries.at(i).childid << std::dec << std::endl;
-    //}
-    //std::cout << "directoryentries count: " << directoryentries.size() << std::endl;
+    /*
+    for(int i=0; i < directoryentries.size(); i++)
+    {
+        std::cout << std::hex << "id: " << directoryentries.at(i).id << " name: " << directoryentries.at(i).name << " rid: " << directoryentries.at(i).rightsiblingid << " cid: " << directoryentries.at(i).childid << std::dec << std::endl;
+    }
+    std::cout << "directoryentries count: " << directoryentries.size() << std::endl;
+    */
 }
 
 void CompoundFileBinary::ParseDirectoryEntry(DirectoryEntry* direntry, uint64_t offset)

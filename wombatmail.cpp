@@ -390,16 +390,14 @@ long WombatMail::AttachmentSelected(FXObject*, FXSelector, void*)
         if(msgattachments.size() > 0)
         {
             std::string mbpath(mailboxpath.text());
-            CompoundFileBinary* cfb = new CompoundFileBinary(&mbpath);
-            cfb->NavigateDirectoryEntries();
-            DirectoryEntry currententry;
-            cfb->GetDirectoryEntry(&currententry, msgattachments.at(curitemid).dataid);
-            uint8_t* entrybuffer = NULL;
-            cfb->GetEntryBuffer(&currententry, &entrybuffer);
+            OutlookMessage* amsg = new OutlookMessage(&mbpath);
+            std::vector<uint8_t> attachmentcontent;
+            amsg->InitializeMessage();
+            amsg->GetAttachmentContent(&attachmentcontent, msgattachments.at(curitemid).dataid);
             FXString tmpfilename = "/tmp/" + attachmentlist->getItemText(curitemid);
             FXString buf = "";
-            for(int i=0; i < currententry.streamsize; i++)
-                buf.append(entrybuffer[i]);
+            for(int i=0; i < attachmentcontent.size(); i++)
+                buf.append(attachmentcontent.at(i));
             FXFile* tmpfile = new FXFile(tmpfilename, FXIO::Writing, FXIO::OwnerReadWrite);
             tmpfile->writeBlock(buf.text(), buf.length());
             tmpfile->close();
@@ -1014,15 +1012,12 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     content.append(msg->TransportHeader());
     content.append("\n");
     plaintext->setText(FXString(content.c_str()).substitute('\r', ' '));
-
-    // my old method
-    /*
     // GET ATTACHMENT COUNT
     uint32_t attachcount = 0;
-    AttachmentCount(&attachcount, &mailboxpath);
+    msg->AttachmentCount(&attachcount);
     //std::cout << "Attachment Count: " << attachcount << std::endl;
     msgattachments.clear();
-    GetMsgAttachments(&msgattachments, attachcount, &mailboxpath);
+    msg->GetMsgAttachments(&msgattachments, attachcount);
     //std::cout << "attachment count: " << msgattachments.size() << std::endl;
     // POPULATE ATTACHMENTS
     attachmentlist->clearItems();
@@ -1034,41 +1029,8 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
             attachmentlist->appendItem(FXString(msgattachments.at(i).name.c_str()));
         else if(!msgattachments.at(i).contentid.empty())
             attachmentlist->appendItem(FXString(msgattachments.at(i).contentid.c_str()));
-        //attachmentlist->appendItem(FXString(reinterpret_cast<char*>(attachname)));
-        //std::cout << "dataid: " << msgattachments.at(i).dataid << std::endl;
-        //std::cout << "name: " << msgattachments.at(i).name << std::endl;
-        //std::cout << "longname: " << msgattachments.at(i).longname << std::endl;
-        //std::cout << "mimetag: " << msgattachments.at(i).mimetag << std::endl;
-        //std::cout << "contentid: " << msgattachments.at(i).contentid << std::endl;
-    }
-    */
-}
-
-/*
-void WombatMail::GetMsgAttachments(uint32_t attachcount, std::string* msg)
-{
-    //std::cout << "2nd attachment count: " << attachcount << std::endl;
-    for(int i=0; i < attachcount; i++)
-    {
-        std::stringstream strm;
-        strm << std::hex << i;
-        std::string attachstr = "";
-        if(i < 0x10)
-            attachstr = "__attach_version1.0_#0000000" + strm.str();
-        else if(i >= 0x10 && i < 0x100)
-            attachstr = "__attach_version1.0_#000000" + strm.str();
-        else
-            attachstr = "__attach_version1.0_#00000" + strm.str();
-        //std::cout << "attachment entry: " << attachstr << std::endl;
-        FILE* fp = fopen(msg->c_str(), "rb");
-        fseek(fp, 0, SEEK_END);
-        size_t len = ftell(fp);
-        std::unique_ptr<unsigned char> buffer(new unsigned char[len]);
-        fseek(fp, 0, SEEK_SET);
-        len = fread(buffer.get(), 1, len, fp);
     }
 }
-*/
 
 void WombatMail::PopulateMbox(std::string mailboxpath)
 {

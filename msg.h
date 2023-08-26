@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <cstring>
 
 #include "cfb.h"
 
@@ -32,6 +33,14 @@ struct AttachmentInfo
 class OutlookMessage
 {
     private:
+        uint8_t* substr(uint8_t* arr, int begin, int len);
+        void ReturnUint32(uint32_t* tmp32, uint8_t* tmp8, bool isbigendian=false);
+        void ReturnUint16(uint16_t* tmp16, uint8_t* tmp8, bool isbigendian=false);
+        void ReturnUint64(uint64_t* tmp64, uint8_t* tmp8, bool isbigendian=false);
+        void ReadInteger(uint8_t* arr, int begin, uint16_t* val, bool isbigendian=false);
+        void ReadInteger(uint8_t* arr, int begin, uint32_t* val, bool isbigendian=false);
+        void ReadInteger(uint8_t* arr, int begin, uint64_t* val, bool isbigendian=false);
+        std::string ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
 
     protected:
         OutlookMessage() {};
@@ -50,20 +59,9 @@ class OutlookMessage
         std::string Date(void);
         std::string Body(void);
         std::string TransportHeader(void);
+        void AttachmentCount(uint32_t* attachmentcount);
+        void GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, uint32_t attachcount);
+        void GetAttachmentContent(std::vector<uint8_t>* content, uint32_t dataid);
 };
-
-/*
-void AttachmentCount(uint32_t* attachcount, std::string* mailboxpath);
-void GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, uint32_t attachcount, std::string* mailboxpath);
-*/
-
-uint8_t* substr(uint8_t* arr, int begin, int len);
-void ReturnUint32(uint32_t* tmp32, uint8_t* tmp8, bool isbigendian=false);
-void ReturnUint16(uint16_t* tmp16, uint8_t* tmp8, bool isbigendian=false);
-void ReturnUint64(uint64_t* tmp64, uint8_t* tmp8, bool isbigendian=false);
-void ReadInteger(uint8_t* arr, int begin, uint16_t* val, bool isbigendian=false);
-void ReadInteger(uint8_t* arr, int begin, uint32_t* val, bool isbigendian=false);
-void ReadInteger(uint8_t* arr, int begin, uint64_t* val, bool isbigendian=false);
-std::string ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
 
 #endif // MSG_H

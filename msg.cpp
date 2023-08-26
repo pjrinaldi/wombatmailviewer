@@ -216,21 +216,16 @@ std::string OutlookMessage::TransportHeader(void)
     return transportheader;
 }
 
-/*
-void AttachmentCount(uint32_t* attachcount, std::string* mailboxpath)
+void OutlookMessage::AttachmentCount(uint32_t* attachmentcount)
 {
-    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
-    cfb->NavigateDirectoryEntries();
     uint8_t* propertybuffer = NULL;
     uint64_t pbsize = 0;
     cfb->GetDirectoryEntryBuffer(&propertybuffer, &pbsize, "__properties_version1.0");
-    ReadInteger(propertybuffer, 20, attachcount);
+    ReadInteger(propertybuffer, 20, attachmentcount);
 }
 
-void GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, uint32_t attachcount, std::string* mailboxpath)
+void OutlookMessage::GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, uint32_t attachcount)
 {
-    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
-    cfb->NavigateDirectoryEntries();
     for(uint32_t i=0; i < attachcount; i++)
     {
         std::stringstream strm;
@@ -285,9 +280,8 @@ void GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, uint32_t att
         msgattachments->push_back(curattachinfo);
     }
 }
-*/
 
-uint8_t* substr(uint8_t* arr, int begin, int len)
+uint8_t* OutlookMessage::substr(uint8_t* arr, int begin, int len)
 {
     uint8_t* res = new uint8_t[len + 1];
     for (int i = 0; i < len; i++)
@@ -296,7 +290,7 @@ uint8_t* substr(uint8_t* arr, int begin, int len)
     return res;
 }
 
-void ReadInteger(uint8_t* arr, int begin, uint16_t* val, bool isbigendian)
+void OutlookMessage::ReadInteger(uint8_t* arr, int begin, uint16_t* val, bool isbigendian)
 {
     uint8_t* tmp8 = new uint8_t[2];
     tmp8 = substr(arr, begin, 2);
@@ -304,7 +298,7 @@ void ReadInteger(uint8_t* arr, int begin, uint16_t* val, bool isbigendian)
     delete[] tmp8;
 }
 
-void ReadInteger(uint8_t* arr, int begin, uint32_t* val, bool isbigendian)
+void OutlookMessage::ReadInteger(uint8_t* arr, int begin, uint32_t* val, bool isbigendian)
 {
     uint8_t* tmp8 = new uint8_t[4];
     tmp8 = substr(arr, begin, 4);
@@ -312,7 +306,7 @@ void ReadInteger(uint8_t* arr, int begin, uint32_t* val, bool isbigendian)
     delete[] tmp8;
 }
 
-void ReadInteger(uint8_t* arr, int begin, uint64_t* val, bool isbigendian)
+void OutlookMessage::ReadInteger(uint8_t* arr, int begin, uint64_t* val, bool isbigendian)
 {
     uint8_t* tmp8 = new uint8_t[8];
     tmp8 = substr(arr, begin, 8);
@@ -320,7 +314,7 @@ void ReadInteger(uint8_t* arr, int begin, uint64_t* val, bool isbigendian)
     delete[] tmp8;
 }
 
-void ReturnUint32(uint32_t* tmp32, uint8_t* tmp8, bool isbigendian)
+void OutlookMessage::ReturnUint32(uint32_t* tmp32, uint8_t* tmp8, bool isbigendian)
 {
     if(isbigendian)
         *tmp32 = __builtin_bswap32((uint32_t)tmp8[0] | (uint32_t)tmp8[1] << 8 | (uint32_t)tmp8[2] << 16 | (uint32_t)tmp8[3] << 24);
@@ -328,7 +322,7 @@ void ReturnUint32(uint32_t* tmp32, uint8_t* tmp8, bool isbigendian)
         *tmp32 = (uint32_t)tmp8[0] | (uint32_t)tmp8[1] << 8 | (uint32_t)tmp8[2] << 16 | (uint32_t)tmp8[3] << 24;
 }
 
-void ReturnUint16(uint16_t* tmp16, uint8_t* tmp8, bool isbigendian)
+void OutlookMessage::ReturnUint16(uint16_t* tmp16, uint8_t* tmp8, bool isbigendian)
 {
     if(isbigendian)
         *tmp16 = __builtin_bswap16((uint16_t)tmp8[0] | (uint16_t)tmp8[1] << 8);
@@ -336,7 +330,7 @@ void ReturnUint16(uint16_t* tmp16, uint8_t* tmp8, bool isbigendian)
         *tmp16 = (uint16_t)tmp8[0] | (uint16_t)tmp8[1] << 8;
 }
 
-void ReturnUint64(uint64_t* tmp64, uint8_t* tmp8, bool isbigendian)
+void OutlookMessage::ReturnUint64(uint64_t* tmp64, uint8_t* tmp8, bool isbigendian)
 {
     if(isbigendian)
         *tmp64 = __builtin_bswap64((uint64_t)tmp8[0] | (uint64_t)tmp8[1] << 8 | (uint64_t)tmp8[2] << 16 | (uint64_t)tmp8[3] << 24 | (uint64_t)tmp8[4] << 32 | (uint64_t)tmp8[5] << 40 | (uint64_t)tmp8[6] << 48 | (uint64_t)tmp8[7] << 56);
@@ -344,7 +338,7 @@ void ReturnUint64(uint64_t* tmp64, uint8_t* tmp8, bool isbigendian)
         *tmp64 = (uint64_t)tmp8[0] | (uint64_t)tmp8[1] << 8 | (uint64_t)tmp8[2] << 16 | (uint64_t)tmp8[3] << 24 | (uint64_t)tmp8[4] << 32 | (uint64_t)tmp8[5] << 40 | (uint64_t)tmp8[6] << 48 | (uint64_t)tmp8[7] << 56;
 }
 
-std::string ConvertWindowsTimeToUnixTimeUTC(uint64_t input)
+std::string OutlookMessage::ConvertWindowsTimeToUnixTimeUTC(uint64_t input)
 {
     uint64_t temp;
     temp = input / TICKS_PER_SECOND; //convert from 100ns intervals to seconds;
@@ -356,4 +350,15 @@ std::string ConvertWindowsTimeToUnixTimeUTC(uint64_t input)
     strftime(timestr, sizeof(timestr), "%m/%d/%Y %I:%M:%S %p", dt);
 
     return timestr;
+}
+
+void OutlookMessage::GetAttachmentContent(std::vector<uint8_t>* content, uint32_t dataid)
+{
+    content->clear();
+    DirectoryEntry currententry;
+    cfb->GetDirectoryEntry(&currententry, dataid);
+    uint8_t* tmpbuffer = NULL;
+    cfb->GetEntryBuffer(&currententry, &tmpbuffer);
+    for(int i=0; i < currententry.streamsize; i++)
+        content->push_back(tmpbuffer[i]);
 }
