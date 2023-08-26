@@ -4,17 +4,24 @@ OutlookMessage::OutlookMessage(std::string* msgfile)
 {
     cfb = new CompoundFileBinary(msgfile);
 }
-/*
-std::string SenderName(std::string* mailboxpath)
+
+bool OutlookMessage::IsOutlookMessage(void)
 {
-    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
+    bool ismsg = false;
+    ismsg = cfb->VerifyHeader();
+
+    return ismsg;
+}
+    
+void OutlookMessage::InitializeMessage(void)
+{
     cfb->NavigateDirectoryEntries();
+}
+
+std::string OutlookMessage::SenderName(void)
+{
     std::string sendername = "";
     DirectoryEntry curentry;
-    // need to move the navigatedirectorytree into getdirectoryentrystream
-    //cfb->NavigateDirectoryTree(&curentry, "0C1A", 0);
-    //cfb->GetDirectoryEntryStream(&curentry, &sendername);
-    //std::cout << "sender name: " << sendername << std::endl;
     cfb->GetDirectoryEntryStream(&sendername, "0C1A");
     if(sendername.empty())
         cfb->GetDirectoryEntryStream(&sendername, "3FFA");
@@ -24,10 +31,8 @@ std::string SenderName(std::string* mailboxpath)
     return sendername;
 }
 
-std::string SenderAddress(std::string* mailboxpath)
+std::string OutlookMessage::SenderAddress(void)
 {
-    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
-    cfb->NavigateDirectoryEntries();
     std::string senderaddress = "";
     cfb->GetDirectoryEntryStream(&senderaddress, "0065");
     if(senderaddress.empty())
@@ -36,8 +41,6 @@ std::string SenderAddress(std::string* mailboxpath)
         cfb->GetDirectoryEntryStream(&senderaddress, "800B");
     if(senderaddress.empty())
         cfb->GetDirectoryEntryStream(&senderaddress, "3FFA");
-    //if(senderaddress.empty())
-    //    cfb->GetDirectoryEntryStream(&senderaddress, "5D01");
     if(senderaddress.empty())
         cfb->GetDirectoryEntryStream(&senderaddress, "5D02");
     if(senderaddress.empty())
@@ -46,26 +49,23 @@ std::string SenderAddress(std::string* mailboxpath)
     return senderaddress;
 }
 
-void ReceiverNames(std::string* mailboxpath, std::vector<std::string>* receivernames)
+std::string OutlookMessage::Receivers(void)
 {
-    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
-    cfb->NavigateDirectoryEntries();
+    // GET RECEIVERS NAMES
+    std::vector<std::string> receivernames;
+    receivernames.clear();
     std::string rnameslist = "";
     cfb->GetDirectoryEntryStream(&rnameslist, "0E04");
-
     if(!rnameslist.empty())
     {
         std::istringstream rnstream(rnameslist);
         std::string rn;
         while(getline(rnstream, rn, ';'))
-            receivernames->push_back(rn);
+            receivernames.push_back(rn);
     }
-}
-
-void ReceiverAddresses(std::string* mailboxpath, std::vector<std::string>* receiveraddresses)
-{
-    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
-    cfb->NavigateDirectoryEntries();
+    // GET RECEIVERS ADDRESSES
+    std::vector<std::string> receiveraddresses;
+    receiveraddresses.clear();
     std::string raddrlist = "";
     cfb->GetDirectoryEntryStream(&raddrlist, "5D01");
     if(raddrlist.empty())
@@ -76,34 +76,84 @@ void ReceiverAddresses(std::string* mailboxpath, std::vector<std::string>* recei
         std::istringstream rastream(raddrlist);
         std::string ra;
         while(getline(rastream, ra, ';'))
-            receiveraddresses->push_back(ra);
+            receiveraddresses.push_back(ra);
     }
+    // GET LIST OF RECEIVERS AS: NAME <EMAIL>; NAME <EMAIL>
+    std::string receivers = "";
+    if(receiveraddresses.size() == 0) // NO ADDRESSES, JUST NAMES
+    {
+        for(int i=0; i < receivernames.size(); i++)
+        {
+            receivers.append(receivernames.at(i));
+            if(i < receivernames.size() - 1)
+                receivers.append("; ");
+        }
+    }
+    else if(receiveraddresses.size() > 0 && receivernames.size() == 0) // NO NAMES, JUST ADDRESSES
+    {
+        for(int i=0; i < receiveraddresses.size(); i++)
+        {
+            receivers.append(receiveraddresses.at(i));
+            if(i < receiveraddresses.size() - 1)
+                receivers.append("; ");
+        }
+    }
+    else if(receiveraddresses.size() > 0 && receivernames.size() > 0) // BOTH NAMES & ADDRESSES
+    {
+        if(receiveraddresses.size() < receivernames.size()) // MORE NAMES THAN ADDRESSES
+        {
+            for(int i=0; i < receiveraddresses.size(); i++)
+                receivers.append(receivernames.at(i) + " <" + receiveraddresses.at(i) + ">; ");
+            for(int i = receiveraddresses.size(); i < receivernames.size(); i++)
+            {
+                receivers.append(receivernames.at(i));
+                if(i < receivernames.size() - 1)
+                    receivers.append("; ");
+            }
+        }
+        else if(receiveraddresses.size() > receivernames.size()) // MORE ADDRESSES THAN NAMES
+        {
+            for(int i=0; i < receivernames.size(); i++)
+                receivers.append(receivernames.at(i) + " <" + receiveraddresses.at(i) + ">; ");
+            for(int i = receivernames.size(); i < receiveraddresses.size(); i++)
+            {
+                receivers.append(receiveraddresses.at(i));
+                if(i < receiveraddresses.size() - 1)
+                    receivers.append("; ");
+            }
+        }
+        else if(receiveraddresses.size() == receivernames.size()) // ADDRESSES EQUALS NAMES
+        {
+            for(int i=0; i < receiveraddresses.size(); i++)
+            {
+                receivers.append(receivernames.at(i) + " <" + receiveraddresses.at(i) + ">");
+                if(i < receiveraddresses.size() - 1)
+                    receivers.append("; ");
+            }
+        }
+    }
+
+    return receivers;
 }
 
-std::string CarbonCopy(std::string* mailboxpath)
+std::string OutlookMessage::CarbonCopy(void)
 {
-    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
-    cfb->NavigateDirectoryEntries();
     std::string cc = "";
     cfb->GetDirectoryEntryStream(&cc, "0E03");
 
     return cc;
 }
 
-std::string BlindCarbonCopy(std::string* mailboxpath)
+std::string OutlookMessage::BlindCarbonCopy(void)
 {
-    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
-    cfb->NavigateDirectoryEntries();
     std::string bcc = "";
     cfb->GetDirectoryEntryStream(&bcc, "0E02");
 
     return bcc;
 }
 
-std::string Subject(std::string* mailboxpath)
+std::string OutlookMessage::Subject(void)
 {
-    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
-    cfb->NavigateDirectoryEntries();
     std::string subj = "";
     cfb->GetDirectoryEntryStream(&subj, "0070");
     if(subj.empty())
@@ -114,25 +164,128 @@ std::string Subject(std::string* mailboxpath)
     return subj;
 }
 
-std::string Body(std::string* mailboxpath)
+std::string OutlookMessage::Date(void)
 {
-    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
-    cfb->NavigateDirectoryEntries();
+    std::string date = "";
+    uint8_t* propertybuffer = NULL;
+    uint64_t pbsize = 0;
+    cfb->GetDirectoryEntryBuffer(&propertybuffer, &pbsize, "__properties_version1.0");
+    uint32_t propertycount = (pbsize - 32) / 16;
+    uint64_t cursize = pbsize - 32;
+    int curoffset = 32;
+    // LOOP OVER PROPERTIES TO FIND THE TIMES
+    for(int i=0; i < propertycount; i++)
+    {
+        curoffset = 32 + (i * 16);
+        uint16_t ptype = 0;
+        ReadInteger(propertybuffer, curoffset, &ptype); 
+        if(date.empty())
+        {
+            if(ptype == 0x0040)
+            {
+                uint16_t dtype = 0;
+                ReadInteger(propertybuffer, curoffset + 2, &dtype);
+                if(dtype == 0x0010 || dtype == 0x0e06 || dtype == 0x3008 || dtype == 0x3007 || dtype == 0x0039)
+                {
+                    uint64_t filetime = 0;
+                    ReadInteger(propertybuffer, curoffset + 8, &filetime);
+                    date = ConvertWindowsTimeToUnixTimeUTC(filetime);
+                }
+            }
+        }
+        else if(!date.empty())
+            break;
+    }
+
+    return date;
+}
+
+std::string OutlookMessage::Body(void)
+{
     std::string body = "";
     cfb->GetDirectoryEntryStream(&body, "1000");
 
     return body;
 }
 
-std::string TransportHeader(std::string* mailboxpath)
+std::string OutlookMessage::TransportHeader(void)
 {
-    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
-    cfb->NavigateDirectoryEntries();
     std::string transportheader = "";
     cfb->GetDirectoryEntryStream(&transportheader, "007D");
 
     return transportheader;
 }
+
+/*
+void AttachmentCount(uint32_t* attachcount, std::string* mailboxpath)
+{
+    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
+    cfb->NavigateDirectoryEntries();
+    uint8_t* propertybuffer = NULL;
+    uint64_t pbsize = 0;
+    cfb->GetDirectoryEntryBuffer(&propertybuffer, &pbsize, "__properties_version1.0");
+    ReadInteger(propertybuffer, 20, attachcount);
+}
+
+void GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, uint32_t attachcount, std::string* mailboxpath)
+{
+    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
+    cfb->NavigateDirectoryEntries();
+    for(uint32_t i=0; i < attachcount; i++)
+    {
+        std::stringstream strm;
+        strm << std::hex << i;
+        std::string attachstr = "";
+        if(i < 0x10)
+            attachstr = "__attach_version1.0_#0000000" + strm.str();
+        else if(i >= 0x10 && i < 0x100)
+            attachstr = "__attach_version1.0_#000000" + strm.str();
+        else
+            attachstr = "__attach_version1.0_#00000" + strm.str();
+        //std::cout << "attachment entry: " << attachstr << std::endl;
+        DirectoryEntry parentry;
+        cfb->NavigateDirectoryTree(&parentry, attachstr, 0);
+        //std::cout << parentry.name << " parentry id: " << parentry.id << " cid: " << parentry.childid << std::endl;
+        DirectoryEntry curentry;
+        uint32_t curid = parentry.childid;
+        AttachmentInfo curattachinfo;
+        while(curentry.rightsiblingid < 0xffffffff)
+        {
+            //curattachinfo.id = i;
+            cfb->GetDirectoryEntry(&curentry, curid);
+            if(curentry.name.find("3701") != std::string::npos) // Binary Data
+            {
+                curattachinfo.dataid = curentry.id;
+                //std::cout << "data id:" << curentry.id << "|" << curid << std::endl;
+            }
+            else if(curentry.name.find("3704") != std::string::npos) // Name
+            {
+                cfb->GetEntryStream(&curentry, &(curattachinfo.name));
+                //void GetEntryStream(DirectoryEntry* currententry, std::string* entrystream);
+                //std::cout << "get short name" << std::endl;
+            }
+            else if(curentry.name.find("3707") != std::string::npos) // Long Name
+            {
+                cfb->GetEntryStream(&curentry, &(curattachinfo.longname));
+                //std::cout << "get long name" << std::endl;
+            }
+            else if(curentry.name.find("370E") != std::string::npos) // Mime Type
+            {
+                cfb->GetEntryStream(&curentry, &(curattachinfo.mimetag));
+                //std::cout << "get mime tag" << std::endl;
+            }
+            else if(curentry.name.find("3712") != std::string::npos) // Content Id
+            {
+                cfb->GetEntryStream(&curentry, &(curattachinfo.contentid));
+                //std::cout << "get content id" << std::endl;
+            }
+            //std::cout << curentry.name << " nextid: " << curentry.rightsiblingid << std::endl;
+            curid = curentry.rightsiblingid;
+        }
+        msgattachments->push_back(curattachinfo);
+    }
+}
+*/
 
 uint8_t* substr(uint8_t* arr, int begin, int len)
 {
@@ -204,111 +357,3 @@ std::string ConvertWindowsTimeToUnixTimeUTC(uint64_t input)
 
     return timestr;
 }
-
-std::string Date(std::string* mailboxpath)
-{
-    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
-    cfb->NavigateDirectoryEntries();
-    std::string date = "";
-    uint8_t* propertybuffer = NULL;
-    uint64_t pbsize = 0;
-    cfb->GetDirectoryEntryBuffer(&propertybuffer, &pbsize, "__properties_version1.0");
-    uint32_t propertycount = (pbsize - 32) / 16;
-    // LOOP OVER PROPERTIES TO FIND THE TIMES
-    uint64_t cursize = pbsize - 32;
-    int curoffset = 32;
-    for(int i=0; i < propertycount; i++)
-    {
-        curoffset = 32 + (i * 16);
-        uint16_t ptype = 0;
-        ReadInteger(propertybuffer, curoffset, &ptype); 
-        if(date.empty())
-        {
-            if(ptype == 0x0040)
-            {
-                uint16_t dtype = 0;
-                ReadInteger(propertybuffer, curoffset + 2, &dtype);
-                if(dtype == 0x0010 || dtype == 0x0e06 || dtype == 0x3008 || dtype == 0x3007 || dtype == 0x0039)
-                {
-                    uint64_t filetime = 0;
-                    ReadInteger(propertybuffer, curoffset + 8, &filetime);
-                    date = ConvertWindowsTimeToUnixTimeUTC(filetime);
-                }
-            }
-        }
-        else if(!date.empty())
-            break;
-    }
-    //std::cout << "properties: " << date.at(0) << std::endl;
-    return date;
-}
-
-void AttachmentCount(uint32_t* attachcount, std::string* mailboxpath)
-{
-    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
-    cfb->NavigateDirectoryEntries();
-    uint8_t* propertybuffer = NULL;
-    uint64_t pbsize = 0;
-    cfb->GetDirectoryEntryBuffer(&propertybuffer, &pbsize, "__properties_version1.0");
-    ReadInteger(propertybuffer, 20, attachcount);
-}
-
-void GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, uint32_t attachcount, std::string* mailboxpath)
-{
-    CompoundFileBinary* cfb = new CompoundFileBinary(mailboxpath);
-    cfb->NavigateDirectoryEntries();
-    for(uint32_t i=0; i < attachcount; i++)
-    {
-        std::stringstream strm;
-        strm << std::hex << i;
-        std::string attachstr = "";
-        if(i < 0x10)
-            attachstr = "__attach_version1.0_#0000000" + strm.str();
-        else if(i >= 0x10 && i < 0x100)
-            attachstr = "__attach_version1.0_#000000" + strm.str();
-        else
-            attachstr = "__attach_version1.0_#00000" + strm.str();
-        //std::cout << "attachment entry: " << attachstr << std::endl;
-        DirectoryEntry parentry;
-        cfb->NavigateDirectoryTree(&parentry, attachstr, 0);
-        //std::cout << parentry.name << " parentry id: " << parentry.id << " cid: " << parentry.childid << std::endl;
-        DirectoryEntry curentry;
-        uint32_t curid = parentry.childid;
-        AttachmentInfo curattachinfo;
-        while(curentry.rightsiblingid < 0xffffffff)
-        {
-            //curattachinfo.id = i;
-            cfb->GetDirectoryEntry(&curentry, curid);
-            if(curentry.name.find("3701") != std::string::npos) // Binary Data
-            {
-                curattachinfo.dataid = curentry.id;
-                //std::cout << "data id:" << curentry.id << "|" << curid << std::endl;
-            }
-            else if(curentry.name.find("3704") != std::string::npos) // Name
-            {
-                cfb->GetEntryStream(&curentry, &(curattachinfo.name));
-                //void GetEntryStream(DirectoryEntry* currententry, std::string* entrystream);
-                //std::cout << "get short name" << std::endl;
-            }
-            else if(curentry.name.find("3707") != std::string::npos) // Long Name
-            {
-                cfb->GetEntryStream(&curentry, &(curattachinfo.longname));
-                //std::cout << "get long name" << std::endl;
-            }
-            else if(curentry.name.find("370E") != std::string::npos) // Mime Type
-            {
-                cfb->GetEntryStream(&curentry, &(curattachinfo.mimetag));
-                //std::cout << "get mime tag" << std::endl;
-            }
-            else if(curentry.name.find("3712") != std::string::npos) // Content Id
-            {
-                cfb->GetEntryStream(&curentry, &(curattachinfo.contentid));
-                //std::cout << "get content id" << std::endl;
-            }
-            //std::cout << curentry.name << " nextid: " << curentry.rightsiblingid << std::endl;
-            curid = curentry.rightsiblingid;
-        }
-        msgattachments->push_back(curattachinfo);
-    }
-}
-*/

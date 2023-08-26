@@ -927,20 +927,15 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
 
 uint8_t WombatMail::MailBoxType(std::string mailboxpath)
 {
-    CompoundFileBinary* cfb = new CompoundFileBinary(&mailboxpath);
-    //ParseMsg* pmsg = new ParseMsg(&mailboxpath);
+    msg = new OutlookMessage(&mailboxpath);
     uint8_t mailboxtype = 0x00;
     libpff_error_t* pfferr = NULL;
     if(libpff_check_file_signature(mailboxpath.c_str(), &pfferr)) // is pst/ost
 	mailboxtype = 0x01; // PST/OST
-    else if(cfb->VerifyHeader())
+    else if(msg->IsOutlookMessage())
         mailboxtype = 0x03; // MSG
-    //else if(pmsg->VerifyHeader())
-    //    mailboxtype = 0x03; // MSG
     else // might be mbox or eml
     {
-	/*
-	*/
 	std::regex mboxheader("^From .*[0-9][0-9]:[0-9][0-9]"); // kmbox regular expression
 	std::ifstream mailboxfile(mailboxpath, std::ios::in|std::ios::binary);
 	std::string line;
@@ -981,84 +976,24 @@ uint8_t WombatMail::MailBoxType(std::string mailboxpath)
 void WombatMail::PopulateMsg(std::string mailboxpath)
 {
     // my new method
-    OutlookMessage* msg = new OutlookMessage(&mailboxpath);
-    // my old method
-    /*
-    CompoundFileBinary* cfb = new CompoundFileBinary(&mailboxpath);
+    msg->InitializeMessage();
     std::string content = "";
     content.append("From:\t\t");
-    content.append(SenderName(&mailboxpath));
+    content.append(msg->SenderName());
     content.append(" <");
-    content.append(SenderAddress(&mailboxpath));
+    content.append(msg->SenderAddress());
     content.append(">\n");
     content.append("To:\t\t");
-    std::vector<std::string> receivernames;
-    receivernames.clear();
-    ReceiverNames(&mailboxpath, &receivernames);
-    std::vector<std::string> receiveraddresses;
-    receiveraddresses.clear();
-    ReceiverAddresses(&mailboxpath, &receiveraddresses);
-    if(receiveraddresses.size() == 0) // NO ADDRESSES, JUST NAMES
-    {
-        for(int i=0; i < receivernames.size(); i++)
-        {
-            content.append(receivernames.at(i));
-            if(i < receivernames.size() - 1)
-                content.append("; ");
-        }
-    }
-    else if(receiveraddresses.size() > 0 && receivernames.size() == 0) // NO NAMES, JUST ADDRESSES
-    {
-        for(int i=0; i < receiveraddresses.size(); i++)
-        {
-            content.append(receiveraddresses.at(i));
-            if(i < receiveraddresses.size() - 1)
-                content.append("; ");
-        }
-    }
-    else if(receiveraddresses.size() > 0 && receivernames.size() > 0) // BOTH NAMES & ADDRESSES
-    {
-        if(receiveraddresses.size() < receivernames.size()) // MORE NAMES THAN ADDRESSES
-        {
-            for(int i=0; i < receiveraddresses.size(); i++)
-                content.append(receivernames.at(i) + " <" + receiveraddresses.at(i) + ">; ");
-            for(int i = receiveraddresses.size(); i < receivernames.size(); i++)
-            {
-                content.append(receivernames.at(i));
-                if(i < receivernames.size() - 1)
-                    content.append("; ");
-            }
-        }
-        else if(receiveraddresses.size() > receivernames.size()) // MORE ADDRESSES THAN NAMES
-        {
-            for(int i=0; i < receivernames.size(); i++)
-                content.append(receivernames.at(i) + " <" + receiveraddresses.at(i) + ">; ");
-            for(int i = receivernames.size(); i < receiveraddresses.size(); i++)
-            {
-                content.append(receiveraddresses.at(i));
-                if(i < receiveraddresses.size() - 1)
-                    content.append("; ");
-            }
-        }
-        else if(receiveraddresses.size() == receivernames.size()) // ADDRESSES EQUALS NAMES
-        {
-            for(int i=0; i < receiveraddresses.size(); i++)
-            {
-                content.append(receivernames.at(i) + " <" + receiveraddresses.at(i) + ">");
-                if(i < receiveraddresses.size() - 1)
-                    content.append("; ");
-            }
-        }
-    }
+    content.append(msg->Receivers());
     content.append("\n");
-    std::string ccstr = CarbonCopy(&mailboxpath);
+    std::string ccstr = msg->CarbonCopy();
     if(!ccstr.empty())
     {
         content.append("Cc:\t\t");
         content.append(ccstr);
         content.append("\n");
     }
-    std::string bccstr = BlindCarbonCopy(&mailboxpath);
+    std::string bccstr = msg->BlindCarbonCopy();
     if(!bccstr.empty())
     {
         content.append("Bcc:\t\t");
@@ -1066,21 +1001,22 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
         content.append("\n");
     }
     content.append("Subject:\t");
-    content.append(Subject(&mailboxpath));
+    content.append(msg->Subject());
     content.append("\n");
-    std::string date = Date(&mailboxpath);
     content.append("Date:\t\t");
-    content.append(date);
+    content.append(msg->Date());
     content.append("\n");
     content.append("----------\n");
     content.append("\n");
-    content.append(Body(&mailboxpath));
+    content.append(msg->Body());
     content.append("\n\n");
     content.append("----------\n");
-    content.append(TransportHeader(&mailboxpath));
+    content.append(msg->TransportHeader());
     content.append("\n");
-
     plaintext->setText(FXString(content.c_str()).substitute('\r', ' '));
+
+    // my old method
+    /*
     // GET ATTACHMENT COUNT
     uint32_t attachcount = 0;
     AttachmentCount(&attachcount, &mailboxpath);

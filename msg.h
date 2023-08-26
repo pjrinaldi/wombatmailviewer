@@ -39,21 +39,23 @@ class OutlookMessage
 
     public:
         OutlookMessage(std::string* msgfile);
+        bool IsOutlookMessage(void);
+        void InitializeMessage(void);
+        std::string SenderName(void);
+        std::string SenderAddress(void);
+        std::string Receivers(void);
+        std::string CarbonCopy(void);
+        std::string BlindCarbonCopy(void);
+        std::string Subject(void);
+        std::string Date(void);
+        std::string Body(void);
+        std::string TransportHeader(void);
 };
 
 /*
-std::string SenderName(std::string* mailboxpath);
-std::string SenderAddress(std::string* mailboxpath);
-void ReceiverNames(std::string* mailboxpath, std::vector<std::string>* receivernames);
-void ReceiverAddresses(std::string* mailboxpath, std::vector<std::string>* receiveraddresses);
-std::string CarbonCopy(std::string* mailboxpath);
-std::string BlindCarbonCopy(std::string* mailboxpath);
-std::string Subject(std::string* mailboxpath);
-std::string Date(std::string* mailboxpath);
-std::string Body(std::string* mailboxpath);
-std::string TransportHeader(std::string* mailboxpath);
 void AttachmentCount(uint32_t* attachcount, std::string* mailboxpath);
 void GetMsgAttachments(std::vector<AttachmentInfo>* msgattachments, uint32_t attachcount, std::string* mailboxpath);
+*/
 
 uint8_t* substr(uint8_t* arr, int begin, int len);
 void ReturnUint32(uint32_t* tmp32, uint8_t* tmp8, bool isbigendian=false);
@@ -63,5 +65,5 @@ void ReadInteger(uint8_t* arr, int begin, uint16_t* val, bool isbigendian=false)
 void ReadInteger(uint8_t* arr, int begin, uint32_t* val, bool isbigendian=false);
 void ReadInteger(uint8_t* arr, int begin, uint64_t* val, bool isbigendian=false);
 std::string ConvertWindowsTimeToUnixTimeUTC(uint64_t input);
-*/
+
 #endif // MSG_H
