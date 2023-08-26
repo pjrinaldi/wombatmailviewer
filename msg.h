@@ -29,15 +29,16 @@ struct AttachmentInfo
     std::string contentid;  // 0x3712 // 0x001F/1E - String
 };
 
-class OutlookMsg
+class OutlookMessage
 {
     private:
 
     protected:
-        OutlookMsg() {};
+        OutlookMessage() {};
+        CompoundFileBinary* cfb = NULL;
 
     public:
-        OutlookMsg(std::string* msgfile);
+        OutlookMessage(std::string* msgfile);
 };
 
 /*

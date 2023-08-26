@@ -1,5 +1,9 @@
 #include "msg.h"
 
+OutlookMessage::OutlookMessage(std::string* msgfile)
+{
+    cfb = new CompoundFileBinary(msgfile);
+}
 /*
 std::string SenderName(std::string* mailboxpath)
 {

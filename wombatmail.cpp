@@ -980,7 +980,10 @@ uint8_t WombatMail::MailBoxType(std::string mailboxpath)
 
 void WombatMail::PopulateMsg(std::string mailboxpath)
 {
-    // my method
+    // my new method
+    OutlookMessage* msg = new OutlookMessage(&mailboxpath);
+    // my old method
+    /*
     CompoundFileBinary* cfb = new CompoundFileBinary(&mailboxpath);
     std::string content = "";
     content.append("From:\t\t");
@@ -1096,14 +1099,13 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
         else if(!msgattachments.at(i).contentid.empty())
             attachmentlist->appendItem(FXString(msgattachments.at(i).contentid.c_str()));
         //attachmentlist->appendItem(FXString(reinterpret_cast<char*>(attachname)));
-        /*
-        std::cout << "dataid: " << msgattachments.at(i).dataid << std::endl;
-        std::cout << "name: " << msgattachments.at(i).name << std::endl;
-        std::cout << "longname: " << msgattachments.at(i).longname << std::endl;
-        std::cout << "mimetag: " << msgattachments.at(i).mimetag << std::endl;
-        std::cout << "contentid: " << msgattachments.at(i).contentid << std::endl;
-        */
+        //std::cout << "dataid: " << msgattachments.at(i).dataid << std::endl;
+        //std::cout << "name: " << msgattachments.at(i).name << std::endl;
+        //std::cout << "longname: " << msgattachments.at(i).longname << std::endl;
+        //std::cout << "mimetag: " << msgattachments.at(i).mimetag << std::endl;
+        //std::cout << "contentid: " << msgattachments.at(i).contentid << std::endl;
     }
+    */
 }
 
 /*
