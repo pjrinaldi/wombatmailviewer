@@ -151,6 +151,7 @@ long WombatMail::RemoveTag(FXObject*, FXSelector, void*)
 
 void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
 {
+    this->getApp()->beginWaitCursor();
     tablelist->clearItems();
     tablelist->setTableSize(10, 5);
     tablelist->setColumnText(0, "ID");
@@ -283,6 +284,7 @@ void WombatMail::PopulatePstFolder(FXString mailboxpath, FXString curitemtext)
 	*/
     }
     libpff_error_free(&pfferr);
+    this->getApp()->endWaitCursor();
 }
 
 long WombatMail::MailBoxSelected(FXObject* sender, FXSelector, void*)
@@ -1099,6 +1101,7 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
 
 void WombatMail::PopulateMbox(std::string mailboxpath)
 {
+    this->getApp()->beginWaitCursor();
     std::string layout = "";
     std::vector<uint64_t> poslist;
     std::vector<uint64_t> linelength;
@@ -1184,6 +1187,7 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
     tablelist->fitColumnsToContents(2);
     tablelist->fitColumnsToContents(3);
     tablelist->fitColumnsToContents(4);
+    this->getApp()->endWaitCursor();
 }
 
 void WombatMail::GetMimeFrom(std::string* msg, std::string* from)
