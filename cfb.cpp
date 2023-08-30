@@ -4,7 +4,8 @@ CompoundFileBinary::CompoundFileBinary(std::string* msgfile)
 {
     // PARSE HEADER SECTOR HERE
     msgfilepath = msgfile;
-    GetHeaderValues();
+    if(VerifyHeader())
+        GetHeaderValues();
     //std::cout << "msgfile: " << *msgfilepath << std::endl;
 }
 
