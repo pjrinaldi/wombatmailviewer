@@ -602,13 +602,13 @@ void WombatMail::PopulatePstEmail(FXString mailboxpath, FXString curitemtext)
 
 void WombatMail::GetMimeAttachments(std::string* msg)
 {
+    attachmentlist->clearItems();
     vmime::string msgdata = *msg;
     vmime::shared_ptr<vmime::message> vmsg = vmime::make_shared<vmime::message>();
     vmsg->parse(msgdata);
     vmime::messageParser vparser(vmsg);
     if(vparser.getAttachmentCount() > 0)
     {
-	attachmentlist->clearItems();
 	for(int i=0; i < vparser.getAttachmentCount(); i++)
 	{
 	    const vmime::attachment& att = *vparser.getAttachmentAt(i);
@@ -726,6 +726,22 @@ void WombatMail::GetMessageContent(std::string* msg, std::string* content)
             ttp->getText()->extract(ostrm);
             content->append(tstr);
         }
+    }
+    // FULL MIME HEADER
+    vmime::shared_ptr<const vmime::header> vhead = vmsg->getHeader();
+    content->append("\n\n--------\n\n");
+    for(int i=0; i < vhead->getFieldCount(); i++)
+    {
+        vmime::shared_ptr<const vmime::headerField> tmphf = vhead->getFieldAt(i);
+        vmime::shared_ptr<const vmime::headerFieldValue> tmpv = tmphf->getValue();
+        vmime::string hstr;
+        vmime::utility::outputStreamStringAdapter ostrm(hstr);
+        tmpv->generate(ostrm);
+        content->append(tmphf->getName());
+        content->append(": ");
+        content->append(hstr);
+        content->append("\n");
+        //std::cout << tmphf->getName() << ": " << hstr << std::endl;
     }
 }
 
