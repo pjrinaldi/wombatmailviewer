@@ -351,7 +351,6 @@ FXString WombatMail::ConvertWindowsTimeToUnixTimeUTC(uint64_t input)
 
 long WombatMail::MessageSelected(FXObject*, FXSelector, void*)
 {
-    plaintext->setText("");
     if(tablelist->getCurrentRow() > -1)
     {
 	tablelist->selectRow(tablelist->getCurrentRow());
@@ -364,9 +363,15 @@ long WombatMail::MessageSelected(FXObject*, FXSelector, void*)
 	mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
 	uint8_t mailboxtype = MailBoxType(mailboxpath.text());
 	if(mailboxtype == 0x01) // PST/OST
+        {
+            plaintext->setText("");
 	    PopulatePstEmail(mailboxpath, curitem->getText());
+        }
 	else if(mailboxtype == 0x02) // MBOX
+        {
+            plaintext->setText("");
 	    PopulateMboxEmail(mailboxpath, curitem->getText());
+        }
     }
     
     return 1;
@@ -630,6 +635,32 @@ void WombatMail::PopulateEml(FXString mailboxpath)
     vmime::shared_ptr<vmime::message> vmsg = vmime::make_shared<vmime::message>();
     vmsg->parse(msgdata);
     vmime::messageParser vparser(vmsg);
+    tablelist->clearItems();
+    tablelist->setTableSize(1, 5);
+    tablelist->setColumnText(0, "ID");
+    tablelist->setColumnText(1, "Tag");
+    tablelist->setColumnText(2, "From");
+    tablelist->setColumnText(3, "Date Time");
+    tablelist->setColumnText(4, "Subject");
+    std::string subjectstring = "";
+    GetMimeSubject(&msg, &subjectstring);
+    std::string fromstring = "";
+    GetMimeFrom(&msg, &fromstring);
+    std::string datestring = "";
+    GetMimeDate(&msg, &datestring);
+    tablelist->setItemText(0, 0, FXString::value(1));
+    //tablelist->setItemText(0, 1, "tagstr");
+    tablelist->setItemText(0, 2, FXString(fromstring.c_str()));
+    tablelist->setItemText(0, 3, FXString(datestring.c_str()));
+    tablelist->setItemText(0, 4, FXString(subjectstring.c_str()));
+    AlignColumn(tablelist, 0, FXTableItem::LEFT);
+    AlignColumn(tablelist, 1, FXTableItem::LEFT);
+    AlignColumn(tablelist, 2, FXTableItem::LEFT);
+    AlignColumn(tablelist, 3, FXTableItem::LEFT);
+    AlignColumn(tablelist, 4, FXTableItem::LEFT);
+    tablelist->fitColumnsToContents(2);
+    tablelist->fitColumnsToContents(3);
+    tablelist->fitColumnsToContents(4);
     std::string contents = "";
     GetMessageContent(&msg, &contents);
     plaintext->setText(FXString(contents.c_str()).substitute('\r', ' '));
@@ -989,8 +1020,27 @@ uint8_t WombatMail::MailBoxType(std::string mailboxpath)
 
 void WombatMail::PopulateMsg(std::string mailboxpath)
 {
-    // my new method
     msg->InitializeMessage();
+    tablelist->clearItems();
+    tablelist->setTableSize(1, 5);
+    tablelist->setColumnText(0, "ID");
+    tablelist->setColumnText(1, "Tag");
+    tablelist->setColumnText(2, "From");
+    tablelist->setColumnText(3, "Date Time");
+    tablelist->setColumnText(4, "Subject");
+    tablelist->setItemText(0, 0, FXString::value(1));
+    tablelist->setItemText(0, 2, FXString(msg->SenderName().c_str()));
+    tablelist->setItemText(0, 3, FXString(msg->Date().c_str()));
+    tablelist->setItemText(0, 4, FXString(msg->Subject().c_str()));
+    AlignColumn(tablelist, 0, FXTableItem::LEFT);
+    AlignColumn(tablelist, 1, FXTableItem::LEFT);
+    AlignColumn(tablelist, 2, FXTableItem::LEFT);
+    AlignColumn(tablelist, 3, FXTableItem::LEFT);
+    AlignColumn(tablelist, 4, FXTableItem::LEFT);
+    tablelist->fitColumnsToContents(2);
+    tablelist->fitColumnsToContents(3);
+    tablelist->fitColumnsToContents(4);
+    // MSG CONTENT
     std::string content = "";
     content.append("From:\t\t");
     content.append(msg->SenderName());
@@ -1023,6 +1073,7 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     content.append("----------\n");
     content.append("\n");
     content.append(msg->Body());
+    // TRANSPORT HEADERS
     content.append("\n\n");
     content.append("----------\n");
     content.append(msg->TransportHeader());
@@ -1031,10 +1082,8 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     // GET ATTACHMENT COUNT
     uint32_t attachcount = 0;
     msg->AttachmentCount(&attachcount);
-    //std::cout << "Attachment Count: " << attachcount << std::endl;
     msgattachments.clear();
     msg->GetMsgAttachments(&msgattachments, attachcount);
-    //std::cout << "attachment count: " << msgattachments.size() << std::endl;
     // POPULATE ATTACHMENTS
     attachmentlist->clearItems();
     for(int i=0; i < msgattachments.size(); i++)
