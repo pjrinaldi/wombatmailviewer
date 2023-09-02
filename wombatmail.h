@@ -22,6 +22,8 @@
 
 #include "libpff.h"
 #include "vmime/vmime.hpp"
+#include "lexbor/tokenizer.h" // HTML PARSING
+
 
 #include "managetags.h"
 #include "aboutbox.h"
@@ -31,6 +33,8 @@
 #define TICKS_PER_SECOND 10000000
 #define EPOCH_DIFFERENCE 11644473600LL
 #define NSEC_BTWN_1904_1970	(uint32_t) 2082844800U
+
+static lxb_html_token_t* token_callback(lxb_html_tokenizer_t *tkz, lxb_html_token_t *token, void *ctx);
 
 class WombatMail : public FXMainWindow
 {

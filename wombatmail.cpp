@@ -3,6 +3,20 @@
 // Copyright 2013-2023 Pasquale J. Rinaldi, Jr.
 // Distributed under the terms of the GNU General Public License version 2
 
+static lxb_html_token_t* token_callback(lxb_html_tokenizer_t *tkz, lxb_html_token_t *token, void *ctx)
+{
+    /* Skip all not #text tokens */
+    if (token->tag_id != LXB_TAG__TEXT) {
+        return token;
+    }
+    char htmlbuf[(int)(token->text_end - token->text_start)];
+    sprintf(htmlbuf, "%.*s", (int) (token->text_end - token->text_start), token->text_start);
+    ((std::string*)ctx)->append(htmlbuf);
+    //printf("%.*s", (int) (token->text_end - token->text_start), token->text_start);
+
+    return token;
+}
+
 FXIMPLEMENT(WombatMail,FXMainWindow,WombatMailMap,ARRAYNUMBER(WombatMailMap))
 
 WombatMail::WombatMail(FXApp* a):FXMainWindow(a, "Wombat Mail Forensics", new FXICOIcon(a, wombat_32), new FXICOIcon(a, wombat_32), DECOR_ALL, 0, 0, 1024, 768)
@@ -755,9 +769,29 @@ void WombatMail::GetMessageContent(std::string* msg, std::string* content)
             htp->getPlainText()->extract(ostrm);
             if(tstr.empty())
             {
+                std::string htmltotxt = "";
                 std::cout << "text part for html is emtpy, get html part" << std::endl;
                 htp->getText()->extract(ostrm);
                 // here is where i would convert tstr using lexbor
+                lxb_status_t status;
+                lxb_html_tokenizer_t* tkz = NULL;
+                tkz = lxb_html_tokenizer_create();
+                status = lxb_html_tokenizer_init(tkz);
+                lxb_html_tokenizer_callback_token_done_set(tkz, token_callback, htmltotxt);
+                /*
+void ParseHtml(uint8_t* prebuf, uint64_t bufsize, std::string* filecontents)
+{   
+    lxb_status_t status;
+    lxb_html_tokenizer_t* tkz;
+    tkz = lxb_html_tokenizer_create();
+    status = lxb_html_tokenizer_init(tkz);
+    lxb_html_tokenizer_callback_token_done_set(tkz, token_callback, filecontents);
+    status = lxb_html_tokenizer_begin(tkz);
+    status = lxb_html_tokenizer_chunk(tkz, prebuf, bufsize);
+    status = lxb_html_tokenizer_end(tkz);
+    lxb_html_tokenizer_destroy(tkz);
+}
+                 */ 
                 mimebody = tstr;
             }
             else
