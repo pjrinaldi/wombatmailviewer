@@ -663,6 +663,8 @@ void WombatMail::PopulateEml(FXString mailboxpath)
     tablelist->fitColumnsToContents(2);
     tablelist->fitColumnsToContents(3);
     tablelist->fitColumnsToContents(4);
+    tablelist->setCurrentItem(0, 0, true);
+    tablelist->selectRow(0, true);
     std::string contents = "";
     GetMessageContent(&msg, &contents);
     plaintext->setText(FXString(contents.c_str()).substitute('\r', ' '));
@@ -740,26 +742,38 @@ void WombatMail::GetMessageContent(std::string* msg, std::string* content)
     content->append(std::to_string(vdate.getSecond()));
     content->append("\n\n\n");
     // MIME BODY
+    std::string mimebody = "";
     for(int i=0; i < vparser.getTextPartCount(); i++)
     {
         vmime::shared_ptr<const vmime::textPart> tp = vparser.getTextPartAt(i);
         if(tp->getType().getSubType() == vmime::mediaTypes::TEXT_HTML)
         {
+            std::cout << "html part" << std::endl;
             vmime::shared_ptr<const vmime::htmlTextPart> htp = vmime::dynamicCast<const vmime::htmlTextPart>(tp);
-            vmime::string tstr;
+            vmime::string tstr = "";
             vmime::utility::outputStreamStringAdapter ostrm(tstr);
             htp->getPlainText()->extract(ostrm);
-            content->append(tstr);
+            if(tstr.empty())
+            {
+                std::cout << "text part for html is emtpy, get html part" << std::endl;
+                htp->getText()->extract(ostrm);
+                // here is where i would convert tstr using lexbor
+                mimebody = tstr;
+            }
+            else
+                mimebody = tstr;
         }
         else
         {
+            std::cout << "text part" << std::endl;
             vmime::shared_ptr<const vmime::textPart> ttp = vmime::dynamicCast<const vmime::textPart>(tp);
             vmime::string tstr;
             vmime::utility::outputStreamStringAdapter ostrm(tstr);
             ttp->getText()->extract(ostrm);
-            content->append(tstr);
+            mimebody = tstr;
         }
     }
+    content->append(mimebody);
     // FULL MIME HEADER
     vmime::shared_ptr<const vmime::header> vhead = vmsg->getHeader();
     content->append("\n\n--------\n\n");
@@ -1042,6 +1056,8 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     tablelist->fitColumnsToContents(2);
     tablelist->fitColumnsToContents(3);
     tablelist->fitColumnsToContents(4);
+    tablelist->setCurrentItem(0, 0, true);
+    tablelist->selectRow(0, true);
     // MSG CONTENT
     std::string content = "";
     content.append("From:\t\t");
