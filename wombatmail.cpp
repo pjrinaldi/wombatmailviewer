@@ -777,22 +777,13 @@ void WombatMail::GetMessageContent(std::string* msg, std::string* content)
                 lxb_html_tokenizer_t* tkz = NULL;
                 tkz = lxb_html_tokenizer_create();
                 status = lxb_html_tokenizer_init(tkz);
-                lxb_html_tokenizer_callback_token_done_set(tkz, token_callback, htmltotxt);
-                /*
-void ParseHtml(uint8_t* prebuf, uint64_t bufsize, std::string* filecontents)
-{   
-    lxb_status_t status;
-    lxb_html_tokenizer_t* tkz;
-    tkz = lxb_html_tokenizer_create();
-    status = lxb_html_tokenizer_init(tkz);
-    lxb_html_tokenizer_callback_token_done_set(tkz, token_callback, filecontents);
-    status = lxb_html_tokenizer_begin(tkz);
-    status = lxb_html_tokenizer_chunk(tkz, prebuf, bufsize);
-    status = lxb_html_tokenizer_end(tkz);
-    lxb_html_tokenizer_destroy(tkz);
-}
-                 */ 
-                mimebody = tstr;
+                lxb_html_tokenizer_callback_token_done_set(tkz, token_callback, &htmltotxt);
+                status = lxb_html_tokenizer_begin(tkz);
+                status = lxb_html_tokenizer_chunk(tkz, (const lxb_char_t*)tstr.c_str(), tstr.size());
+                status = lxb_html_tokenizer_end(tkz);
+                lxb_html_tokenizer_destroy(tkz);
+                mimebody = htmltotxt;
+                //mimebody = tstr;
             }
             else
                 mimebody = tstr;
