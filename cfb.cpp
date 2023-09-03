@@ -4,8 +4,8 @@ CompoundFileBinary::CompoundFileBinary(std::string* msgfile)
 {
     // PARSE HEADER SECTOR HERE
     msgfilepath = msgfile;
-    if(VerifyHeader())
-        GetHeaderValues();
+    //if(VerifyHeader())
+    GetHeaderValues();
     //std::cout << "msgfile: " << *msgfilepath << std::endl;
 }
 
@@ -68,6 +68,7 @@ void CompoundFileBinary::GetHeaderValues(void)
         std::cout << "process extra difat sectors here" << std::endl;
         //std::cout << "starting difatsector 0x" << startingdifatsector << std::endl;
     }
+    fatchains.clear();
     ParseFat();
     ParseMiniFat();
     ParseRootDirectory();
@@ -614,6 +615,8 @@ void CompoundFileBinary::NavigateDirectoryEntries(void)
 {
     // FIND THE DIRECTORY ENTRIES FAT CHAIN TO LOOP OVER THEM
     int fatchainfordirectoryentries = 0;
+    //std::cout << "fatchains size: " << fatchains.size() << std::endl;
+    //std::cout << "is error before this?" << std::endl;
     for(int i=0; i < fatchains.size(); i++)
     {
         if(startingdirectorysector == fatchains.at(i).at(0))

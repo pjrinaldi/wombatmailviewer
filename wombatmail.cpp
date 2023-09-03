@@ -133,7 +133,6 @@ long WombatMail::CreateNewTag(FXObject*, FXSelector, void*)
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
     FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
-    //FXString idkeyvalue = mailboxpath + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
@@ -154,7 +153,6 @@ long WombatMail::RemoveTag(FXObject*, FXSelector, void*)
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
     FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
-    //FXString idkeyvalue = mailboxpath + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
@@ -1035,13 +1033,30 @@ long WombatMail::OpenMailBox(FXObject*, FXSelector, void*)
 
 uint8_t WombatMail::MailBoxType(std::string mailboxpath)
 {
-    msg = new OutlookMessage(&mailboxpath);
+    bool ismsg = false;
+    std::ifstream msgbuffer(mailboxpath, std::ios::in|std::ios::binary);
+    uint8_t* tmp8 = new uint8_t[8];
+    //msgbuffer.open(msgfilepath->c_str(), std::ios::in|std::ios::binary);
+    msgbuffer.seekg(0);
+    msgbuffer.read((char*)tmp8, 8);
+    msgbuffer.close();
+    uint64_t msghdr = (uint64_t)tmp8[0] | (uint64_t)tmp8[1] << 8 | (uint64_t)tmp8[2] << 16 | (uint64_t)tmp8[3] << 24 | (uint64_t)tmp8[4] << 32 | (uint64_t)tmp8[5] << 40 | (uint64_t)tmp8[6] << 48 | (uint64_t)tmp8[7] << 56;
+    //ReturnUint64(val, tmp8, isbigendian);
+    delete[] tmp8;
+    if(msghdr == 0xe11ab1a1e011cfd0)
+        ismsg = true;
+    //msg = new OutlookMessage(&mailboxpath);
     uint8_t mailboxtype = 0x00;
     libpff_error_t* pfferr = NULL;
     if(libpff_check_file_signature(mailboxpath.c_str(), &pfferr)) // is pst/ost
 	mailboxtype = 0x01; // PST/OST
-    else if(msg->IsOutlookMessage())
+    else if(ismsg)
+    {
         mailboxtype = 0x03; // MSG
+        msg = new OutlookMessage(&mailboxpath);
+    }
+    //else if(msg->IsOutlookMessage())
+    //    mailboxtype = 0x03; // MSG
     else // might be mbox or eml
     {
 	std::regex mboxheader("^From .*[0-9][0-9]:[0-9][0-9]"); // kmbox regular expression
