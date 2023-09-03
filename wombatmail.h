@@ -138,6 +138,7 @@ class WombatMail : public FXMainWindow
         void GetMimeDate(std::string* msg, std::string* date);
         void GetMessageContent(std::string* msg, std::string* content);
 	void GetMimeAttachments(std::string* msg);
+        void ExportAttachments(void);
 };
 
 FXDEFMAP(WombatMail) WombatMailMap[]={

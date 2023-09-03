@@ -638,6 +638,14 @@ void WombatMail::GetMimeAttachments(std::string* msg)
     }
 }
 
+void WombatMail::ExportAttachments(void)
+{
+    // need to name attachments 1-actual filename, where 1 is a unique cnt variable so there is no filename overlap
+    // for each mail item tagged, need to figure out the attachment count for the item, then get the attachment
+    // just like in attachment selected for each attachment. add attachment count to the tagstr/idkeyvalue so i can
+    // get this party started, and that's a small size to add to the attachment.
+}
+
 void WombatMail::PopulateEml(FXString mailboxpath)
 {
     FILE* mailboxfile = fopen(mailboxpath.text(), "r");
@@ -876,6 +884,7 @@ long  WombatMail::OpenAboutBox(FXObject*, FXSelector, void*)
 
 long WombatMail::PreviewReport(FXObject*, FXSelector, void*)
 {
+    // PREVIEW REPORT WON'T EXPORT ATTACHMENTS, ONLY PUBLISH WILL
     viewer = new Viewer(this, "Report Preview");
     viewer->GenerateReport(taggedlist, tags);
     viewer->execute(PLACEMENT_OWNER);
@@ -943,6 +952,7 @@ long WombatMail::PublishReport(FXObject*, FXSelector, void*)
         else
         {
             viewer->GetText(&buf);
+            ExportAttachments();
         }
         outfile->writeBlock(buf.text(), buf.length());
         outfile->close();
