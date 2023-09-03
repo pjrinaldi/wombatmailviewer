@@ -665,7 +665,19 @@ void WombatMail::PopulateEml(FXString mailboxpath)
     std::string datestring = "";
     GetMimeDate(&msg, &datestring);
     tablelist->setItemText(0, 0, FXString::value(1));
-    //tablelist->setItemText(0, 1, "tagstr");
+    FXString tagstr = "";
+    for(int j = 0; j < taggedlist.no(); j++)
+    {
+        if(taggedlist.at(j).contains(mailboxpath) && taggedlist.at(j).contains(treelist->getCurrentItem()->getText()))
+        {
+            std::size_t found = taggedlist.at(j).find("|");
+            tagstr = taggedlist.at(j).left(found);
+        }
+    }
+    tablelist->setItemText(0, 1, tagstr);
+    //std::cout << "|" << (unsigned int)msgsubject[0] << "|" << std::endl;
+    if(!tagstr.empty() && tagstr.length() > 5)
+        tablelist->fitColumnsToContents(1);
     tablelist->setItemText(0, 2, FXString(fromstring.c_str()));
     tablelist->setItemText(0, 3, FXString(datestring.c_str()));
     tablelist->setItemText(0, 4, FXString(subjectstring.c_str()));
@@ -1070,6 +1082,19 @@ void WombatMail::PopulateMsg(std::string mailboxpath)
     tablelist->setColumnText(3, "Date Time");
     tablelist->setColumnText(4, "Subject");
     tablelist->setItemText(0, 0, FXString::value(1));
+    FXString tagstr = "";
+    for(int j = 0; j < taggedlist.no(); j++)
+    {
+        if(taggedlist.at(j).contains(FXString(mailboxpath.c_str())) && taggedlist.at(j).contains(treelist->getCurrentItem()->getText()))
+        {
+            std::size_t found = taggedlist.at(j).find("|");
+            tagstr = taggedlist.at(j).left(found);
+        }
+    }
+    tablelist->setItemText(0, 1, tagstr);
+    //std::cout << "|" << (unsigned int)msgsubject[0] << "|" << std::endl;
+    if(!tagstr.empty() && tagstr.length() > 5)
+        tablelist->fitColumnsToContents(1);
     tablelist->setItemText(0, 2, FXString(msg->SenderName().c_str()));
     tablelist->setItemText(0, 3, FXString(msg->Date().c_str()));
     tablelist->setItemText(0, 4, FXString(msg->Subject().c_str()));
@@ -1215,6 +1240,19 @@ void WombatMail::PopulateMbox(std::string mailboxpath)
         std::string datestring = "";
         GetMimeDate(&(msgs.at(i)), &datestring);
         tablelist->setItemText(i, 0, FXString::value(i+1));
+        FXString tagstr = "";
+        for(int j = 0; j < taggedlist.no(); j++)
+        {
+            if(taggedlist.at(j).contains(FXString(mailboxpath.c_str())) && taggedlist.at(j).contains(treelist->getCurrentItem()->getText()))
+            {
+                std::size_t found = taggedlist.at(j).find("|");
+                tagstr = taggedlist.at(j).left(found);
+            }
+        }
+        tablelist->setItemText(i, 1, tagstr);
+        //std::cout << "|" << (unsigned int)msgsubject[0] << "|" << std::endl;
+        if(!tagstr.empty() && tagstr.length() > 5)
+            tablelist->fitColumnsToContents(1);
         //tablelist->setItemText(i, 1, "tagstr");
         tablelist->setItemText(i, 2, FXString(fromstring.c_str()));
         tablelist->setItemText(i, 3, FXString(datestring.c_str()));
