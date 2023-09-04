@@ -74,6 +74,7 @@ class WombatMail : public FXMainWindow
         std::vector<std::string> msgs;
         vmime::charset ch;
         std::vector<AttachmentInfo> msgattachments;
+        FXString reportstring;
         OutlookMessage* msg;
 
     protected:
@@ -138,6 +139,7 @@ class WombatMail : public FXMainWindow
         void GetMimeDate(std::string* msg, std::string* date);
         void GetMessageContent(std::string* msg, std::string* content);
 	void GetMimeAttachments(std::string* msg);
+        void GenerateReport(FXArray<FXString> taggedlist, std::vector<std::string> tags);
         void ExportAttachments(void);
 };
 

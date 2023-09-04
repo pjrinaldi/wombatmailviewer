@@ -18,6 +18,10 @@ void Viewer::GetText(FXString* buf)
 {
     textview->getText(*buf);
 }
+void Viewer::SetText(FXString txt)
+{
+    textview->setText(txt);
+}
 
 void Viewer::GenerateReport(FXArray<FXString> taggedlist, std::vector<std::string> tags)
 {

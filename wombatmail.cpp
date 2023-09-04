@@ -885,8 +885,10 @@ long  WombatMail::OpenAboutBox(FXObject*, FXSelector, void*)
 long WombatMail::PreviewReport(FXObject*, FXSelector, void*)
 {
     // PREVIEW REPORT WON'T EXPORT ATTACHMENTS, ONLY PUBLISH WILL
+    GenerateReport(taggedlist, tags);
     viewer = new Viewer(this, "Report Preview");
-    viewer->GenerateReport(taggedlist, tags);
+    viewer->SetText(reportstring);
+    //viewer->GenerateReport(taggedlist, tags);
     viewer->execute(PLACEMENT_OWNER);
 
     return 1;
@@ -951,7 +953,10 @@ long WombatMail::PublishReport(FXObject*, FXSelector, void*)
         }
         else
         {
-            viewer->GetText(&buf);
+            GenerateReport(taggedlist, tags);
+            buf = reportstring;
+            //viewer->GenerateReport(taggedlist, tags);
+            //viewer->GetText(&buf);
             ExportAttachments();
         }
         outfile->writeBlock(buf.text(), buf.length());
@@ -1452,4 +1457,58 @@ int main(int argc, char* argv[])
     wr->run();
 
     return 0;
+}
+
+void WombatMail::GenerateReport(FXArray<FXString> taggedlist, std::vector<std::string> tags)
+{
+    // PLACE TITLE
+    reportstring.append("Wombat Mail Report\n-----------------\n\n");
+    // PLACE CONTENTS HEADER
+    reportstring.append("Contents\n--------\n\n");
+    // GENERATE TAGS AND THEIR COUNT
+    for(int j=0; j < tags.size(); j++)
+    {
+        int tagcnt = 0;
+        for(int i=0; i < taggedlist.no(); i++)
+        {
+            std::size_t found = taggedlist.at(i).find("|");
+            FXString itemtag = taggedlist.at(i).mid(0, found);
+            if(FXString::compare(itemtag, FXString(tags.at(j).c_str())) == 0)
+                tagcnt++;
+        }
+        reportstring.append(FXString(tags.at(j).c_str()) + " (" + FXString::value(tagcnt) + ")\n");
+    }
+    reportstring.append("\n\n");
+    // GENERATE TAG HEADER AND CONTENT
+    for(int i=0; i < tags.size(); i++)
+    {
+        reportstring.append(FXString(tags.at(i).c_str()) + "\n");
+        for(int j=0; j < tags.at(i).size(); j++)
+            reportstring.append("-");
+        reportstring.append("\n\n");
+        for(int j=0; j < taggedlist.no(); j++)
+        {
+            std::size_t found = taggedlist.at(j).find("|");
+            std::size_t rfound = taggedlist.at(j).rfind("|");
+            FXString itemtag = taggedlist.at(j).mid(0, found);
+            FXString itemhdr = taggedlist.at(j).mid(found+1, rfound - found - 1);
+            std::size_t hfind1 = itemhdr.find("\t");
+            std::size_t hfind2 = itemhdr.find("\t", hfind1+1);
+            std::size_t hfind3 = itemhdr.find("\t", hfind2+1);
+            std::size_t hfind4 = itemhdr.find("\t", hfind3+1);
+            FXString itemcon = taggedlist.at(j).mid(rfound+1, taggedlist.at(j).length() - rfound);
+            if(itemtag == tags.at(i).c_str())
+            {
+                reportstring.append("Mail Item:\t" + itemhdr.mid(0, hfind1) + "\n");
+                reportstring.append("Folder:\t\t" + itemhdr.mid(hfind1+1, hfind2 - hfind1 - 1) + "\n");
+                reportstring.append("From:\t\t" + itemhdr.mid(hfind2+1, hfind3 - hfind2 - 1) + "\n");
+                reportstring.append("Date:\t\t" + itemhdr.mid(hfind3+1, hfind4 - hfind3 - 1) + "\n");
+                reportstring.append("Subject:\t" + itemhdr.mid(hfind4+1, itemhdr.length() - hfind4 - 1) + "\n\n");
+                reportstring.append(itemcon + "\n");
+                for(int k=0; k < 80; k++)
+                    reportstring.append("-");
+                reportstring.append("\n\n");
+            }
+        }
+    }
 }

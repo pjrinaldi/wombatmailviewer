@@ -407,7 +407,6 @@ void CompoundFileBinary::GetEntryStream(DirectoryEntry* curdirentry, std::string
             if(fatchains.at(i).at(0) == curdirentry->startingsector)
             {
             }
-
         }
     }
     */
