@@ -888,7 +888,6 @@ long WombatMail::PreviewReport(FXObject*, FXSelector, void*)
     GenerateReport(taggedlist, tags);
     viewer = new Viewer(this, "Report Preview");
     viewer->SetText(reportstring);
-    //viewer->GenerateReport(taggedlist, tags);
     viewer->execute(PLACEMENT_OWNER);
 
     return 1;
@@ -955,8 +954,6 @@ long WombatMail::PublishReport(FXObject*, FXSelector, void*)
         {
             GenerateReport(taggedlist, tags);
             buf = reportstring;
-            //viewer->GenerateReport(taggedlist, tags);
-            //viewer->GetText(&buf);
             ExportAttachments();
         }
         outfile->writeBlock(buf.text(), buf.length());
