@@ -309,6 +309,7 @@ long WombatMail::MailBoxSelected(FXObject* sender, FXSelector, void*)
     int found1 = rootstring.find(" (");
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
+    std::string mboxpath = mailboxpath.text();
     uint8_t mailboxtype = MailBoxType(mailboxpath.text());
     if(mailboxtype == 0x01) // PST/OST
     {
@@ -320,6 +321,7 @@ long WombatMail::MailBoxSelected(FXObject* sender, FXSelector, void*)
     }
     else if(mailboxtype == 0x03) // MSG
     {
+        msg = new OutlookMessage(&mboxpath);
 	PopulateMsg(mailboxpath.text());
     }
     else if(mailboxtype == 0x04) // EML
@@ -1053,7 +1055,7 @@ uint8_t WombatMail::MailBoxType(std::string mailboxpath)
     else if(ismsg)
     {
         mailboxtype = 0x03; // MSG
-        msg = new OutlookMessage(&mailboxpath);
+        //msg = new OutlookMessage(&mailboxpath);
     }
     //else if(msg->IsOutlookMessage())
     //    mailboxtype = 0x03; // MSG

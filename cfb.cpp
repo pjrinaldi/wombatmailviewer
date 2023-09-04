@@ -68,7 +68,7 @@ void CompoundFileBinary::GetHeaderValues(void)
         std::cout << "process extra difat sectors here" << std::endl;
         //std::cout << "starting difatsector 0x" << startingdifatsector << std::endl;
     }
-    fatchains.clear();
+    //fatchains.clear();
     ParseFat();
     ParseMiniFat();
     ParseRootDirectory();

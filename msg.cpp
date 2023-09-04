@@ -22,15 +22,11 @@ std::string OutlookMessage::SenderName(void)
 {
     std::string sendername = "";
     DirectoryEntry curentry;
-    std::cout << "error 1" << std::endl;
     cfb->GetDirectoryEntryStream(&sendername, "0C1A");
-    std::cout << "error 2 " << sendername << std::endl;
     if(sendername.empty())
         cfb->GetDirectoryEntryStream(&sendername, "3FFA");
-    std::cout << "error 3 " << std::endl;
     if(sendername.empty())
         cfb->GetDirectoryEntryStream(&sendername, "0042");
-    std::cout << "error 4 " << std::endl;
 
     return sendername;
 }
