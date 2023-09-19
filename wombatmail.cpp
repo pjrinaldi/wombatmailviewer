@@ -152,6 +152,7 @@ long WombatMail::RemoveTag(FXObject*, FXSelector, void*)
     int found1 = rootstring.find(" (");
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
+    std::cout << "attachmentlist count: " << attachmentlist->getNumItems() << std::endl;
     FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
     for(int i=0; i < taggedlist.no(); i++)
     {
@@ -1431,6 +1432,7 @@ long WombatMail::SetTag(FXObject* sender, FXSelector, void*)
     int found1 = rootstring.find(" (");
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
+    std::cout << "attachmentlist count: " << attachmentlist->getNumItems() << std::endl;
     FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
     for(int i=0; i < taggedlist.no(); i++)
     {
