@@ -132,7 +132,8 @@ long WombatMail::CreateNewTag(FXObject*, FXSelector, void*)
     int found1 = rootstring.find(" (");
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
-    FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
+    std::cout << "attachmentlist count: " << attachmentlist->getNumItems() << std::endl;
+    FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4) + "\t" + FXString::value(attachmentlist->getNumItems());
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
@@ -153,7 +154,7 @@ long WombatMail::RemoveTag(FXObject*, FXSelector, void*)
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
     std::cout << "attachmentlist count: " << attachmentlist->getNumItems() << std::endl;
-    FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
+    FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4) + "\t" + attachmentlist->getNumItems();
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
@@ -931,10 +932,12 @@ long WombatMail::PublishReport(FXObject*, FXSelector, void*)
                     std::size_t rfound = taggedlist.at(j).rfind("|");
                     FXString itemtag = taggedlist.at(j).mid(0, found);
                     FXString itemhdr = taggedlist.at(j).mid(found+1, rfound - found - 1);
+                    std::cout << "itemhdr: " << itemhdr.text() << std::endl;
                     std::size_t hfind1 = itemhdr.find("\t");
                     std::size_t hfind2 = itemhdr.find("\t", hfind1+1);
                     std::size_t hfind3 = itemhdr.find("\t", hfind2+1);
                     std::size_t hfind4 = itemhdr.find("\t", hfind3+1);
+                    std::size_t hfind5 = itemhdr.find("\t", hfind4+1);
                     FXString itemcon = taggedlist.at(j).mid(rfound+1, taggedlist.at(j).length() - rfound);
                     if(itemtag == tags.at(i).c_str())
                     {
@@ -943,8 +946,11 @@ long WombatMail::PublishReport(FXObject*, FXSelector, void*)
                         buf += "<div>Folder:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind1+1, hfind2 - hfind1 - 1) + "</div>\n";
                         buf += "<div>From:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind2+1, hfind3 - hfind2 - 1) + "</div>\n";
                         buf += "<div>Date:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind3+1, hfind4 - hfind3 - 1) + "</div>\n";
-                        buf += "<div>Subject:&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind4+1, taggedlist.at(j).length() - hfind4 - 1) + "</div>\n<br/>\n";
-                        buf += "<div><pre>" + itemcon + "</pre></div>\n";
+                        buf += "<div>Subject:&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind4+1, hfind5 - hfind4 - 1) + "</div>\n<br/>\n";
+                        //buf += "<div>Subject:&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind4+1, taggedlist.at(j).length() - hfind4 - 1) + "</div>\n<br/>\n";
+                        buf += "<div><pre>" + itemcon + "</pre></div><br/>\n";
+                        buf += "<div>Attachment Count:&nbps;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind5+1, taggedlist.at(j).length() - hfind5 - 1) + "</div>\n";
+                        //buf += "<div>Subject:&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind4+1, taggedlist.at(j).length() - hfind4 - 1) + "</div>\n<br/>\n";
                         buf += "</div>\n";
                     }
                 }
@@ -1433,7 +1439,15 @@ long WombatMail::SetTag(FXObject* sender, FXSelector, void*)
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
     std::cout << "attachmentlist count: " << attachmentlist->getNumItems() << std::endl;
-    FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4);
+    FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4) + "\t";
+    if(attachmentlist->getNumItems() == 1)
+    {
+        if(attachmentlist->getItemText(0).contains("No attachments"))
+            idkeyvalue += "0";
+        else
+            idkeyvalue += FXString::value(attachmentlist->getNumItems());
+
+    }
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
@@ -1495,6 +1509,7 @@ void WombatMail::GenerateReport(FXArray<FXString> taggedlist, std::vector<std::s
             std::size_t hfind2 = itemhdr.find("\t", hfind1+1);
             std::size_t hfind3 = itemhdr.find("\t", hfind2+1);
             std::size_t hfind4 = itemhdr.find("\t", hfind3+1);
+            std::size_t hfind5 = itemhdr.find("\t", hfind4+1);
             FXString itemcon = taggedlist.at(j).mid(rfound+1, taggedlist.at(j).length() - rfound);
             if(itemtag == tags.at(i).c_str())
             {
@@ -1502,8 +1517,11 @@ void WombatMail::GenerateReport(FXArray<FXString> taggedlist, std::vector<std::s
                 reportstring.append("Folder:\t\t" + itemhdr.mid(hfind1+1, hfind2 - hfind1 - 1) + "\n");
                 reportstring.append("From:\t\t" + itemhdr.mid(hfind2+1, hfind3 - hfind2 - 1) + "\n");
                 reportstring.append("Date:\t\t" + itemhdr.mid(hfind3+1, hfind4 - hfind3 - 1) + "\n");
-                reportstring.append("Subject:\t" + itemhdr.mid(hfind4+1, itemhdr.length() - hfind4 - 1) + "\n\n");
+                reportstring.append("Subject:\t" + itemhdr.mid(hfind4+1, hfind5 - hfind4 - 1) + "\n\n");
+                //reportstring.append("Subject:\t" + itemhdr.mid(hfind4+1, itemhdr.length() - hfind4 - 1) + "\n\n");
+                //buf += "<div>Attachment Count:&nbps;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind5+1, taggedlist.at(j).length() - hfind5 - 1) + "</div>\n";
                 reportstring.append(itemcon + "\n");
+                reportstring.append("\nAttachment Count: " + itemhdr.mid(hfind5+1, itemhdr.length() - hfind5 - 1) + "\n\n");
                 for(int k=0; k < 80; k++)
                     reportstring.append("-");
                 reportstring.append("\n\n");
