@@ -132,8 +132,15 @@ long WombatMail::CreateNewTag(FXObject*, FXSelector, void*)
     int found1 = rootstring.find(" (");
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
-    std::cout << "attachmentlist count: " << attachmentlist->getNumItems() << std::endl;
-    FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4) + "\t" + FXString::value(attachmentlist->getNumItems());
+    //std::cout << "attachmentlist count: " << attachmentlist->getNumItems() << std::endl;
+    FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4) + "\t";
+    if(attachmentlist->getNumItems() == 1)
+    {
+        if(attachmentlist->getItemText(0).contains("No attachments"))
+            idkeyvalue += "0";
+        else
+            idkeyvalue += FXString::value(attachmentlist->getNumItems());
+    }
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
@@ -153,8 +160,15 @@ long WombatMail::RemoveTag(FXObject*, FXSelector, void*)
     int found1 = rootstring.find(" (");
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
-    std::cout << "attachmentlist count: " << attachmentlist->getNumItems() << std::endl;
-    FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4) + "\t" + attachmentlist->getNumItems();
+    //std::cout << "attachmentlist count: " << attachmentlist->getNumItems() << std::endl;
+    FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4) + "\t";
+    if(attachmentlist->getNumItems() == 1)
+    {
+        if(attachmentlist->getItemText(0).contains("No attachments"))
+            idkeyvalue += "0";
+        else
+            idkeyvalue += FXString::value(attachmentlist->getNumItems());
+    }
     for(int i=0; i < taggedlist.no(); i++)
     {
         if(taggedlist.at(i).contains(idkeyvalue))
@@ -950,7 +964,7 @@ long WombatMail::PublishReport(FXObject*, FXSelector, void*)
                         //buf += "<div>Subject:&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind4+1, taggedlist.at(j).length() - hfind4 - 1) + "</div>\n<br/>\n";
                         buf += "<div><pre>" + itemcon + "</pre></div><br/>\n";
                         buf += "<div>Attachment Count:&nbps;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind5+1, taggedlist.at(j).length() - hfind5 - 1) + "</div>\n";
-                        //buf += "<div>Subject:&nbsp;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind4+1, taggedlist.at(j).length() - hfind4 - 1) + "</div>\n<br/>\n";
+                        // NEED TO LIST AND LINK ATTACHMENTS HERE..
                         buf += "</div>\n";
                     }
                 }
@@ -961,10 +975,10 @@ long WombatMail::PublishReport(FXObject*, FXSelector, void*)
         {
             GenerateReport(taggedlist, tags);
             buf = reportstring;
-            ExportAttachments();
         }
         outfile->writeBlock(buf.text(), buf.length());
         outfile->close();
+        ExportAttachments();
     }
     return 1;
 }
@@ -1438,7 +1452,7 @@ long WombatMail::SetTag(FXObject* sender, FXSelector, void*)
     int found1 = rootstring.find(" (");
     int found2 = rootstring.find(")");
     mailboxpath = rootstring.mid(found1 + 2, found2 - found1 - 2) + rootstring.mid(0, found1);
-    std::cout << "attachmentlist count: " << attachmentlist->getNumItems() << std::endl;
+    //std::cout << "attachmentlist count: " << attachmentlist->getNumItems() << std::endl;
     FXString idkeyvalue = mailboxpath + "\t" + curitem->getText() + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 2) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 3) + "\t" + tablelist->getItemText(tablelist->getCurrentRow(), 4) + "\t";
     if(attachmentlist->getNumItems() == 1)
     {
@@ -1446,7 +1460,6 @@ long WombatMail::SetTag(FXObject* sender, FXSelector, void*)
             idkeyvalue += "0";
         else
             idkeyvalue += FXString::value(attachmentlist->getNumItems());
-
     }
     for(int i=0; i < taggedlist.no(); i++)
     {
@@ -1522,6 +1535,7 @@ void WombatMail::GenerateReport(FXArray<FXString> taggedlist, std::vector<std::s
                 //buf += "<div>Attachment Count:&nbps;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind5+1, taggedlist.at(j).length() - hfind5 - 1) + "</div>\n";
                 reportstring.append(itemcon + "\n");
                 reportstring.append("\nAttachment Count: " + itemhdr.mid(hfind5+1, itemhdr.length() - hfind5 - 1) + "\n\n");
+                // NEED TO LIST ATTACHMENTS HERE
                 for(int k=0; k < 80; k++)
                     reportstring.append("-");
                 reportstring.append("\n\n");
