@@ -25,10 +25,10 @@
 #define VMIME_UTILITY_ENCODER_ENCODER_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
-#include "vmime/propertySet.hpp"
-#include "vmime/exception.hpp"
-#include "vmime/utility/progressListener.hpp"
+#include "../../../vmime/base.hpp"
+#include "../../../vmime/propertySet.hpp"
+#include "../../../vmime/exception.hpp"
+#include "../../../vmime/utility/progressListener.hpp"
 
 
 namespace vmime {

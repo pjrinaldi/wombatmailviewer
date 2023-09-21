@@ -25,7 +25,7 @@
 #define VMIME_PATH_HPP_INCLUDED
 
 
-#include "vmime/headerFieldValue.hpp"
+#include "../vmime/headerFieldValue.hpp"
 
 
 namespace vmime {

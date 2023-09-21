@@ -25,8 +25,8 @@
 #define VMIME_MESSAGE_HPP_INCLUDED
 
 
-#include "vmime/bodyPart.hpp"
-#include "vmime/generationContext.hpp"
+#include "../vmime/bodyPart.hpp"
+#include "../vmime/generationContext.hpp"
 
 
 namespace vmime {

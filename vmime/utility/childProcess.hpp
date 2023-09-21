@@ -25,8 +25,8 @@
 #define VMIME_UTILITY_CHILDPROCESS_HPP_INCLUDED
 
 
-#include "vmime/utility/stream.hpp"
-#include "vmime/utility/file.hpp"
+#include "../../vmime/utility/stream.hpp"
+#include "../../vmime/utility/file.hpp"
 
 #include <vector>
 

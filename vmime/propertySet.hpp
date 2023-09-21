@@ -30,10 +30,10 @@
 #include <algorithm>
 #include <sstream>
 
-#include "vmime/base.hpp"
-#include "vmime/exception.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/exception.hpp"
 
-#include "vmime/utility/stringUtils.hpp"
+#include "../vmime/utility/stringUtils.hpp"
 
 
 namespace vmime {

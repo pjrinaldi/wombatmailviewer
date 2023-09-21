@@ -25,7 +25,7 @@
 #define VMIME_STREAMCONTENTHANDLER_HPP_INCLUDED
 
 
-#include "vmime/contentHandler.hpp"
+#include "../vmime/contentHandler.hpp"
 
 
 namespace vmime {

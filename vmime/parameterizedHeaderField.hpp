@@ -25,10 +25,10 @@
 #define VMIME_PARAMETERIZEDHEADERFIELD_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
-#include "vmime/headerFieldFactory.hpp"
-#include "vmime/parameter.hpp"
-#include "vmime/exception.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/headerFieldFactory.hpp"
+#include "../vmime/parameter.hpp"
+#include "../vmime/exception.hpp"
 
 
 namespace vmime {

@@ -25,9 +25,9 @@
 #define VMIME_MAILBOXGROUP_HPP_INCLUDED
 
 
-#include "vmime/address.hpp"
-#include "vmime/mailbox.hpp"
-#include "vmime/text.hpp"
+#include "../vmime/address.hpp"
+#include "../vmime/mailbox.hpp"
+#include "../vmime/text.hpp"
 
 
 namespace vmime {

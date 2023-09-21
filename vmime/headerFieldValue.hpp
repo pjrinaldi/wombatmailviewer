@@ -25,8 +25,8 @@
 #define VMIME_HEADERFIELDVALUE_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
-#include "vmime/component.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/component.hpp"
 
 
 namespace vmime {

@@ -27,9 +27,9 @@
 
 #include <stdexcept>
 
-#include "vmime/config.hpp"
-#include "vmime/base.hpp"
-#include "vmime/utility/path.hpp"
+#include "../vmime/config.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/utility/path.hpp"
 
 
 namespace vmime {

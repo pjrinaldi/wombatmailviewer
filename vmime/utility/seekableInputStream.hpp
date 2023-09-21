@@ -25,7 +25,7 @@
 #define VMIME_UTILITY_SEEKABLEINPUTSTREAM_HPP_INCLUDED
 
 
-#include "vmime/utility/inputStream.hpp"
+#include "../../vmime/utility/inputStream.hpp"
 
 
 namespace vmime {

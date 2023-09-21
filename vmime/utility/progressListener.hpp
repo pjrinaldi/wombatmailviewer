@@ -25,8 +25,8 @@
 #define VMIME_UTILITY_PROGRESSLISTENER_HPP_INCLUDED
 
 
-#include "vmime/config.hpp"
-#include "vmime/types.hpp"
+#include "../../vmime/config.hpp"
+#include "../../vmime/types.hpp"
 
 
 namespace vmime {

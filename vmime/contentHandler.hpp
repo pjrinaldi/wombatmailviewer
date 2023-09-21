@@ -27,10 +27,10 @@
 
 #include <limits>
 
-#include "vmime/base.hpp"
-#include "vmime/utility/progressListener.hpp"
-#include "vmime/encoding.hpp"
-#include "vmime/mediaType.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/utility/progressListener.hpp"
+#include "../vmime/encoding.hpp"
+#include "../vmime/mediaType.hpp"
 
 
 namespace vmime {

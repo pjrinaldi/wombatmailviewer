@@ -25,7 +25,7 @@
 #define VMIME_PLAINTEXTPART_HPP_INCLUDED
 
 
-#include "vmime/textPart.hpp"
+#include "../vmime/textPart.hpp"
 
 
 namespace vmime {

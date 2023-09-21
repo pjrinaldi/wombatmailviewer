@@ -25,11 +25,11 @@
 #define VMIME_TEXTPART_HPP_INCLUDED
 
 
-#include "vmime/bodyPart.hpp"
+#include "../vmime/bodyPart.hpp"
 
-#include "vmime/mediaType.hpp"
-#include "vmime/charset.hpp"
-#include "vmime/contentHandler.hpp"
+#include "../vmime/mediaType.hpp"
+#include "../vmime/charset.hpp"
+#include "../vmime/contentHandler.hpp"
 
 
 namespace vmime {

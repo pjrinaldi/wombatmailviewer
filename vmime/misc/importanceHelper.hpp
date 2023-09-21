@@ -25,7 +25,7 @@
 #define VMIME_MISC_IMPORTANCEHELPER_HPP_INCLUDED
 
 
-#include "vmime/message.hpp"
+#include "../../vmime/message.hpp"
 
 
 namespace vmime {

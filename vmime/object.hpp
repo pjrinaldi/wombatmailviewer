@@ -25,7 +25,7 @@
 #define VMIME_OBJECT_HPP_INCLUDED
 
 
-#include "vmime/types.hpp"
+#include "../vmime/types.hpp"
 
 
 namespace vmime {

@@ -25,8 +25,8 @@
 #define VMIME_MESSAGEATTACHMENT_HPP_INCLUDED
 
 
-#include "vmime/attachment.hpp"
-#include "vmime/message.hpp"
+#include "../vmime/attachment.hpp"
+#include "../vmime/message.hpp"
 
 
 namespace vmime {

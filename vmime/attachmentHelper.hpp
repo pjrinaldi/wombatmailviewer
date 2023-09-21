@@ -25,10 +25,10 @@
 #define VMIME_ATTACHMENTHELPER_HPP_INCLUDED
 
 
-#include "vmime/config.hpp"
+#include "../vmime/config.hpp"
 
-#include "vmime/attachment.hpp"
-#include "vmime/message.hpp"
+#include "../vmime/attachment.hpp"
+#include "../vmime/message.hpp"
 
 
 namespace vmime {

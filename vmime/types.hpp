@@ -33,7 +33,7 @@
 #include <utility>
 #include <memory>
 
-#include "vmime/config.hpp"
+#include "../vmime/config.hpp"
 
 
 #ifndef VMIME_BUILDING_DOC
@@ -81,7 +81,7 @@ namespace vmime {
 }
 
 
-#include "vmime/object.hpp"
+#include "../vmime/object.hpp"
 
 
 #endif // VMIME_TYPES_HPP_INCLUDED

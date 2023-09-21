@@ -27,9 +27,9 @@
 
 // Define VMIME_STATIC if you are linking with the static library
 #ifdef VMIME_STATIC
-#	include "vmime/export-static.hpp"
+#	include "../vmime/export-static.hpp"
 #else
-#	include "vmime/export-shared.hpp"
+#	include "../vmime/export-shared.hpp"
 #endif
 
 

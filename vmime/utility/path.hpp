@@ -27,8 +27,8 @@
 
 #include <vector>
 
-#include "vmime/types.hpp"
-#include "vmime/word.hpp"
+#include "../../vmime/types.hpp"
+#include "../../vmime/word.hpp"
 
 
 namespace vmime {

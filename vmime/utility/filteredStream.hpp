@@ -27,8 +27,8 @@
 
 #include <algorithm>
 
-#include "vmime/utility/inputStream.hpp"
-#include "vmime/utility/outputStream.hpp"
+#include "../../vmime/utility/inputStream.hpp"
+#include "../../vmime/utility/outputStream.hpp"
 
 
 namespace vmime {

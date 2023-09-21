@@ -25,8 +25,8 @@
 #define VMIME_UTILITY_ENCODER_ENCODERFACTORY_HPP_INCLUDED
 
 
-#include "vmime/utility/encoder/encoder.hpp"
-#include "vmime/utility/stringUtils.hpp"
+#include "../../../vmime/utility/encoder/encoder.hpp"
+#include "../../../vmime/utility/stringUtils.hpp"
 
 
 namespace vmime {

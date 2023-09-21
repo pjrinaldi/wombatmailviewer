@@ -25,9 +25,9 @@
 #define VMIME_SECURITY_DIGEST_MESSAGEDIGESTFACTORY_HPP_INCLUDED
 
 
-#include "vmime/types.hpp"
-#include "vmime/security/digest/messageDigest.hpp"
-#include "vmime/utility/stringUtils.hpp"
+#include "../../../vmime/types.hpp"
+#include "../../../vmime/security/digest/messageDigest.hpp"
+#include "../../../vmime/utility/stringUtils.hpp"
 
 
 namespace vmime {

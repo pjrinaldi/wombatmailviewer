@@ -25,7 +25,7 @@
 #define VMIME_PARSINGCONTEXT_HPP_INCLUDED
 
 
-#include "vmime/context.hpp"
+#include "../vmime/context.hpp"
 
 
 namespace vmime {

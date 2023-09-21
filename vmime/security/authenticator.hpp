@@ -25,13 +25,13 @@
 #define VMIME_SECURITY_AUTHENTICATOR_HPP_INCLUDED
 
 
-#include "vmime/config.hpp"
+#include "../../vmime/config.hpp"
 
 
 #if VMIME_HAVE_MESSAGING_FEATURES
 
 
-#include "vmime/types.hpp"
+#include "../../vmime/types.hpp"
 
 
 // Forward declarations

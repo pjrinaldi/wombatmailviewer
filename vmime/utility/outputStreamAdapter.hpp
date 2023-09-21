@@ -25,7 +25,7 @@
 #define VMIME_UTILITY_OUTPUTSTREAMADAPTER_HPP_INCLUDED
 
 
-#include "vmime/utility/outputStream.hpp"
+#include "../../vmime/utility/outputStream.hpp"
 
 #include <ostream>
 

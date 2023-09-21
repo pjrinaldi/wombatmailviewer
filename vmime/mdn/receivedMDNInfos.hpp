@@ -25,11 +25,11 @@
 #define VMIME_MDN_RECEIVEDMDNINFOS_HPP_INCLUDED
 
 
-#include "vmime/mdn/MDNInfos.hpp"
+#include "../../vmime/mdn/MDNInfos.hpp"
 
-#include "vmime/disposition.hpp"
-#include "vmime/messageId.hpp"
-#include "vmime/mailbox.hpp"
+#include "../../vmime/disposition.hpp"
+#include "../../vmime/messageId.hpp"
+#include "../../vmime/mailbox.hpp"
 
 
 namespace vmime {

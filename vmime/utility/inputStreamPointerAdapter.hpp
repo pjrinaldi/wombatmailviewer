@@ -25,7 +25,7 @@
 #define VMIME_UTILITY_INPUTSTREAMPOINTERADAPTER_HPP_INCLUDED
 
 
-#include "vmime/utility/inputStreamAdapter.hpp"
+#include "../../vmime/utility/inputStreamAdapter.hpp"
 
 #include <istream>
 

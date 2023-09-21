@@ -25,16 +25,16 @@
 #define VMIME_BODY_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
-#include "vmime/component.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/component.hpp"
 
-#include "vmime/header.hpp"
+#include "../vmime/header.hpp"
 
-#include "vmime/mediaType.hpp"
-#include "vmime/charset.hpp"
-#include "vmime/encoding.hpp"
+#include "../vmime/mediaType.hpp"
+#include "../vmime/charset.hpp"
+#include "../vmime/encoding.hpp"
 
-#include "vmime/contentHandler.hpp"
+#include "../vmime/contentHandler.hpp"
 
 
 namespace vmime {

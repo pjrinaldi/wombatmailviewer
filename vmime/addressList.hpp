@@ -25,10 +25,10 @@
 #define VMIME_ADDRESSLIST_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
-#include "vmime/headerFieldValue.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/headerFieldValue.hpp"
 
-#include "vmime/address.hpp"
+#include "../vmime/address.hpp"
 
 
 namespace vmime {

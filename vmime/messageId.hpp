@@ -25,8 +25,8 @@
 #define VMIME_MESSAGEID_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
-#include "vmime/headerFieldValue.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/headerFieldValue.hpp"
 
 
 namespace vmime {

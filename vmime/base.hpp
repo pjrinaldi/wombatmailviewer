@@ -32,9 +32,9 @@
 #include <cctype>
 #include <locale>
 
-#include "vmime/config.hpp"
-#include "vmime/types.hpp"
-#include "vmime/constants.hpp"
+#include "../vmime/config.hpp"
+#include "../vmime/types.hpp"
+#include "../vmime/constants.hpp"
 
 
 namespace vmime {
@@ -252,7 +252,7 @@ namespace vmime {
 } // vmime
 
 
-#include "vmime/utility/stream.hpp"
+#include "../vmime/utility/stream.hpp"
 
 
 #endif // VMIME_BASE_HPP_INCLUDED

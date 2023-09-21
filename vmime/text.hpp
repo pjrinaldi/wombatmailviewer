@@ -25,9 +25,9 @@
 #define VMIME_TEXT_HPP_INCLUDED
 
 
-#include "vmime/headerFieldValue.hpp"
-#include "vmime/base.hpp"
-#include "vmime/word.hpp"
+#include "../vmime/headerFieldValue.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/word.hpp"
 
 
 namespace vmime {

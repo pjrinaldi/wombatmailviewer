@@ -27,9 +27,9 @@
 
 #include <sstream>
 
-#include "vmime/config.hpp"
-#include "vmime/types.hpp"
-#include "vmime/base.hpp"
+#include "../../vmime/config.hpp"
+#include "../../vmime/types.hpp"
+#include "../../vmime/base.hpp"
 
 
 namespace vmime {

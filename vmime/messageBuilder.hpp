@@ -25,16 +25,16 @@
 #define VMIME_MESSAGEBUILDER_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
+#include "../vmime/base.hpp"
 
-#include "vmime/mailbox.hpp"
-#include "vmime/addressList.hpp"
-#include "vmime/text.hpp"
-#include "vmime/message.hpp"
-#include "vmime/mediaType.hpp"
-#include "vmime/attachment.hpp"
-#include "vmime/textPart.hpp"
-#include "vmime/bodyPart.hpp"
+#include "../vmime/mailbox.hpp"
+#include "../vmime/addressList.hpp"
+#include "../vmime/text.hpp"
+#include "../vmime/message.hpp"
+#include "../vmime/mediaType.hpp"
+#include "../vmime/attachment.hpp"
+#include "../vmime/textPart.hpp"
+#include "../vmime/bodyPart.hpp"
 
 
 namespace vmime {

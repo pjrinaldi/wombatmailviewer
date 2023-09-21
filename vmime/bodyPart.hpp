@@ -25,11 +25,11 @@
 #define VMIME_BODYPART_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
-#include "vmime/component.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/component.hpp"
 
-#include "vmime/header.hpp"
-#include "vmime/body.hpp"
+#include "../vmime/header.hpp"
+#include "../vmime/body.hpp"
 
 
 namespace vmime {

@@ -25,9 +25,9 @@
 #define VMIME_MDN_SENDABLEMDNINFOS_HPP_INCLUDED
 
 
-#include "vmime/mdn/MDNInfos.hpp"
+#include "../../vmime/mdn/MDNInfos.hpp"
 
-#include "vmime/mailbox.hpp"
+#include "../../vmime/mailbox.hpp"
 
 
 namespace vmime {

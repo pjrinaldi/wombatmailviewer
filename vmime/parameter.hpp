@@ -25,9 +25,9 @@
 #define VMIME_PARAMETER_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
-#include "vmime/component.hpp"
-#include "vmime/word.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/component.hpp"
+#include "../vmime/word.hpp"
 
 
 namespace vmime {

@@ -25,8 +25,8 @@
 #define VMIME_CONTEXT_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
-#include "vmime/charsetConverterOptions.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/charsetConverterOptions.hpp"
 
 
 namespace vmime {

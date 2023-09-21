@@ -25,8 +25,8 @@
 #define VMIME_EMAILADDRESS_HPP_INCLUDED
 
 
-#include "vmime/component.hpp"
-#include "vmime/text.hpp"
+#include "../vmime/component.hpp"
+#include "../vmime/text.hpp"
 
 
 namespace vmime {

@@ -25,16 +25,16 @@
 #define VMIME_MESSAGEPARSER_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
+#include "../vmime/base.hpp"
 
-#include "vmime/message.hpp"
-#include "vmime/attachment.hpp"
+#include "../vmime/message.hpp"
+#include "../vmime/attachment.hpp"
 
-#include "vmime/mailbox.hpp"
-#include "vmime/addressList.hpp"
-#include "vmime/dateTime.hpp"
+#include "../vmime/mailbox.hpp"
+#include "../vmime/addressList.hpp"
+#include "../vmime/dateTime.hpp"
 
-#include "vmime/textPart.hpp"
+#include "../vmime/textPart.hpp"
 
 
 namespace vmime {

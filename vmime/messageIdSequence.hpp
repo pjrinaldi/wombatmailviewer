@@ -25,7 +25,7 @@
 #define VMIME_MESSAGEIDSEQUENCE_HPP_INCLUDED
 
 
-#include "vmime/messageId.hpp"
+#include "../vmime/messageId.hpp"
 
 
 namespace vmime {

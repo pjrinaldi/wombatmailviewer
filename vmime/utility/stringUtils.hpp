@@ -25,8 +25,8 @@
 #define VMIME_UTILITY_STRINGUTILS_HPP_INCLUDED
 
 
-#include "vmime/types.hpp"
-#include "vmime/base.hpp"
+#include "../../vmime/types.hpp"
+#include "../../vmime/base.hpp"
 
 #include <sstream>
 #include <iostream>

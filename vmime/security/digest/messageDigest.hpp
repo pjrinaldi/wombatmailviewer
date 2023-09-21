@@ -25,8 +25,8 @@
 #define VMIME_SECURITY_DIGEST_MESSAGEDIGEST_HPP_INCLUDED
 
 
-#include "vmime/object.hpp"
-#include "vmime/types.hpp"
+#include "../../../vmime/object.hpp"
+#include "../../../vmime/types.hpp"
 
 
 namespace vmime {

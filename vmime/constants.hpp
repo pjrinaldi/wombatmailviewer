@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include "vmime/types.hpp"
+#include "../vmime/types.hpp"
 
 
 // Remove Windows defines of ERROR and WARNING

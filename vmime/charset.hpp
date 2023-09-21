@@ -25,11 +25,11 @@
 #define VMIME_CHARSET_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
-#include "vmime/utility/inputStream.hpp"
-#include "vmime/utility/outputStream.hpp"
-#include "vmime/charsetConverterOptions.hpp"
-#include "vmime/component.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/utility/inputStream.hpp"
+#include "../vmime/utility/outputStream.hpp"
+#include "../vmime/charsetConverterOptions.hpp"
+#include "../vmime/component.hpp"
 
 
 namespace vmime {

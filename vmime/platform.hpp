@@ -25,10 +25,10 @@
 #define VMIME_PLATFORM_HPP_INCLUDED
 
 
-#include "vmime/config.hpp"
-#include "vmime/dateTime.hpp"
-#include "vmime/exception.hpp"
-#include "vmime/charset.hpp"
+#include "../vmime/config.hpp"
+#include "../vmime/dateTime.hpp"
+#include "../vmime/exception.hpp"
+#include "../vmime/charset.hpp"
 
 #if VMIME_HAVE_MESSAGING_FEATURES
 	#include "vmime/net/socket.hpp"
@@ -36,11 +36,11 @@
 #endif
 
 #if VMIME_HAVE_FILESYSTEM_FEATURES
-	#include "vmime/utility/file.hpp"
-	#include "vmime/utility/childProcess.hpp"
+	#include "../vmime/utility/file.hpp"
+	#include "../vmime/utility/childProcess.hpp"
 #endif
 
-#include "vmime/utility/sync/criticalSection.hpp"
+#include "../vmime/utility/sync/criticalSection.hpp"
 
 
 namespace vmime {

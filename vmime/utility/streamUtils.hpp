@@ -25,10 +25,10 @@
 #define VMIME_UTILITY_STREAMUTILS_HPP_INCLUDED
 
 
-#include "vmime/utility/inputStream.hpp"
-#include "vmime/utility/outputStream.hpp"
+#include "../../vmime/utility/inputStream.hpp"
+#include "../../vmime/utility/outputStream.hpp"
 
-#include "vmime/utility/progressListener.hpp"
+#include "../../vmime/utility/progressListener.hpp"
 
 
 namespace vmime {

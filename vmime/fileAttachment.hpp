@@ -25,16 +25,16 @@
 #define VMIME_FILEATTACHMENT_HPP_INCLUDED
 
 
-#include "vmime/config.hpp"
+#include "../vmime/config.hpp"
 
 
 #if VMIME_HAVE_FILESYSTEM_FEATURES
 
 
-#include "vmime/defaultAttachment.hpp"
-#include "vmime/dateTime.hpp"
-#include "vmime/contentHandler.hpp"
-#include "vmime/utility/stream.hpp"
+#include "../vmime/defaultAttachment.hpp"
+#include "../vmime/dateTime.hpp"
+#include "../vmime/contentHandler.hpp"
+#include "../vmime/utility/stream.hpp"
 
 
 namespace vmime {

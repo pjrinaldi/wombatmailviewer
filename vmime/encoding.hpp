@@ -25,10 +25,10 @@
 #define VMIME_ENCODING_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
-#include "vmime/headerFieldValue.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/headerFieldValue.hpp"
 
-#include "vmime/utility/encoder/encoder.hpp"
+#include "../vmime/utility/encoder/encoder.hpp"
 
 
 namespace vmime {

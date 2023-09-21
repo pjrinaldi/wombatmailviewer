@@ -25,18 +25,18 @@
 #define VMIME_SECURITY_SASL_SASLSESSION_HPP_INCLUDED
 
 
-#include "vmime/config.hpp"
+#include "../../../vmime/config.hpp"
 
 
 #if VMIME_HAVE_MESSAGING_FEATURES && VMIME_HAVE_SASL_SUPPORT
 
 
-#include "vmime/types.hpp"
+#include "../../../vmime/types.hpp"
 
-#include "vmime/net/socket.hpp"
+#include "../../../vmime/net/socket.hpp"
 
-#include "vmime/security/sasl/SASLAuthenticator.hpp"
-#include "vmime/security/sasl/SASLMechanism.hpp"
+#include "../../../vmime/security/sasl/SASLAuthenticator.hpp"
+#include "../../../vmime/security/sasl/SASLMechanism.hpp"
 
 
 namespace vmime {

@@ -25,13 +25,13 @@
 #define VMIME_ATTACHMENT_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
+#include "../vmime/base.hpp"
 
-#include "vmime/bodyPart.hpp"
-#include "vmime/mediaType.hpp"
-#include "vmime/text.hpp"
-#include "vmime/contentHandler.hpp"
-#include "vmime/encoding.hpp"
+#include "../vmime/bodyPart.hpp"
+#include "../vmime/mediaType.hpp"
+#include "../vmime/text.hpp"
+#include "../vmime/contentHandler.hpp"
+#include "../vmime/encoding.hpp"
 
 
 namespace vmime {

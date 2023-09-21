@@ -25,13 +25,13 @@
 #define VMIME_COMPONENT_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
-#include "vmime/utility/inputStream.hpp"
-#include "vmime/utility/seekableInputStream.hpp"
-#include "vmime/utility/parserInputStreamAdapter.hpp"
-#include "vmime/utility/outputStream.hpp"
-#include "vmime/generationContext.hpp"
-#include "vmime/parsingContext.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/utility/inputStream.hpp"
+#include "../vmime/utility/seekableInputStream.hpp"
+#include "../vmime/utility/parserInputStreamAdapter.hpp"
+#include "../vmime/utility/outputStream.hpp"
+#include "../vmime/generationContext.hpp"
+#include "../vmime/parsingContext.hpp"
 
 
 namespace vmime {

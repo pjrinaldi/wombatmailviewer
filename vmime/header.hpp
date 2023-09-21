@@ -25,12 +25,12 @@
 #define VMIME_HEADER_HPP_INCLUDED
 
 
-#include "vmime/base.hpp"
-#include "vmime/component.hpp"
-#include "vmime/exception.hpp"
+#include "../vmime/base.hpp"
+#include "../vmime/component.hpp"
+#include "../vmime/exception.hpp"
 
-#include "vmime/headerField.hpp"
-#include "vmime/headerFieldFactory.hpp"
+#include "../vmime/headerField.hpp"
+#include "../vmime/headerFieldFactory.hpp"
 
 
 namespace vmime {

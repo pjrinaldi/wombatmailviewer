@@ -25,8 +25,8 @@
 #define VMIME_MAILBOXFIELD_HPP_INCLUDED
 
 
-#include "vmime/headerField.hpp"
-#include "vmime/mailbox.hpp"
+#include "../vmime/headerField.hpp"
+#include "../vmime/mailbox.hpp"
 
 
 // Hide implementation details from user

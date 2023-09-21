@@ -25,7 +25,7 @@
 #define VMIME_UTILITY_INPUTSTREAMSOCKETADAPTER_HPP_INCLUDED
 
 
-#include "vmime/utility/inputStream.hpp"
+#include "../../vmime/utility/inputStream.hpp"
 
 
 #if VMIME_HAVE_MESSAGING_FEATURES

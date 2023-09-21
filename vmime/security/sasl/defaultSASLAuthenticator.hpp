@@ -25,14 +25,14 @@
 #define VMIME_SECURITY_SASL_DEFAULTSASLAUTHENTICATOR_HPP_INCLUDED
 
 
-#include "vmime/config.hpp"
+#include "../../../vmime/config.hpp"
 
 
 #if VMIME_HAVE_MESSAGING_FEATURES && VMIME_HAVE_SASL_SUPPORT
 
 
-#include "vmime/security/sasl/SASLAuthenticator.hpp"
-#include "vmime/security/defaultAuthenticator.hpp"
+#include "../../../vmime/security/sasl/SASLAuthenticator.hpp"
+#include "../../../vmime/security/defaultAuthenticator.hpp"
 
 
 namespace vmime {

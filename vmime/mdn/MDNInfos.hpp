@@ -25,8 +25,8 @@
 #define VMIME_MDN_MDNINFOS_HPP_INCLUDED
 
 
-#include "vmime/types.hpp"
-#include "vmime/message.hpp"
+#include "../../vmime/types.hpp"
+#include "../../vmime/message.hpp"
 
 
 namespace vmime {

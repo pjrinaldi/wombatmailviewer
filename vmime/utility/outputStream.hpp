@@ -25,7 +25,7 @@
 #define VMIME_UTILITY_OUTPUTSTREAM_HPP_INCLUDED
 
 
-#include "vmime/utility/stream.hpp"
+#include "../../vmime/utility/stream.hpp"
 
 
 #if defined(_MSC_VER) && (_MSC_VER <= 1200)  // VC++6

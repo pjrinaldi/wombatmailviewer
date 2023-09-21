@@ -25,9 +25,9 @@
 #define VMIME_WORD_HPP_INCLUDED
 
 
-#include "vmime/headerFieldValue.hpp"
-#include "vmime/charset.hpp"
-#include "vmime/charsetConverterOptions.hpp"
+#include "../vmime/headerFieldValue.hpp"
+#include "../vmime/charset.hpp"
+#include "../vmime/charsetConverterOptions.hpp"
 
 
 namespace vmime {

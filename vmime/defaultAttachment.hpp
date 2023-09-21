@@ -25,8 +25,8 @@
 #define VMIME_DEFAULTATTACHMENT_HPP_INCLUDED
 
 
-#include "vmime/attachment.hpp"
-#include "vmime/encoding.hpp"
+#include "../vmime/attachment.hpp"
+#include "../vmime/encoding.hpp"
 
 
 namespace vmime {

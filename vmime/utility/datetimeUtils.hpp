@@ -25,7 +25,7 @@
 #define VMIME_DATETIMEUTILS_HPP_INCLUDED
 
 
-#include "vmime/dateTime.hpp"
+#include "../../vmime/dateTime.hpp"
 
 
 namespace vmime {
