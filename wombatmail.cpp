@@ -656,6 +656,18 @@ void WombatMail::GetMimeAttachments(std::string* msg)
 
 void WombatMail::ExportAttachments(void)
 {
+    for(int i=0; i < taggedlist.no(); i++)
+    {
+	std::size_t found = taggedlist.at(i).find("|");
+	std::size_t rfound = taggedlist.at(i).rfind("|");
+	//FXString itemtag = taggedlist.at(i).mid(0, found);
+	FXString itemhdr = taggedlist.at(i).mid(found+1, rfound - found - 1);
+	std::size_t hfind1 = itemhdr.find("\t");
+	std::string filepath = itemhdr.mid(0, hfind1).text();
+	//std::cout << i << ": " << "File Path: " << itemhdr.mid(0, hfind1).text() << std::endl;
+	//reportstring.append("Mail Item:\t" + itemhdr.mid(0, hfind1) + "\n");
+	//std::cout << i << ": " << taggedlist.at(i).text() << std::endl;
+    }
     // need to name attachments 1-actual filename, where 1 is a unique cnt variable so there is no filename overlap
     // for each mail item tagged, need to figure out the attachment count for the item, then get the attachment
     // just like in attachment selected for each attachment. add attachment count to the tagstr/idkeyvalue so i can
@@ -1538,7 +1550,9 @@ void WombatMail::GenerateReport(FXArray<FXString> taggedlist, std::vector<std::s
 		if(itemhdr.mid(hfind5+1, itemhdr.length() - hfind5 - 1).toInt() > 0)
 		{
 		    for(int i=0; i < itemhdr.mid(hfind5+1, itemhdr.length() - hfind5 - 1).toInt(); i++)
-			std::cout << "attach count: " << i << std::endl;
+		    {
+			//std::cout << "attach count: " << i << std::endl;
+		    }
 		}
 		else
 		    std::cout << "didn't work because: " << itemhdr.mid(hfind5+1, itemhdr.length() - hfind5 - 1).toInt() << std::endl;
