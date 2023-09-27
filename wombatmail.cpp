@@ -1535,6 +1535,13 @@ void WombatMail::GenerateReport(FXArray<FXString> taggedlist, std::vector<std::s
                 //buf += "<div>Attachment Count:&nbps;&nbsp;&nbsp;&nbsp;" + itemhdr.mid(hfind5+1, taggedlist.at(j).length() - hfind5 - 1) + "</div>\n";
                 reportstring.append(itemcon + "\n");
                 reportstring.append("\nAttachment Count: " + itemhdr.mid(hfind5+1, itemhdr.length() - hfind5 - 1) + "\n\n");
+		if(itemhdr.mid(hfind5+1, itemhdr.length() - hfind5 - 1).toInt() > 0)
+		{
+		    for(int i=0; i < itemhdr.mid(hfind5+1, itemhdr.length() - hfind5 - 1).toInt(); i++)
+			std::cout << "attach count: " << i << std::endl;
+		}
+		else
+		    std::cout << "didn't work because: " << itemhdr.mid(hfind5+1, itemhdr.length() - hfind5 - 1).toInt() << std::endl;
                 // NEED TO LIST ATTACHMENTS HERE
                 for(int k=0; k < 80; k++)
                     reportstring.append("-");
