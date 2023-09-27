@@ -663,7 +663,21 @@ void WombatMail::ExportAttachments(void)
 	//FXString itemtag = taggedlist.at(i).mid(0, found);
 	FXString itemhdr = taggedlist.at(i).mid(found+1, rfound - found - 1);
 	std::size_t hfind1 = itemhdr.find("\t");
-	std::string filepath = itemhdr.mid(0, hfind1).text();
+	std::string mailboxpath = itemhdr.mid(0, hfind1).text();
+        uint8_t mailboxtype = 0x00;
+	mailboxtype = MailBoxType(mailboxpath);
+	if(mailboxtype == 0x01) // PST
+	{
+	}
+	else if(mailboxtype == 0x02) // MBOX
+	{
+	}
+	else if(mailboxtype == 0x03) // MSG
+	{
+	}
+	else if(mailboxtype == 0x04) // EML
+	{
+	}
 	//std::cout << i << ": " << "File Path: " << itemhdr.mid(0, hfind1).text() << std::endl;
 	//reportstring.append("Mail Item:\t" + itemhdr.mid(0, hfind1) + "\n");
 	//std::cout << i << ": " << taggedlist.at(i).text() << std::endl;
@@ -672,6 +686,8 @@ void WombatMail::ExportAttachments(void)
     // for each mail item tagged, need to figure out the attachment count for the item, then get the attachment
     // just like in attachment selected for each attachment. add attachment count to the tagstr/idkeyvalue so i can
     // get this party started, and that's a small size to add to the attachment.
+    // if it's mbox or pst, i need to figure out how to find the right message to get the attachment for it.
+    // if it's eml or msg, i can just use teh same functions i already call to populate the program
 }
 
 void WombatMail::PopulateEml(FXString mailboxpath)
