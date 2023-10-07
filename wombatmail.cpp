@@ -677,16 +677,16 @@ void WombatMail::ExportAttachments(void)
 	}
 	else if(mailboxtype == 0x04) // EML
 	{
-	    FILE* mailboxfile = fopen(mailboxpath.text(), "r");
+	    FILE* mailboxfile = fopen(mailboxpath.c_str(), "r");
 	    struct stat sb{};
 	    std::string msg;
-	    stat(mailboxpath.text(), &sb);
+	    stat(mailboxpath.c_str(), &sb);
 	    msg.resize(sb.st_size);
 	    fread(const_cast<char*>(msg.data()), sb.st_size, 1, mailboxfile);
 	    fclose(mailboxfile);
 	    //GetMimeAttachments(&msg);
 	    //attachmentlist->clearItems();
-	    vmime::string msgdata = *msg;
+	    vmime::string msgdata = msg;
 	    vmime::shared_ptr<vmime::message> vmsg = vmime::make_shared<vmime::message>();
 	    vmsg->parse(msgdata);
 	    vmime::messageParser vparser(vmsg);
