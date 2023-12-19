@@ -1682,6 +1682,7 @@ int main(int argc, char* argv[])
 
 void WombatMail::GenerateReport(FXArray<FXString> taggedlist, std::vector<std::string> tags)
 {
+    reportstring.clear();
     // PLACE TITLE
     reportstring.append("Wombat Mail Report\n-----------------\n\n");
     // PLACE CONTENTS HEADER
